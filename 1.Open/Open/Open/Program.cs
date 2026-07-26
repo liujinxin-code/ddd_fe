@@ -19,6 +19,7 @@ using System.Text;
 using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseInfrastructureSerilog(builder.Configuration);
 
 // Add services to the container.
 

@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Open.Controllers
 {
     [Authorize]
-    public class UserController(IMediator mediator) : BaseController
+    public class UserController(IMediator mediator, ILogger<UserController> _logger) : BaseController
     {
         /// <summary>
         /// 注册
@@ -45,5 +45,16 @@ namespace Open.Controllers
             var newArgs = CurrentUser.Adapt<LogoutCommand>();
             return await mediator.Send(newArgs);
         }
+        [HttpGet]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status200OK)]
+        public async Task<ApiResult<UserInfoResponse>> GetUserInfoAsync()
+        {
+            var newArgs = CurrentUser.Adapt<GetUserInfoQuery>();
+
+            var userinfo = await mediator.Send(newArgs);
+            _logger.LogWarning("GetUserInfoAsync  用户信息：{@0}", userinfo.Data);
+            return userinfo;
+        }
+
     }
 }

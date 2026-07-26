@@ -48,4 +48,20 @@ namespace Application.User
 
         }
     }
+
+    public class GetUserInfoQueryHandler(ITkUserRepository tkUserRepository) : IRequestHandler<GetUserInfoQuery, ApiResult<UserInfoResponse>>
+    {
+        public async Task<ApiResult<UserInfoResponse>> Handle(GetUserInfoQuery query, CancellationToken ct)
+        {
+            TkUser? user = await tkUserRepository.GetByIdAsync(query.Userid, ct);
+            if (user == null)
+            {
+                throw new BusinessException("用户不存在");
+            }
+            var response = user.Adapt<UserInfoResponse>();
+
+            return ApiResult<UserInfoResponse>.Successed(response);
+
+        }
+    }
 }
