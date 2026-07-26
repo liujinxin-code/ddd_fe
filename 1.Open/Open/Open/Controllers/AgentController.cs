@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Open.Controllers
 {
+    [Authorize(Roles = "User.Agent")]
     public class AgentController(IMediator mediator) : BaseController
     {
         /// <summary>
@@ -17,8 +18,15 @@ namespace Open.Controllers
         /// <param name="cmd"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        [HttpPost, AllowAnonymous]
+        [HttpPost]
         [ProducesResponseType(typeof(ApiResult<LoginResponse>), StatusCodes.Status200OK)]
-        public async Task<ApiResult> CreateChildrenAsync([FromBody] CreateChildrenCommand cmd, CancellationToken ct) => await mediator.Send(cmd, ct);
+        public async Task<ApiResult> CreateChildrenAsync([FromBody] CreateChildrenCommand cmd, CancellationToken ct)
+        {
+            cmd = cmd with
+            {
+                AgentUserid = CurrentUser.Userid
+            };
+            return await mediator.Send(cmd, ct);
+        }
     }
 }

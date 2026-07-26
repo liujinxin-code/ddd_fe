@@ -46,7 +46,7 @@ namespace Open.Middleware
                 ValidationException => ApiResult.Failed(ex.Message),
                 BusinessException => ApiResult.Failed(ex.Message),
                 UnauthorizedAccessException => ApiResult.UnAuth("未登录或登录已失效"),
-                _ => ApiResult.Failed("服务器内部错误")
+                _ => ApiResult.Error("服务器内部错误")
             };
             context.Response.StatusCode = result.Code;
             return context.Response.WriteAsJsonAsync(result);

@@ -20,8 +20,10 @@ namespace Application.Events.User
             RuleLevelCascadeMode = CascadeMode.Stop;   // 同一字段内：第一条规则挂了就不再检查该字段的后续规则
 
             RuleFor(x => x.username)
-                .NotEmpty().WithMessage("姓名不能为空")
-                .MaximumLength(50).WithMessage("姓名长度不能超过 50 字符");
+         .NotEmpty().WithMessage("用户名不能为空")
+         .MaximumLength(50).WithMessage("用户名长度不能超过 50 字符")
+         .Matches(@"^[A-Za-z]+$")
+ .WithMessage("用户名只能包含英文字母");
 
             RuleFor(x => x.email)
                 .NotEmpty().WithMessage("邮箱不能为空")
