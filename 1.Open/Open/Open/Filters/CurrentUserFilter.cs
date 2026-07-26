@@ -7,38 +7,42 @@ using System.Security.Claims;
 
 namespace Open.Filters
 {
-    /// <summary>
-    /// 在每个 action 执行前，从已认证的 HttpContext.User 中解析出当前登录用户，
-    /// 写入 BaseController.CurrentUser，供各接口直接使用。
-    /// 通过 Program.cs 中 AddControllers(o => o.Filters.Add&lt;CurrentUserFilter&gt;()) 全局注册。
-    /// </summary>
-    public class CurrentUserFilter : IActionFilter
+    public class CurrentUserFilter : IAsyncActionFilter
     {
-        public void OnActionExecuting(ActionExecutingContext context)
+        public async Task OnActionExecutionAsync(
+            ActionExecutingContext context,
+            ActionExecutionDelegate next)
         {
             // 只对继承自 BaseController 的控制器生效
             if (context.Controller is not BaseController ctrl)
+            {
+                await next();
                 return;
+            }
 
             var user = context.HttpContext.User;
             if (user.Identity?.IsAuthenticated != true)
+            {
+                await next();
                 return;
+            }
 
             long.TryParse(
-                user.FindFirstValue(ClaimTypes.NameIdentifier) ?? user.FindFirstValue("sub"),
-                out long userid);
+                user.FindFirstValue(ClaimTypes.NameIdentifier) ??
+                user.FindFirstValue("sub"),
+                out long userId);
 
             ctrl.CurrentUser = new CurrentUser
             {
-                Userid = userid,
-                Username = user.FindFirstValue(ClaimTypes.Name) ?? user.FindFirstValue("name")!,
-                Jti = user.FindFirstValue(JwtRegisteredClaimNames.Jti) ?? user.FindFirstValue("jti")!
+                Userid = userId,
+                Username = user.FindFirstValue(ClaimTypes.Name) ??
+                           user.FindFirstValue("name")!,
+                Jti = user.FindFirstValue(JwtRegisteredClaimNames.Jti) ??
+                      user.FindFirstValue("jti")!
             };
-        }
 
-        public void OnActionExecuted(ActionExecutedContext context)
-        {
-            // 无需处理
+            // 继续执行后续 pipeline
+            await next();
         }
     }
 }

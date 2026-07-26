@@ -7,7 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.User.Contracts.Queries
+namespace Application.Events.User.Contracts.Queries
 {
-    public record LoginQuery(string name, string password) : IRequest<ApiResult<LoginResponse>>;
+    public record class GetUserInfoQuery(long Userid) : IRequest<ApiResult<UserInfoResponse>>
+    {
+    }
 }

@@ -1,5 +1,5 @@
 ﻿using Application.Abstractions;
-using Application.User.Contracts;
+using Application.Events.User.Contracts;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;

@@ -1,5 +1,5 @@
-﻿using Application.User.Contracts.Commands;
-using Application.User.Contracts.Queries;
+﻿using Application.Events.User.Contracts.Commands;
+using Application.Events.User.Contracts.Queries;
 using FluentValidation;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.User
+namespace Application.Events.User
 {
     /// <summary>
     /// CreateUserCommand 的参数校验（校验「命令」而非「实体」）

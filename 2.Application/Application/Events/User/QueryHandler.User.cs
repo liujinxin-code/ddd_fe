@@ -1,23 +1,15 @@
-﻿using Application.Abstractions;
-using Application.Abstractions.Auth;
+﻿using Application.Abstractions.Auth;
 using Application.Abstractions.Passwords;
 using Application.Common.Models;
 using Application.Common.Models.User;
-using Application.User.Contracts;
-using Application.User.Contracts.Commands;
-using Application.User.Contracts.Queries;
+using Application.Events.User.Contracts;
+using Application.Events.User.Contracts.Queries;
 using Domain.Entities;
-using Domain.Enums;
 using Mapster;
 using MediatR;
 using Shared.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Application.User
+namespace Application.Events.User
 {
     public class LoginQueryHandler(
         ITkUserRepository tkUserRepository

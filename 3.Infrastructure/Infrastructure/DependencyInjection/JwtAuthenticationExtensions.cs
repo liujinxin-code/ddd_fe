@@ -1,5 +1,5 @@
 ﻿using Application.Abstractions.Auth;
-using Application.User.Contracts;
+using Application.Events.User.Contracts;
 using Infrastructure.Common.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;

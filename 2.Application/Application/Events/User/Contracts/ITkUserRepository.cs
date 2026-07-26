@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.User.Contracts
+namespace Application.Events.User.Contracts
 {
     public interface ITkUserRepository : IRepository<TkUser>
     {

@@ -12,7 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="User\Services\" />
+    <Folder Include="Events\Agent\Contracts\Queries\" />
+    <Folder Include="Events\User\Services\" />
   </ItemGroup>
 
   <ItemGroup>

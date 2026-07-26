@@ -1,6 +1,4 @@
 ﻿using Application.Abstractions;
-using Application.User.Contracts;
-using Application.User.Contracts.Commands;
 using Domain.Entities;
 using Mapster;
 using MediatR;
@@ -15,8 +13,10 @@ using Shared.Exceptions;
 using Application.Abstractions.Auth;
 using Application.Abstractions.Passwords;
 using Application.Common.Models;
+using Application.Events.User.Contracts;
+using Application.Events.User.Contracts.Commands;
 
-namespace Application.User
+namespace Application.Events.User
 {
     public class RegisterCommandHandler(
         ITkUserRepository tkUserRepository

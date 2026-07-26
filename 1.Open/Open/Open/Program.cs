@@ -1,22 +1,8 @@
-using Application.Abstractions.Auth;
-using Application.Common.Models;
 using Application.DependencyInjection;
-using Application.User.Contracts;
 using Infrastructure.DependencyInjection;
-using Infrastructure.Persistence;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Open.Filters;
 using Open.Middleware;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseInfrastructureSerilog(builder.Configuration);

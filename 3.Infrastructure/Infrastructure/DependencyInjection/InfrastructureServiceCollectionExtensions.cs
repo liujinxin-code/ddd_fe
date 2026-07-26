@@ -2,7 +2,7 @@
 using Application.Abstractions.Auth;
 using Application.Abstractions.Caching;
 using Application.Abstractions.Passwords;
-using Application.User.Contracts;
+using Application.Events.User.Contracts;
 using Infrastructure.Common.Auth;
 using Infrastructure.Common.Caching;
 using Infrastructure.Common.Passwords;

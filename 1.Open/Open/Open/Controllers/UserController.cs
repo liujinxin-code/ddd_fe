@@ -1,8 +1,8 @@
 using Application.Common.Models;
 using Application.Common.Models;
 using Application.Common.Models.User;
-using Application.User.Contracts.Commands;
-using Application.User.Contracts.Queries;
+using Application.Events.User.Contracts.Commands;
+using Application.Events.User.Contracts.Queries;
 using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -45,8 +45,12 @@ namespace Open.Controllers
             var newArgs = CurrentUser.Adapt<LogoutCommand>();
             return await mediator.Send(newArgs);
         }
+        /// <summary>
+        /// 获取用户个人信息
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
-        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResult<GetUserInfoQuery>), StatusCodes.Status200OK)]
         public async Task<ApiResult<UserInfoResponse>> GetUserInfoAsync()
         {
             var newArgs = CurrentUser.Adapt<GetUserInfoQuery>();
