@@ -2,8 +2,8 @@
 using Application.Abstractions.Auth;
 using Application.Abstractions.Caching;
 using Application.Abstractions.Passwords;
+using Application.Abstractions.Repositories;
 using Application.Events.Agent.Contracts;
-using Application.Events.User.Contracts;
 using Infrastructure.Common.Auth;
 using Infrastructure.Common.Caching;
 using Infrastructure.Common.Passwords;
@@ -51,11 +51,11 @@ namespace Infrastructure.DependencyInjection
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ITkUserRepository, TkUserRepository>();
+            services.AddScoped<IConsumeLogRepository, ConsumeLogRepository>();
 
             services.AddScoped<IPasswordHelper, PasswordHelper>();
             services.AddScoped<ITokenCacheService, TokenCacheService>();
             services.AddScoped<IJwtHelper, JwtHelper>();
-            services.AddScoped<IAgentRepository, AgentRepository>();
 
             return services;
 

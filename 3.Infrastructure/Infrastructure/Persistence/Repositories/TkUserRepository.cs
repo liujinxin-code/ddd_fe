@@ -1,5 +1,5 @@
 ﻿using Application.Abstractions;
-using Application.Events.User.Contracts;
+using Application.Abstractions.Repositories;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -22,7 +22,7 @@ namespace Infrastructure.Persistence.Repositories
         }
         public async Task<TkUser?> GetByIdAsync(long id, CancellationToken ct = default)
         {
-            return await appDbContext.TkUsers.AsNoTracking().FirstOrDefaultAsync(t => t.Userid == id, ct);
+            return await appDbContext.TkUsers.FirstOrDefaultAsync(t => t.Userid == id, ct);
         }
         /// <summary>
         /// 通过代理域名获取代理

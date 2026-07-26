@@ -1,8 +1,8 @@
 ﻿using Application.Abstractions.Auth;
 using Application.Abstractions.Passwords;
+using Application.Abstractions.Repositories;
 using Application.Common.Models;
 using Application.Common.Models.User;
-using Application.Events.User.Contracts;
 using Application.Events.User.Contracts.Queries;
 using Domain.Entities;
 using Mapster;

@@ -13,8 +13,8 @@ using Shared.Exceptions;
 using Application.Abstractions.Auth;
 using Application.Abstractions.Passwords;
 using Application.Common.Models;
-using Application.Events.User.Contracts;
 using Application.Events.User.Contracts.Commands;
+using Application.Abstractions.Repositories;
 
 namespace Application.Events.User
 {

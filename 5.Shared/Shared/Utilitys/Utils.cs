@@ -16,5 +16,25 @@ namespace Shared.Utilitys
             return hashString;
         }
 
+        /// <summary>
+        /// 生成唯一序列号
+        /// </summary>
+        /// <returns></returns>
+        public static string GenerateSerialNo(int length = 24, string serailNoPre = "")
+        {
+            int no = 22;
+            if (length < 24)
+            {
+                throw new Exception("请输入24或以上的序列号长度");
+            }
+            string value = "";
+            int count = length - no;
+            for (int i = 0; i < count; i++)
+            {
+                value = value + (char)new Random(Guid.NewGuid().GetHashCode()).Next(65, 91);
+            }
+            var orderNo = $"{serailNoPre}{DateTime.Now:yyMMddHHmmssfff}{value}{new Random(Guid.NewGuid().GetHashCode()).Next(1000000, 9999999)}";
+            return orderNo;
+        }
     }
 }

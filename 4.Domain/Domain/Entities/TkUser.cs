@@ -86,5 +86,57 @@ namespace Domain.Entities
         {
             return IsAgent == 1;
         }
+        /// <summary>
+        /// 校验是否为下级用户
+        /// </summary>
+        /// <param name="agentUserid"></param>
+        /// <exception cref="InvalidOperationException"></exception>
+        public void RequiredChildFunc(long agentUserid)
+        {
+            if (AgentUserid != agentUserid)
+            {
+                throw new InvalidOperationException("用户归属不一致！");
+            }
+        }
+        /// <summary>
+        /// 校验是否为代理
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        public void RequiredAgentFunc()
+        {
+            if (!IsAgentFnc())
+            {
+                throw new InvalidOperationException("用户非代理！");
+            }
+        }
+        /// <summary>
+        /// 代理转增余额到下级用户，扣减的UserAmount
+        /// </summary>
+        /// <param name="amount"></param>
+        /// <param name="chilren"></param>
+        /// <exception cref="InvalidOperationException"></exception>
+        public void TransferAmountToChildrenFunc(decimal amount, TkUser chilren)
+        {
+            if (UserAmount <= 0 || UserAmount - amount < 0)
+            {
+                throw new InvalidOperationException("余额不足，无法赠送！");
+            }
+
+            RequiredAgentFunc();
+            chilren.RequiredChildFunc(Userid);
+            UserAmount -= amount;
+            chilren.UserAmount += amount;
+            Touch();
+            chilren.Touch();
+
+        }
+        /// <summary>
+        /// 每次修改用户核心信息时递增版本号。
+        /// 后续如果需要乐观锁或缓存版本校验，可以复用该字段。
+        /// </summary>
+        private void Touch()
+        {
+            UserVersion++;
+        }
     }
 }

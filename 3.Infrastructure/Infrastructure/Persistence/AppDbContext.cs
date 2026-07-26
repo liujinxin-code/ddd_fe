@@ -16,6 +16,7 @@ namespace Infrastructure.Persistence
     {
         //数据库表集合
         public DbSet<TkUser> TkUsers => Set<TkUser>();
+        public DbSet<ConsumeLog> ConsumeLogs => Set<ConsumeLog>();
         /// <summary>
         /// 使用 Fluent API 显式映射数据库字段。
         /// 这样领域实体可以使用 C# 风格命名，不必被数据库下划线字段名污染。
@@ -39,13 +40,26 @@ namespace Infrastructure.Persistence
                 entity.Property(x => x.AgentDomain).HasColumnName("agent_domain");
                 entity.Property(x => x.Createby).HasColumnName("createby");
                 entity.Property(x => x.ApiKey).HasColumnName("api_key");
-                entity.Property(x => x.UserVersion).HasColumnName("user_version");
+                entity.Property(x => x.UserVersion).HasColumnName("user_version").IsConcurrencyToken();
                 entity.Property(x => x.IsDelete).HasColumnName("is_delete");
                 entity.Property(x => x.CreateTime).HasColumnName("create_time");
                 entity.Property(x => x.SignleClient).HasColumnName("signle_client");
 
                 entity.HasIndex(x => x.Username).IsUnique().HasDatabaseName("ux_username");
                 entity.HasIndex(x => x.Email).IsUnique().HasDatabaseName("ux_email");
+            });
+
+            modelBuilder.Entity<ConsumeLog>(entity =>
+            {
+                entity.ToTable("tk_consumelog");
+                entity.HasKey(x => x.ConsumeId);
+                entity.Property(x => x.ConsumeId).HasColumnName("consume_id");
+                entity.Property(x => x.BeforeAmount).HasColumnName("ago_amount").HasPrecision(10, 6);
+                entity.Property(x => x.AfterAmount).HasColumnName("after_amount").HasPrecision(10, 6);
+                entity.Property(x => x.ConsumeStatus).HasColumnName("consume_status").HasConversion<int>();
+                entity.Property(x => x.ConsumeNo).HasColumnName("consume_no").HasMaxLength(255);
+                entity.Property(x => x.UserId).HasColumnName("userid");
+                entity.Property(x => x.CreateTime).HasColumnName("create_time");
             });
         }
     }
