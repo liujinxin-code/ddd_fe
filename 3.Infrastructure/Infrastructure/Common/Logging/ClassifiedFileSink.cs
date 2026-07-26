@@ -15,11 +15,14 @@ namespace Infrastructure.Common.Logging
         private static readonly ConcurrentDictionary<string, object> FileLocks = new();
         private readonly IFormatProvider? _formatProvider;
         private readonly string _logRootPath;
+        private readonly int _retentionDays;
 
-        public ClassifiedFileSink(string applicationRootPath, IFormatProvider? formatProvider = null)
+        public ClassifiedFileSink(string applicationRootPath, IFormatProvider? formatProvider = null, int retentionDays = 7)
         {
             _formatProvider = formatProvider;
             _logRootPath = Path.Combine(applicationRootPath);
+            _retentionDays = retentionDays;
+            CleanupOldLogs();
         }
 
         public void Emit(LogEvent logEvent)
@@ -89,6 +92,45 @@ namespace Infrastructure.Common.Logging
             }
 
             return builder.ToString();
+        }
+
+        /// <summary>
+        /// 删除超过保留天数的历史日志文件（在 sink 构造时执行一次）。
+        /// </summary>
+        private void CleanupOldLogs()
+        {
+            if (_retentionDays <= 0)
+            {
+                return;
+            }
+
+            try
+            {
+                var cutoff = DateTime.Now.AddDays(-_retentionDays);
+                if (!Directory.Exists(_logRootPath))
+                {
+                    return;
+                }
+
+                foreach (var file in Directory.EnumerateFiles(_logRootPath, "*.log", SearchOption.AllDirectories))
+                {
+                    try
+                    {
+                        if (File.GetLastWriteTime(file) < cutoff)
+                        {
+                            File.Delete(file);
+                        }
+                    }
+                    catch
+                    {
+                        // 文件可能被占用，跳过，下次启动再尝试清理
+                    }
+                }
+            }
+            catch
+            {
+                // 清理失败不影响正常日志记录
+            }
         }
     }
 }

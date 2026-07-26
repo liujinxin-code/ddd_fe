@@ -9,10 +9,11 @@ namespace Infrastructure.Common.Logging
         public static LoggerConfiguration ClassifiedFile(
             this LoggerSinkConfiguration sinkConfiguration,
             string applicationRootPath,
-            LogEventLevel restrictedToMinimumLevel = LogEventLevel.Warning)
+            LogEventLevel restrictedToMinimumLevel = LogEventLevel.Warning,
+            int retentionDays = 7)
         {
             return sinkConfiguration.Sink(
-                new ClassifiedFileSink(applicationRootPath),
+                new ClassifiedFileSink(applicationRootPath, null, retentionDays),
                 restrictedToMinimumLevel);
         }
     }
