@@ -16,9 +16,9 @@ namespace Infrastructure.Persistence.Repositories
         {
             return await appDbContext.TkUsers.AddAsync(entity, ct) != null;
         }
-        public Task<TkUser?> GetByEmailAsync(string email)
+        public async Task<TkUser?> GetByEmailAsync(string email)
         {
-            throw new NotImplementedException();
+            return await appDbContext.TkUsers.AsNoTracking().FirstOrDefaultAsync(t => t.Email == email);
         }
         public async Task<TkUser?> GetByIdAsync(long id, CancellationToken ct = default)
         {
@@ -75,12 +75,12 @@ namespace Infrastructure.Persistence.Repositories
 
         public void Update(TkUser entity, CancellationToken ct = default)
         {
-            throw new NotImplementedException();
+            appDbContext.TkUsers.Update(entity);
         }
 
         public async Task<TkUser?> GetUserByUserNameOrEmailAsync(string name, CancellationToken ct = default)
         {
-            var user = await appDbContext.TkUsers.AsNoTracking().FirstOrDefaultAsync(t => t.Username == name || t.Email == name, ct);
+            var user = await appDbContext.TkUsers.AsNoTracking().FirstOrDefaultAsync(t => (t.Username == name || t.Email == name) && !t.IsDelete, ct);
             return user;
         }
     }

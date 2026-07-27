@@ -86,6 +86,14 @@ namespace Domain.Entities
         {
             return IsAgent == 1;
         }
+
+        public void RequiredUserStatus()
+        {
+            if (UserStatus != TkUserStatus.Enable)
+            {
+                throw new InvalidOperationException("用户已禁用！");
+            }
+        }
         /// <summary>
         /// 校验是否为下级用户
         /// </summary>

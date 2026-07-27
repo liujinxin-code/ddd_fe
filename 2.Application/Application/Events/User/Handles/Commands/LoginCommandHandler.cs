@@ -32,6 +32,7 @@ namespace Application.Events.User.Handles.Commands
             string password = passwordHelper.GeneratePasswordHash(query.password);
             if (user.Password != password)
                 throw new BusinessException("账户或密码错误");
+            user.RequiredUserStatus();
             (string, string) tokenRes = jwtHelper.GenerateToken(user.Userid, user.Username, [user.IsAgentFnc() ? "User.Agent" : "User"]);
 
             await tokenCacheService.SetTokenAsync(tokenRes.Item2, user.Userid, user.SignleClient);

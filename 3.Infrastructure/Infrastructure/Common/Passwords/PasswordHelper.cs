@@ -1,4 +1,5 @@
 ﻿using Application.Abstractions.Passwords;
+using Konscious.Security.Cryptography;
 using Microsoft.Extensions.Options;
 using Shared.Utilitys;
 using System;
@@ -11,7 +12,20 @@ namespace Infrastructure.Common.Passwords
 {
     public class PasswordHelper(IOptions<PasswordOptions> options) : IPasswordHelper
     {
-        public string GeneratePasswordHash(string password) => Utils.GetStringToHash(password + options.Value.Salt);
+        public string GeneratePasswordHash(string password)
+        {
+            var salt = Encoding.UTF8.GetBytes(options.Value.Salt);
+            using var argon2 = new Argon2id(Encoding.UTF8.GetBytes(password))
+            {
+                Salt = salt,
+                DegreeOfParallelism = 4,   // ✅ 4 核
+                MemorySize = 65536,        // ✅ 64 MB
+                Iterations = 4
+            };
+
+            var hash = argon2.GetBytes(32);
+            return Convert.ToBase64String(salt.Concat(hash).ToArray());
+        }
 
         public string GenerateRandomPwd()
         {
