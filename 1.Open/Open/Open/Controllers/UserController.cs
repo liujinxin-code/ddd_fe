@@ -1,5 +1,4 @@
 using Application.Common.Models;
-using Application.Common.Models;
 using Application.Common.Models.User;
 using Application.Events.User.Contracts.Commands;
 using Application.Events.User.Contracts.Queries;
