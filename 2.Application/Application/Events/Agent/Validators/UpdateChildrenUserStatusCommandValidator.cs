@@ -18,6 +18,12 @@ namespace Application.Events.Agent.Validators
             RuleFor(x => x.ChildrenUserid)
                 .NotEmpty().WithMessage("下级用户id 不能为空")
                 .GreaterThan(0).WithMessage("用户id必须大于0");
+
+            RuleFor(x => x.UserStatus)
+                .IsInEnum()
+        .WithMessage("UserStatus 只能是 Enable(1) 或 Disable(0)");
+
+
         }
 
     }

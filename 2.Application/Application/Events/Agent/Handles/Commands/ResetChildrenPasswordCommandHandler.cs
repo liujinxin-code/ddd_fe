@@ -27,9 +27,9 @@ namespace Application.Events.Agent.Handles.Commands
             string newPassword = passwordHelper.GenerateRandomPwd();
             string newPasswordHash = passwordHelper.GeneratePasswordHash(newPassword);
             var agent = await tkUserRepository.GetByIdAsync(request.AgentUserid, ct);
-            if (agent != null) throw new BusinessException("代理不存在");
+            if (agent == null) throw new BusinessException("代理不存在");
             var children = await tkUserRepository.GetByIdAsync(request.ChildrenUserid, ct);
-            if (children != null) throw new BusinessException("用户不存在");
+            if (children == null) throw new BusinessException("用户不存在");
 
             agent!.ResetChildrenPasswordFunc(children!, newPasswordHash);
             //TODO 增加数据库日志
