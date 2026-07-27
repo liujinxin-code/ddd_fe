@@ -125,6 +125,8 @@ namespace Domain.Entities
         /// <exception cref="InvalidOperationException"></exception>
         public void TransferAmountToChildrenFunc(decimal amount, TkUser chilren)
         {
+            if (amount <= 0) throw new InvalidOperationException("转赠金额必须大于 0");
+
             if (UserAmount <= 0 || UserAmount - amount < 0)
             {
                 throw new InvalidOperationException("余额不足，无法赠送！");
