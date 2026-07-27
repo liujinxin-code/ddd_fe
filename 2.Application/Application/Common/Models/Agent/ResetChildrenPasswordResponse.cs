@@ -4,9 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Events.Agent
+namespace Application.Common.Models.Agent
 {
-    internal class QueryHandler
-    {
-    }
+    public record class ResetChildrenPasswordResponse(string Password);
 }

@@ -1,27 +1,24 @@
 ﻿using Application.Abstractions;
+using Application.Abstractions.Passwords;
+using Application.Abstractions.Repositories;
+using Application.Common.Models;
+using Application.Events.User.Contracts.Commands;
 using Domain.Entities;
-using Mapster;
+using Domain.Enums;
 using MediatR;
+using Shared.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Domain.Enums;
-using Shared.Utilitys;
-using Shared.Exceptions;
-using Application.Abstractions.Auth;
-using Application.Abstractions.Passwords;
-using Application.Common.Models;
-using Application.Events.User.Contracts.Commands;
-using Application.Abstractions.Repositories;
 
-namespace Application.Events.User
+namespace Application.Events.User.Handles.Commands
 {
     public class RegisterCommandHandler(
-        ITkUserRepository tkUserRepository
-        , IUnitOfWork unitOfWork
-        , IPasswordHelper passwordHelper) : IRequestHandler<RegisterCommand, ApiResult>
+     ITkUserRepository tkUserRepository
+     , IUnitOfWork unitOfWork
+     , IPasswordHelper passwordHelper) : IRequestHandler<RegisterCommand, ApiResult>
     {
         // 固定签名：Handle(请求, 取消令牌)
         public async Task<ApiResult> Handle(RegisterCommand cmd, CancellationToken ct)
@@ -53,15 +50,4 @@ namespace Application.Events.User
         }
     }
 
-
-    public class LogoutCommandHandler(ITokenCacheService tokenCacheService
-   ) : IRequestHandler<LogoutCommand, ApiResult>
-    {
-
-        public async Task<ApiResult> Handle(LogoutCommand args, CancellationToken ct)
-        {
-            await tokenCacheService.RemoveTokenAsync(args.Jti, args.Userid);
-            return ApiResult.Successed("退出成功");
-        }
-    }
 }

@@ -22,7 +22,7 @@ namespace Infrastructure.Persistence.Repositories
         }
         public async Task<TkUser?> GetByIdAsync(long id, CancellationToken ct = default)
         {
-            return await appDbContext.TkUsers.FirstOrDefaultAsync(t => t.Userid == id, ct);
+            return await appDbContext.TkUsers.FirstOrDefaultAsync(t => t.Userid == id && !t.IsDelete, ct);
         }
         /// <summary>
         /// 通过代理域名获取代理

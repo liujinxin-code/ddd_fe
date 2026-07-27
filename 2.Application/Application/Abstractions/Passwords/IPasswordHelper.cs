@@ -9,5 +9,10 @@ namespace Application.Abstractions.Passwords
     public interface IPasswordHelper
     {
         string GeneratePasswordHash(string password);
+        /// <summary>
+        /// 生成8位数随机密码
+        /// </summary>
+        /// <returns></returns>
+        string GenerateRandomPwd();
     }
 }

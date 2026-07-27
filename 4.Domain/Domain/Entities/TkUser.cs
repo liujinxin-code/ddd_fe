@@ -93,7 +93,7 @@ namespace Domain.Entities
         /// <exception cref="InvalidOperationException"></exception>
         public void RequiredChildFunc(long agentUserid)
         {
-            if (AgentUserid != agentUserid)
+            if (AgentUserid != agentUserid || IsAgentFnc())
             {
                 throw new InvalidOperationException("用户归属不一致！");
             }
@@ -129,6 +129,30 @@ namespace Domain.Entities
             Touch();
             chilren.Touch();
 
+        }
+
+        /// <summary>
+        /// 重置下级用户密码
+        /// </summary>
+        /// <param name="children"></param>
+        public void ResetChildrenPasswordFunc(TkUser children, string newPassword)
+        {
+            RequiredAgentFunc();
+            children.RequiredChildFunc(Userid);
+            children.Password = newPassword;
+            children.Touch();
+        }
+
+        /// <summary>
+        /// 修改下级用户状态
+        /// </summary>
+        /// <param name="children"></param>
+        public void UpdateChildrenStatusFunc(TkUser children, TkUserStatus tkUserStatus)
+        {
+            RequiredAgentFunc();
+            children.RequiredChildFunc(Userid);
+            children.UserStatus = tkUserStatus;
+            children.Touch();
         }
         /// <summary>
         /// 每次修改用户核心信息时递增版本号。
