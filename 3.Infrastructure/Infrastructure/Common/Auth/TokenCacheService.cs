@@ -43,7 +43,7 @@ namespace Infrastructure.Common.Auth
                     await RemoveTokenAndMemberAsync(memberToken, userid);
                 }
             }
-            var addMember = await cacheService.SetMembersAsync($"tokens:{userid}", jti, TimeSpan.FromDays(7.1));
+            var addMember = await cacheService.SetMembersAsync($"tokens:{userid}", jti, TimeSpan.FromDays(7.01));
             return addToken && addMember;
 
         }

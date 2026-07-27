@@ -9,5 +9,5 @@ using System.Threading.Tasks;
 
 namespace Application.Events.User.Contracts.Queries
 {
-    public record LoginQuery(string name, string password) : IRequest<ApiResult<LoginResponse>>;
+    public record LoginQuery(string Name, string Password) : IRequest<ApiResult<LoginResponse>>;
 }

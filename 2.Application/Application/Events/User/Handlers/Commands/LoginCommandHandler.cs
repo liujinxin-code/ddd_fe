@@ -13,7 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Events.User.Handles.Commands
+namespace Application.Events.User.Handlers.Commands
 {
 
     public class LoginCommandHandler(
@@ -25,11 +25,11 @@ namespace Application.Events.User.Handles.Commands
         // 固定签名：Handle(请求, 取消令牌)
         public async Task<ApiResult<LoginResponse>> Handle(LoginQuery query, CancellationToken ct)
         {
-            string name = query.name.Trim().ToLower();
-            var user = await tkUserRepository.GetUserByUserNameOrEmailAsync(query.name, ct);
+            string name = query.Name.Trim().ToLower();
+            var user = await tkUserRepository.GetUserByUserNameOrEmailAsync(name, ct);
             if (user == null)
                 throw new BusinessException("账户或密码错误");
-            string password = passwordHelper.GeneratePasswordHash(query.password);
+            string password = passwordHelper.GeneratePasswordHash(query.Password);
             if (user.Password != password)
                 throw new BusinessException("账户或密码错误");
             user.RequiredUserStatus();

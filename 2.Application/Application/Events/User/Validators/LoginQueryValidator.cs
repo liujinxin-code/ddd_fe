@@ -16,10 +16,10 @@ namespace Application.Events.User.Validators
             ClassLevelCascadeMode = CascadeMode.Stop;   // 不同字段之间：第一个字段挂了就不再检查后续字段
             RuleLevelCascadeMode = CascadeMode.Stop;   // 同一字段内：第一条规则挂了就不再检查该字段的后续规则
 
-            RuleFor(x => x.name)
+            RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("请传入用户名或邮箱号");
 
-            RuleFor(x => x.password)
+            RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("密码不能为空");
         }
     }

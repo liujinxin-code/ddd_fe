@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Open.Controllers
 {
     [Authorize]
-    public class UserController(IMediator mediator, ILogger<UserController> _logger) : BaseController
+    public class UserController(IMediator mediator) : BaseController
     {
         /// <summary>
         /// 注册
@@ -53,9 +53,7 @@ namespace Open.Controllers
         public async Task<ApiResult<UserInfoResponse>> GetUserInfoAsync()
         {
             var newArgs = CurrentUser.Adapt<GetUserInfoQuery>();
-
             var userinfo = await mediator.Send(newArgs);
-            _logger.LogWarning("GetUserInfoAsync  用户信息：{@0}", userinfo.Data);
             return userinfo;
         }
 

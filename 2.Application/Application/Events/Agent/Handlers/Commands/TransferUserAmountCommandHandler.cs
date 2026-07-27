@@ -5,6 +5,7 @@ using Application.Events.Agent.Contracts.Commands;
 using Domain.Entities;
 using MediatR;
 using Shared.Exceptions;
+using Shared.Utilities;
 using Shared.Utilitys;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Events.Agent.Handles.Commands
+namespace Application.Events.Agent.Handlers.Commands
 {
     public class TransferUserAmountCommandHandler(
             ITkUserRepository tkUserRepository
@@ -38,7 +39,7 @@ namespace Application.Events.Agent.Handles.Commands
                     var childBefore = children.UserAmount;
 
                     agent.TransferAmountToChildrenFunc(cmd.transferAmount, children);
-                    string serailNo = Utils.GenerateSerialNo(serailNoPre: "C");
+                    string serailNo = Utils.GenerateSerialNo(serialNoPre: "C");
                     await consumeLogRepository.AddRangeAsync([
                      new ConsumeLog(agent.Userid,agentBefore,agent.UserAmount, Domain.Enums.ConsumeStatus.AgentTransferOut, serailNo),
                  new ConsumeLog(children.Userid,childBefore,children.UserAmount, Domain.Enums.ConsumeStatus.AgentTransferIn,serailNo ),

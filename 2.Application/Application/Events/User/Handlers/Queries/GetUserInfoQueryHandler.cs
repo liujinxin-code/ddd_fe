@@ -12,7 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Events.User.Handles.Querys
+namespace Application.Events.User.Handlers.Queries
 {
     public class GetUserInfoQueryHandler(ITkUserRepository tkUserRepository) : IRequestHandler<GetUserInfoQuery, ApiResult<UserInfoResponse>>
     {

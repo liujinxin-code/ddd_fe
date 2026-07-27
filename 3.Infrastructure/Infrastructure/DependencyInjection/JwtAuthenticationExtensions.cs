@@ -43,8 +43,8 @@ namespace Infrastructure.DependencyInjection
                         IssuerSigningKey = new SymmetricSecurityKey(
                             Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
 
-                        ValidateLifetime = false,
-                        ClockSkew = TimeSpan.Zero
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.FromSeconds(60)
                     };
 
                     options.Events = new JwtBearerEvents

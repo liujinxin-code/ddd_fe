@@ -49,6 +49,11 @@ namespace Open.Middleware
 
             switch (ex)
             {
+                case InvalidOperationException:
+                case ValidationException:
+                case BusinessException:
+                case UnauthorizedAccessException:
+                    break;
                 case ConcurrencyConflictException:
                     _logger.LogError(ex,
                     "需要查看的异常 | TraceId={0},Message={1}",

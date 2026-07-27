@@ -33,9 +33,9 @@ namespace Infrastructure.Persistence
                 entity.Property(x => x.Username).HasColumnName("username");
                 entity.Property(x => x.Password).HasColumnName("password");
                 entity.Property(x => x.UserStatus).HasColumnName("user_status");
-                entity.Property(x => x.UserAmount).HasColumnName("user_amount");
+                entity.Property(x => x.UserAmount).HasColumnName("user_amount").HasPrecision(10, 6);
                 entity.Property(x => x.IsAgent).HasColumnName("is_agent");
-                entity.Property(x => x.AgentAmount).HasColumnName("agent_amount");
+                entity.Property(x => x.AgentAmount).HasColumnName("agent_amount").HasPrecision(10, 6);
                 entity.Property(x => x.AgentUserid).HasColumnName("agent_userid");
                 entity.Property(x => x.AgentDomain).HasColumnName("agent_domain");
                 entity.Property(x => x.Createby).HasColumnName("createby");

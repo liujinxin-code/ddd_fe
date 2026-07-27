@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shared.Utilitys
+namespace Shared.Utilities
 {
     public class Utils
     {
@@ -20,7 +20,7 @@ namespace Shared.Utilitys
         /// 生成唯一序列号
         /// </summary>
         /// <returns></returns>
-        public static string GenerateSerialNo(int length = 24, string serailNoPre = "")
+        public static string GenerateSerialNo(int length = 24, string serialNoPre = "")
         {
             int no = 22;
             if (length < 24)
@@ -33,7 +33,7 @@ namespace Shared.Utilitys
             {
                 value = value + (char)new Random(Guid.NewGuid().GetHashCode()).Next(65, 91);
             }
-            var orderNo = $"{serailNoPre}{DateTime.Now:yyMMddHHmmssfff}{value}{new Random(Guid.NewGuid().GetHashCode()).Next(1000000, 9999999)}";
+            var orderNo = $"{serialNoPre}{DateTime.Now:yyMMddHHmmssfff}{value}{new Random(Guid.NewGuid().GetHashCode()).Next(1000000, 9999999)}";
             return orderNo;
         }
     }

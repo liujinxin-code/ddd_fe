@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <Folder Include="Events\Agent\Contracts\Queries\" />
-    <Folder Include="Events\Agent\Handles\Querys\" />
+    <Folder Include="Events\Agent\Handlers\Queries\" />
     <Folder Include="Events\User\Services\" />
   </ItemGroup>
 

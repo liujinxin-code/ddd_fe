@@ -12,11 +12,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Events.Agent.Handles.Commands
+namespace Application.Events.Agent.Handlers.Commands
 {
 
 
-    public class UpdateChildrenUserStatusHandler(
+    public class UpdateChildrenUserStatusCommandHandler(
         ITkUserRepository tkUserRepository,
         ITokenCacheService tokenCacheService,
         IUnitOfWork unitOfWork

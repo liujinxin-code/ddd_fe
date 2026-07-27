@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Events.User.Handles.Commands
+namespace Application.Events.User.Handlers.Commands
 {
     public class LogoutCommandHandler(ITokenCacheService tokenCacheService
    ) : IRequestHandler<LogoutCommand, ApiResult>

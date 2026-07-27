@@ -12,7 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Events.Agent.Handles.Commands
+namespace Application.Events.Agent.Handlers.Commands
 {
     public class ResetChildrenPasswordCommandHandler(
         IPasswordHelper passwordHelper,
