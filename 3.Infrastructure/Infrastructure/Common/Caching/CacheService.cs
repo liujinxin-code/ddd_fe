@@ -111,7 +111,7 @@ namespace Infrastructure.Common.Caching
         /// <typeparam name="T"></typeparam>
         /// <param name="key"></param>
         /// <returns></returns>
-        public async Task<bool> RemoveKeyMembersAsync<T>(string key)
+        public async Task<bool> RemoveKeyMembersAsync(string key)
         {
             key = $"{_cachePre}:{key.ToLower()}";
             return await _cacheDb.KeyDeleteAsync(key);

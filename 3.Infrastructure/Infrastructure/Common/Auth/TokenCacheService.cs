@@ -40,7 +40,7 @@ namespace Infrastructure.Common.Auth
                 //删除member
                 foreach (var memberToken in memberTokens)
                 {
-                    await SignleTokenAsync(memberToken, userid);
+                    await RemoveTokenAndMemberAsync(memberToken, userid);
                 }
             }
             var addMember = await cacheService.SetMembersAsync($"tokens:{userid}", jti, TimeSpan.FromDays(7.1));
@@ -57,13 +57,30 @@ namespace Infrastructure.Common.Auth
         {
             return await cacheService.RemoveAsync($"token:{jti}") && await cacheService.RemoveSignleMembersAsync($"tokens:{userid}", jti);
         }
+
         /// <summary>
-        /// 始终保持单个token逻辑（单客户端登录）
+        /// 用户禁用删除全部Token
         /// </summary>
         /// <param name="jti"></param>
         /// <param name="userid"></param>
         /// <returns></returns>
-        private async Task<bool> SignleTokenAsync(string jti, long userid)
+        public async Task<bool> UserBlackRemoveTokensAsync(long userid)
+        {
+            //获取所有token
+            var memberTokens = await cacheService.GetMembersAsync<string>($"tokens:{userid}");
+            foreach (var memberToken in memberTokens)
+            {
+                await RemoveTokenAndMemberAsync(memberToken, userid);
+            }
+            return await cacheService.RemoveKeyMembersAsync($"tokens:{userid}");
+        }
+        /// <summary>
+        /// 删除Token和对应的Member
+        /// </summary>
+        /// <param name="jti"></param>
+        /// <param name="userid"></param>
+        /// <returns></returns>
+        private async Task<bool> RemoveTokenAndMemberAsync(string jti, long userid)
           //移除set集合的jti 和 删除jti token
           => await cacheService.RemoveSignleMembersAsync<string>($"tokens:{userid}", jti) && await cacheService.RemoveAsync($"token:{jti}");
 

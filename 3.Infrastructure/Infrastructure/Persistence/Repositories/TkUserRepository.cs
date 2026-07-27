@@ -70,7 +70,7 @@ namespace Infrastructure.Persistence.Repositories
         /// <returns></returns>
         public async Task<bool> GetUserExistsByApiKey(long userid, string apiKey, CancellationToken ct = default)
         {
-            return await appDbContext.TkUsers.AsNoTracking().CountAsync(t => t.Userid == userid && t.ApiKey == apiKey, ct) > 0;
+            return await appDbContext.TkUsers.AsNoTracking().CountAsync(t => t.Userid == userid && t.ApiKey == apiKey && t.UserStatus == Domain.Enums.TkUserStatus.Enable && !t.IsDelete, ct) > 0;
         }
 
         public void Update(TkUser entity, CancellationToken ct = default)

@@ -30,5 +30,13 @@ namespace Application.Abstractions.Auth
         /// <param name="userid"></param>
         /// <returns></returns>
         Task<bool> RemoveTokenAsync(string jti, long userid);
+
+        /// <summary>
+        /// 用户禁用删除全部Token
+        /// </summary>
+        /// <param name="jti"></param>
+        /// <param name="userid"></param>
+        /// <returns></returns>
+        Task<bool> UserBlackRemoveTokensAsync(long userid);
     }
 }

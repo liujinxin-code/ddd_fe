@@ -36,7 +36,7 @@ namespace Application.Abstractions.Caching
         Task<bool> ExistsAsync(string key);
 
         /// <summary>
-        /// set 添加
+        /// set集合 添加
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key"></param>
@@ -44,7 +44,7 @@ namespace Application.Abstractions.Caching
         /// <returns></returns>
         Task<bool> SetMembersAsync<T>(string key, T value, TimeSpan? expiry = null);
         /// <summary>
-        /// set 获取
+        /// set集合 获取
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key"></param>
@@ -52,7 +52,7 @@ namespace Application.Abstractions.Caching
         Task<IList<T>> GetMembersAsync<T>(string key);
 
         /// <summary>
-        /// 单个 set 删除
+        /// 单个集合 set 删除
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key"></param>
@@ -60,11 +60,11 @@ namespace Application.Abstractions.Caching
         Task<bool> RemoveSignleMembersAsync<T>(string key, T value);
 
         /// <summary>
-        ///  set key 删除
+        ///  set集合 key 删除
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key"></param>
         /// <returns></returns>
-        Task<bool> RemoveKeyMembersAsync<T>(string key);
+        Task<bool> RemoveKeyMembersAsync(string key);
     }
 }

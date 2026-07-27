@@ -1,4 +1,5 @@
 ﻿using Application.Abstractions;
+using Application.Abstractions.Auth;
 using Application.Abstractions.Repositories;
 using Application.Common.Models;
 using Application.Common.Models.Agent;
@@ -17,6 +18,7 @@ namespace Application.Events.Agent.Handles.Commands
 
     public class UpdateChildrenUserStatusHandler(
         ITkUserRepository tkUserRepository,
+        ITokenCacheService tokenCacheService,
         IUnitOfWork unitOfWork
           ) : IRequestHandler<UpdateChildrenUserStatusCommand, ApiResult>
     {
@@ -30,6 +32,11 @@ namespace Application.Events.Agent.Handles.Commands
             if (children == null) throw new BusinessException("用户不存在");
 
             agent.UpdateChildrenStatusFunc(children, request.UserStatus);
+            if (request.UserStatus == Domain.Enums.TkUserStatus.Disable)
+            {
+                //删除token
+                await tokenCacheService.UserBlackRemoveTokensAsync(children.Userid);
+            }
             //TODO 增加数据库日志
             await unitOfWork.SaveChangesAsync(ct);
             return ApiResult.Successed();
