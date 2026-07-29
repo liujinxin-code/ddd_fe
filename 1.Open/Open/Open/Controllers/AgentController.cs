@@ -2,6 +2,7 @@
 using Application.Common.Models.Agent;
 using Application.Common.Models.User;
 using Application.Events.Agent.Contracts.Commands;
+using Application.Events.Agent.Contracts.Queries;
 using Application.Events.User.Contracts.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -19,7 +20,7 @@ namespace Open.Controllers
         /// <param name="cmd"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        [HttpPost]
+        [HttpPost("create-children")]
         [ProducesResponseType(typeof(ApiResult<LoginResponse>), StatusCodes.Status200OK)]
         public async Task<ApiResult> CreateChildrenAsync([FromBody] CreateChildrenCommand cmd, CancellationToken ct)
         {
@@ -35,7 +36,7 @@ namespace Open.Controllers
         /// <param name="cmd"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        [HttpPost]
+        [HttpPost("transfer")]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status200OK)]
         public async Task<ApiResult> TransferUserAmountAsync([FromBody] TransferUserAmountCommand cmd, CancellationToken ct)
         {
@@ -52,7 +53,7 @@ namespace Open.Controllers
         /// <param name="cmd"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        [HttpPost]
+        [HttpPost("reset-password")]
         [ProducesResponseType(typeof(ApiResult<ResetChildrenPasswordResponse>), StatusCodes.Status200OK)]
         public async Task<ApiResult<ResetChildrenPasswordResponse>> ResetChildrenPasswordAsync([FromBody] ResetChildrenPasswordCommand cmd, CancellationToken ct)
         {
@@ -69,7 +70,7 @@ namespace Open.Controllers
         /// <param name="cmd"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        [HttpPost]
+        [HttpPost("update-status")]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status200OK)]
         public async Task<ApiResult> UpdateChildrenUserStatusAsync([FromBody] UpdateChildrenUserStatusCommand cmd, CancellationToken ct)
         {
@@ -78,6 +79,24 @@ namespace Open.Controllers
                 AgentUserid = CurrentUser.Userid
             };
             return await mediator.Send(cmd, ct);
+        }
+
+        /// <summary>
+        /// 代理分页查询自己的下级用户（POST 形式），支持按用户名或邮箱关键词模糊匹配（Keyword），以及排序字段（Sorting 形如 "useramount desc"）。
+        /// 请求体：{ "PageIndex":1, "PageSize":20, "Keyword":"tom", "Sorting":"useramount desc" }
+        /// </summary>
+        /// <param name="query"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        [HttpPost("children")]
+        [ProducesResponseType(typeof(ApiResult<PagedResult<ChildrenUserListItem>>), StatusCodes.Status200OK)]
+        public async Task<ApiResult<PagedResult<ChildrenUserListItem>>> GetChildrenUsersAsync([FromBody] GetChildrenUsersQuery query, CancellationToken ct)
+        {
+            query = query with
+            {
+                AgentUserid = CurrentUser.Userid
+            };
+            return await mediator.Send(query, ct);
         }
     }
 }

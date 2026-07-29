@@ -1,7 +1,7 @@
 ﻿using Application.Abstractions.Passwords;
 using Konscious.Security.Cryptography;
 using Microsoft.Extensions.Options;
-using Shared.Utilitys;
+using Shared.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -3,6 +3,7 @@ using Application.Abstractions.Repositories;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Linq.Expressions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -82,6 +83,52 @@ namespace Infrastructure.Persistence.Repositories
         {
             var user = await appDbContext.TkUsers.AsNoTracking().FirstOrDefaultAsync(t => (t.Username == name || t.Email == name) && !t.IsDelete, ct);
             return user;
+        }
+
+        /// <summary>
+        /// 分页查询指定代理的下级用户（IsAgent=0 且未删除），支持排序字段与方向。
+        /// </summary>
+        public async Task<(IReadOnlyList<TkUser> Items, int Total)> GetChildrenByAgentAsync(long agentUserid, int pageIndex, int pageSize, string? keyword, string? sortField, bool sortDesc, CancellationToken ct = default)
+        {
+            var query = appDbContext.TkUsers.AsNoTracking()
+                .Where(t => t.AgentUserid == agentUserid && t.IsAgent == 0 && !t.IsDelete);
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                query = query.Where(t => t.Username.Contains(keyword) || t.Email.Contains(keyword));
+            }
+
+            int total = await query.CountAsync(ct);
+
+            query = ApplyChildrenSorting(query, sortField, sortDesc);
+
+            var items = await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(ct);
+
+            return (items, total);
+        }
+
+        /// <summary>
+        /// 仅允许白名单内的字段排序，避免任意列名导致 EF 翻译失败或被用于注入。
+        /// </summary>
+        private static IQueryable<TkUser> ApplyChildrenSorting(IQueryable<TkUser> query, string? sortField, bool sortDesc)
+        {
+            var field = (sortField ?? string.Empty).Trim().ToLowerInvariant();
+            Expression<Func<TkUser, object>> keySelector = field switch
+            {
+                "username" => t => t.Username,
+                "email" => t => t.Email,
+                "useramount" => t => t.UserAmount,
+                "userstatus" => t => t.UserStatus,
+                "agentuserid" => t => t.AgentUserid,
+                "createby" => t => t.Createby,
+                "userid" => t => t.Userid,
+                _ => t => t.Userid
+            };
+
+            return sortDesc ? query.OrderByDescending(keySelector) : query.OrderBy(keySelector);
         }
     }
 }

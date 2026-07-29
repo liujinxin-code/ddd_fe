@@ -1,6 +1,6 @@
 ﻿using Application.Abstractions.Auth;
 using Application.Abstractions.Caching;
-using Shared.Utilitys;
+using Shared.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;

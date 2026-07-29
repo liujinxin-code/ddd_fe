@@ -18,7 +18,7 @@ namespace Open.Controllers
         /// <param name="cmd"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        [HttpPost, AllowAnonymous]
+        [HttpPost("register"), AllowAnonymous]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status200OK)]
         public async Task<ApiResult> RegisterAsync([FromBody] RegisterCommand cmd, CancellationToken ct) => await mediator.Send(cmd, ct);
         /// <summary>
@@ -27,8 +27,7 @@ namespace Open.Controllers
         /// <param name="cmd"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-
-        [HttpPost, AllowAnonymous]
+        [HttpPost("login"), AllowAnonymous]
         [ProducesResponseType(typeof(ApiResult<LoginResponse>), StatusCodes.Status200OK)]
         public async Task<ApiResult<LoginResponse>> LoginAsync([FromBody] LoginQuery cmd, CancellationToken ct) => await mediator.Send(cmd, ct);
         /// <summary>
@@ -37,7 +36,7 @@ namespace Open.Controllers
         /// <param name="cmd"></param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        [HttpGet]
+        [HttpGet("logout")]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status200OK)]
         public async Task<ApiResult> LogoutAsync()
         {
@@ -48,7 +47,7 @@ namespace Open.Controllers
         /// 获取用户个人信息
         /// </summary>
         /// <returns></returns>
-        [HttpGet]
+        [HttpGet("info")]
         [ProducesResponseType(typeof(ApiResult<GetUserInfoQuery>), StatusCodes.Status200OK)]
         public async Task<ApiResult<UserInfoResponse>> GetUserInfoAsync()
         {

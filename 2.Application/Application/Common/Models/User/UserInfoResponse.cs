@@ -45,9 +45,5 @@ namespace Application.Common.Models.User
         /// </summary>
         public string AgentDomain { get; private set; }
 
-        /// <summary>
-        /// 用户进行api访问持久key
-        /// </summary>
-        public string ApiKey { get; private set; }
     }
 }

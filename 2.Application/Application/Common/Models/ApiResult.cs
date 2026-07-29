@@ -72,12 +72,12 @@ namespace Application.Common.Models
         /// <summary>
         /// 数据条数
         /// </summary>
-        public int DataCount { get; set; }
+        public int DataTotal { get; set; }
 
         public static ApiResult<T> Successed(T data, int dataCount = 1, string message = "Success!") => new ApiResult<T>
         {
             Data = data,
-            DataCount = data is IList list ? list.Count : dataCount,
+            DataTotal = data is IList list ? list.Count : dataCount,
             Code = 200,
             Message = message
         };

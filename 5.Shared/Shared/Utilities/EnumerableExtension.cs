@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shared.Utilitys
+namespace Shared.Utilities
 {
     public static class EnumerableExtension
     {

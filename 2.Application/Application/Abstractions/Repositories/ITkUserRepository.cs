@@ -47,5 +47,18 @@ namespace Application.Abstractions.Repositories
         /// <param name="ct"></param>
         /// <returns></returns>
         Task<bool> GetUserExistsByApiKey(long userid, string apiKey, CancellationToken ct = default);
+
+        /// <summary>
+        /// 分页查询指定代理的下级用户（IsAgent=0 且未删除），支持排序字段与方向。
+        /// 返回当前页数据与符合条件的总记录数。
+        /// </summary>
+        /// <param name="agentUserid">上级代理id</param>
+        /// <param name="pageIndex">页码（从 1 开始）</param>
+        /// <param name="pageSize">每页条数</param>
+        /// <param name="sortField">排序字段（白名单：userid/username/email/useramount/userstatus/agentuserid/createby）</param>
+        /// <param name="sortDesc">是否倒序</param>
+        /// <param name="keyword">可选关键词，按用户名或邮箱模糊匹配（null/空表示查全部）</param>
+        /// <param name="ct"></param>
+        Task<(IReadOnlyList<TkUser> Items, int Total)> GetChildrenByAgentAsync(long agentUserid, int pageIndex, int pageSize, string? keyword, string? sortField, bool sortDesc, CancellationToken ct = default);
     }
 }
