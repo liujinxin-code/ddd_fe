@@ -72,9 +72,8 @@ namespace Infrastructure.Persistence.Repositories
                 return new Dictionary<int, decimal>();
             }
 
-            int aid = (int)agentUserId;
             return await appDbContext.TkPriceAgentMarkups.AsNoTracking()
-                .Where(p => p.AgentUserId == aid && ids.Contains(p.ConfigId))
+                .Where(p => p.AgentUserId == agentUserId && ids.Contains(p.ConfigId))
                 .ToDictionaryAsync(p => p.ConfigId, p => p.MarkupAddPrice, ct);
         }
 

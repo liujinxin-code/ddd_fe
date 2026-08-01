@@ -130,5 +130,8 @@ namespace Infrastructure.Persistence.Repositories
 
             return sortDesc ? query.OrderByDescending(keySelector) : query.OrderBy(keySelector);
         }
+
+        public Task<TkUser?> GetByIdAsNoTrackingAsync(long id, CancellationToken ct = default)
+           => appDbContext.TkUsers.AsNoTracking().Where(t => t.Userid == id).FirstOrDefaultAsync();
     }
 }

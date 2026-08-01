@@ -26,7 +26,7 @@ namespace Application.Events.Config.Handlers.Queries
             bool sortDesc;
             if (string.IsNullOrWhiteSpace(query.Sorting))
             {
-                sortField = "config_sort";
+                sortField = "configsort";
                 sortDesc = false;
             }
             else
@@ -46,7 +46,7 @@ namespace Application.Events.Config.Handlers.Queries
             }
 
             // 加载当前用户，确定其是否有上级代理，从而决定定价路径。
-            var user = await userRepository.GetByIdAsync(query.UserId, ct);
+            var user = await userRepository.GetByIdAsNoTrackingAsync(query.UserId, ct);
             if (user is null)
             {
                 return new ApiResult<List<ConfigListItem>>

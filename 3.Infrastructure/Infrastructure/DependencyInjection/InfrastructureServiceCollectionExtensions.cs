@@ -54,6 +54,7 @@ namespace Infrastructure.DependencyInjection
             services.AddScoped<IConsumeLogRepository, ConsumeLogRepository>();
             services.AddScoped<IPlatformRepository, PlatformRepository>();
             services.AddScoped<IConfigRepository, ConfigRepository>();
+            services.AddScoped<IAgentPricingRepository, AgentPricingRepository>();
 
             services.AddScoped<IPasswordHelper, PasswordHelper>();
             services.AddScoped<ITokenCacheService, TokenCacheService>();

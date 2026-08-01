@@ -98,5 +98,47 @@ namespace Open.Controllers
             };
             return await mediator.Send(query, ct);
         }
+
+        /// <summary>
+        /// 代理新增 / 修改自己的总体加价百分比（每代理仅一条，首次为新增，之后为修改）。
+        /// </summary>
+        [HttpPost("overall-price")]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status200OK)]
+        public async Task<ApiResult> UpsertOverallPriceAsync([FromBody] UpsertAgentOverallPriceCommand cmd, CancellationToken ct)
+        {
+            cmd = cmd with
+            {
+                UserId = CurrentUser.Userid
+            };
+            return await mediator.Send(cmd, ct);
+        }
+
+        /// <summary>
+        /// 代理新增 / 修改自己名下某 config 的加价金额（同一 config 存在则修改，否则新增）。
+        /// </summary>
+        [HttpPost("markup")]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status200OK)]
+        public async Task<ApiResult> UpsertMarkupAsync([FromBody] UpsertAgentMarkupCommand cmd, CancellationToken ct)
+        {
+            cmd = cmd with
+            {
+                AgentUserId = CurrentUser.Userid
+            };
+            return await mediator.Send(cmd, ct);
+        }
+
+        /// <summary>
+        /// 代理删除自己名下某 config 的加价记录。
+        /// </summary>
+        [HttpPost("markup-delete")]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status200OK)]
+        public async Task<ApiResult> DeleteMarkupAsync([FromBody] DeleteAgentMarkupCommand cmd, CancellationToken ct)
+        {
+            cmd = cmd with
+            {
+                AgentUserId = CurrentUser.Userid
+            };
+            return await mediator.Send(cmd, ct);
+        }
     }
 }
