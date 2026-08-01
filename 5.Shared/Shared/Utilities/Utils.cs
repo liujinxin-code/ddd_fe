@@ -36,5 +36,13 @@ namespace Shared.Utilities
             var orderNo = $"{serialNoPre}{DateTime.Now:yyMMddHHmmssfff}{value}{new Random(Guid.NewGuid().GetHashCode()).Next(1000000, 9999999)}";
             return orderNo;
         }
+
+        /// <summary>
+        /// 金额四舍五入保留 6 位小数（半进位，MidpointRounding.AwayFromZero），与 decimal(10,6) 列精度一致。
+        /// </summary>
+        public static decimal RoundToSixDecimals(decimal value)
+        {
+            return Math.Round(value, 6, MidpointRounding.AwayFromZero);
+        }
     }
 }

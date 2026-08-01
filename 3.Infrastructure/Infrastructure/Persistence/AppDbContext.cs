@@ -19,6 +19,10 @@ namespace Infrastructure.Persistence
         public DbSet<ConsumeLog> ConsumeLogs => Set<ConsumeLog>();
         public DbSet<TkPlatform> TkPlatforms => Set<TkPlatform>();
         public DbSet<TkPlatformSub> TkPlatformSubs => Set<TkPlatformSub>();
+        public DbSet<TkConfig> TkConfigs => Set<TkConfig>();
+        public DbSet<TkPriceUserCustom> TkPriceUserCustoms => Set<TkPriceUserCustom>();
+        public DbSet<TkPriceOverall> TkPriceOveralls => Set<TkPriceOverall>();
+        public DbSet<TkPriceAgentMarkup> TkPriceAgentMarkups => Set<TkPriceAgentMarkup>();
         /// <summary>
         /// 使用 Fluent API 显式映射数据库字段。
         /// 这样领域实体可以使用 C# 风格命名，不必被数据库下划线字段名污染。
@@ -84,6 +88,61 @@ namespace Infrastructure.Persistence
                 entity.Property(x => x.PlatformId).HasColumnName("platform_id");
                 entity.Property(x => x.SubPlatformStatus).HasColumnName("sub_platform_status").HasConversion<int>();
                 entity.Property(x => x.SubPlatformNotice).HasColumnName("sub_platform_notice").HasMaxLength(2000);
+                entity.Property(x => x.CreateTime).HasColumnName("create_time");
+            });
+
+            modelBuilder.Entity<TkConfig>(entity =>
+            {
+                entity.ToTable("tk_config");
+                entity.HasKey(x => x.ConfigId);
+                entity.Property(x => x.ConfigId).HasColumnName("config_id");
+                entity.Property(x => x.ConfigName).HasColumnName("config_name").HasMaxLength(255);
+                entity.Property(x => x.ConfigPrice).HasColumnName("config_price").HasPrecision(10, 6);
+                entity.Property(x => x.ShowPriceUnit).HasColumnName("show_price_unit");
+                entity.Property(x => x.OrderUnit).HasColumnName("order_unit");
+                entity.Property(x => x.ConfigNotice).HasColumnName("config_notice").HasMaxLength(1000);
+                entity.Property(x => x.PlatformId).HasColumnName("platform_id");
+                entity.Property(x => x.SubPlatformId).HasColumnName("sub_platform_id");
+                entity.Property(x => x.ChannelId).HasColumnName("channel_id");
+                entity.Property(x => x.ChannelServerId).HasColumnName("channel_server_id");
+                entity.Property(x => x.MinQuantity).HasColumnName("min_quantity");
+                entity.Property(x => x.MaxQuantity).HasColumnName("max_quantity");
+                entity.Property(x => x.ConfigSort).HasColumnName("config_sort");
+                entity.Property(x => x.ConfigStatus).HasColumnName("config_status").HasConversion<int>();
+                entity.Property(x => x.JsonTemplate).HasColumnName("json_template").HasConversion<int>();
+                entity.Property(x => x.CreateTime).HasColumnName("create_time");
+            });
+
+            modelBuilder.Entity<TkPriceUserCustom>(entity =>
+            {
+                entity.ToTable("tk_price_user_custom");
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.Id).HasColumnName("id");
+                entity.Property(x => x.CustomPrice).HasColumnName("custom_price").HasPrecision(10, 6);
+                entity.Property(x => x.UserId).HasColumnName("userid");
+                entity.Property(x => x.ConfigId).HasColumnName("config_id");
+                entity.Property(x => x.CreateTime).HasColumnName("create_time");
+            });
+
+            modelBuilder.Entity<TkPriceOverall>(entity =>
+            {
+                entity.ToTable("tk_price_overall");
+                entity.HasKey(x => x.OverallId);
+                entity.Property(x => x.OverallId).HasColumnName("overall_id");
+                entity.Property(x => x.OverallPercent).HasColumnName("overall_percent");
+                entity.Property(x => x.UserId).HasColumnName("userid");
+                entity.Property(x => x.CreateTime).HasColumnName("create_time");
+                entity.HasIndex(x => x.UserId).IsUnique().HasDatabaseName("un_userid");
+            });
+
+            modelBuilder.Entity<TkPriceAgentMarkup>(entity =>
+            {
+                entity.ToTable("tk_price_agent_markup");
+                entity.HasKey(x => x.MarkupId);
+                entity.Property(x => x.MarkupId).HasColumnName("markup_id");
+                entity.Property(x => x.MarkupAddPrice).HasColumnName("markup_add_price").HasPrecision(10, 6);
+                entity.Property(x => x.ConfigId).HasColumnName("config_id");
+                entity.Property(x => x.AgentUserId).HasColumnName("agent_userid");
                 entity.Property(x => x.CreateTime).HasColumnName("create_time");
             });
         }

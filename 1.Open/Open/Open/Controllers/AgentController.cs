@@ -89,8 +89,8 @@ namespace Open.Controllers
         /// <param name="ct"></param>
         /// <returns></returns>
         [HttpPost("children")]
-        [ProducesResponseType(typeof(ApiResult<PagedResult<ChildrenUserListItem>>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<PagedResult<ChildrenUserListItem>>> GetChildrenUsersAsync([FromBody] GetChildrenUsersQuery query, CancellationToken ct)
+        [ProducesResponseType(typeof(ApiResult<List<ChildrenUserListItem>>), StatusCodes.Status200OK)]
+        public async Task<ApiResult<List<ChildrenUserListItem>>> GetChildrenUsersAsync([FromBody] GetChildrenUsersQuery query, CancellationToken ct)
         {
             query = query with
             {

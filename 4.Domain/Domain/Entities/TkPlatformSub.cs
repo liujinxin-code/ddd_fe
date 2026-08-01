@@ -21,7 +21,7 @@ public class TkPlatformSub : CreateAuditor
     /// <summary>
     /// 子平台名称
     /// </summary>
-    public string? SubPlatformName { get; private set; }
+    public string SubPlatformName { get; private set; } = default!;
 
     /// <summary>
     /// 所属平台id（对应 tk_platform.platform_id）
@@ -36,7 +36,7 @@ public class TkPlatformSub : CreateAuditor
     /// <summary>
     /// 侧边栏公告：前台用户选中该子平台时展示（对应 sub_platform_notice）。
     /// </summary>
-    public string? SubPlatformNotice { get; private set; }
+    public string SubPlatformNotice { get; private set; } = default!;
 
     /// <summary>
     /// 供 EF Core 物化使用。

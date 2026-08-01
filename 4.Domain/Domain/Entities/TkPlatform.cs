@@ -20,12 +20,12 @@ namespace Domain.Entities
         /// <summary>
         /// 平台logo 图片地址
         /// </summary>
-        public string? PlatformImg { get; private set; }
+        public string PlatformImg { get; private set; } = default!;
 
         /// <summary>
         /// 平台名称
         /// </summary>
-        public string? PlatformName { get; private set; }
+        public string PlatformName { get; private set; } = default!;
 
         /// <summary>
         /// 平台状态：0 未开启 / 1 已开启

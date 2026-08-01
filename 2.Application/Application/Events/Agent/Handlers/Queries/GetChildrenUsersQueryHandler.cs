@@ -13,9 +13,9 @@ using System.Threading.Tasks;
 namespace Application.Events.Agent.Handlers.Queries
 {
     public class GetChildrenUsersQueryHandler(ITkUserRepository tkUserRepository)
-        : IRequestHandler<GetChildrenUsersQuery, ApiResult<PagedResult<ChildrenUserListItem>>>
+        : IRequestHandler<GetChildrenUsersQuery, ApiResult<List<ChildrenUserListItem>>>
     {
-        public async Task<ApiResult<PagedResult<ChildrenUserListItem>>> Handle(GetChildrenUsersQuery query, CancellationToken ct)
+        public async Task<ApiResult<List<ChildrenUserListItem>>> Handle(GetChildrenUsersQuery query, CancellationToken ct)
         {
             // 解析排序：格式 "字段 [asc|desc]"，缺省按 userid 倒序（最新创建的在前）。
             string sortField;
@@ -46,14 +46,15 @@ namespace Application.Events.Agent.Handlers.Queries
                 Createby = t.Createby
             }).ToList();
 
-            var result = new PagedResult<ChildrenUserListItem>
+            // data 为 List（IList），ApiResult.Successed 会按 list.Count 回填 DataTotal，
+            // 故此处显式构造，保留真实总条数 total 供前端分页（页索引/页大小已在请求中，无需回显）。
+            return new ApiResult<List<ChildrenUserListItem>>
             {
-                PageIndex = query.PageIndex,
-                PageSize = query.PageSize,
-                Items = list
+                Code = 200,
+                Message = "Success!",
+                Data = list,
+                DataTotal = total
             };
-
-            return ApiResult<PagedResult<ChildrenUserListItem>>.Successed(result, total);
         }
     }
 }

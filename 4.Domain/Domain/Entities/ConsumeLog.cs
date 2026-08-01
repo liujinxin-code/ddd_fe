@@ -42,6 +42,6 @@ namespace Domain.Entities
         /// </summary>
         public string ConsumeNo { get; private set; } = string.Empty;
         public long UserId { get; private set; }
-        public DateTime? CreateTime { get; private set; }
+        public DateTime CreateTime { get; private set; }
     }
 }

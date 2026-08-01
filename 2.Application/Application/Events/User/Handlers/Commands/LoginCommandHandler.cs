@@ -31,7 +31,7 @@ namespace Application.Events.User.Handlers.Commands
             if (user == null)
                 throw new BusinessException("账户或密码错误");
             string password = passwordHelper.GeneratePasswordHash(query.Password);
-            if (CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(user.Password), Encoding.UTF8.GetBytes(password)))
+            if (!CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(user.Password), Encoding.UTF8.GetBytes(password)))
                 throw new BusinessException("账户或密码错误");
             user.RequiredUserStatus();
             (string, string) tokenRes = jwtHelper.GenerateToken(user.Userid, user.Username, [user.IsAgentFnc() ? "User.Agent" : "User"]);
