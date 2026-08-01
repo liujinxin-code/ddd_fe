@@ -1,0 +1,22 @@
+.btn-primary {
+  min-width: 76px;
+  height: 40px;
+  border-radius: 12px;
+  opacity: 1;
+  background: #586ee1;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: black;
+}
+.btn-primary:hover {
+  background: #6c7fe8;
+  box-shadow: 0 4px 12px rgba(88, 110, 225, 0.2);
+}
+
+#app {
+  --common-backgroun-color: #eef2f5;
+  --common-two-bg-color: #f8fafb;
+}

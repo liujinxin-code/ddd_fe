@@ -23,6 +23,7 @@ namespace Infrastructure.Persistence
         public DbSet<TkPriceUserCustom> TkPriceUserCustoms => Set<TkPriceUserCustom>();
         public DbSet<TkPriceOverall> TkPriceOveralls => Set<TkPriceOverall>();
         public DbSet<TkPriceAgentMarkup> TkPriceAgentMarkups => Set<TkPriceAgentMarkup>();
+        public DbSet<TkNotice> TkNotices => Set<TkNotice>();
         /// <summary>
         /// 使用 Fluent API 显式映射数据库字段。
         /// 这样领域实体可以使用 C# 风格命名，不必被数据库下划线字段名污染。
@@ -143,6 +144,16 @@ namespace Infrastructure.Persistence
                 entity.Property(x => x.MarkupAddPrice).HasColumnName("markup_add_price").HasPrecision(10, 6);
                 entity.Property(x => x.ConfigId).HasColumnName("config_id");
                 entity.Property(x => x.AgentUserId).HasColumnName("agent_userid");
+                entity.Property(x => x.CreateTime).HasColumnName("create_time");
+            });
+
+            modelBuilder.Entity<TkNotice>(entity =>
+            {
+                entity.ToTable("tk_notice");
+                entity.HasKey(x => x.NoticeId);
+                entity.Property(x => x.NoticeId).HasColumnName("notice_id").ValueGeneratedNever();
+                entity.Property(x => x.NoticeContent).HasColumnName("notice_content").HasMaxLength(2000);
+                entity.Property(x => x.NoticeType).HasColumnName("notice_type").HasConversion<int>();
                 entity.Property(x => x.CreateTime).HasColumnName("create_time");
             });
         }
