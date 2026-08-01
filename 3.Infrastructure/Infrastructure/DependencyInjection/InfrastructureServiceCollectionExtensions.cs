@@ -52,6 +52,7 @@ namespace Infrastructure.DependencyInjection
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ITkUserRepository, TkUserRepository>();
             services.AddScoped<IConsumeLogRepository, ConsumeLogRepository>();
+            services.AddScoped<IPlatformRepository, PlatformRepository>();
 
             services.AddScoped<IPasswordHelper, PasswordHelper>();
             services.AddScoped<ITokenCacheService, TokenCacheService>();
