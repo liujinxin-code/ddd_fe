@@ -363,3 +363,11 @@ MigrationBackup/
 .workbuddy/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Web/FlowEngine_User/dist-check3
+/Web/FlowEngine_User/dist-check2
+/Web/FlowEngine_User/dist-check
+/Web/FlowEngine_User/dist-btn
+/Web/FlowEngine_User/dist-kw
+/Web/FlowEngine_User/dist-search
+/Web/FlowEngine_User/dist-select
+/Web/FlowEngine_User/dist-select2
