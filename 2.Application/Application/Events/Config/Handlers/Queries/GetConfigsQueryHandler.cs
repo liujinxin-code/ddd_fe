@@ -38,7 +38,7 @@ namespace Application.Events.Config.Handlers.Queries
 
             // 查询该子平台下前台可见的业务配置（分页）。
             var (configs, total) = await configRepository.GetConfigsAsync(
-                query.PlatformId, query.SubPlatformId, query.PageIndex, query.PageSize, sortField, sortDesc, ct);
+                query.PlatformId, query.SubPlatformId, query.PageIndex, query.PageSize, sortField, sortDesc, query.Keyword, ct);
 
             if (configs.Count == 0)
             {

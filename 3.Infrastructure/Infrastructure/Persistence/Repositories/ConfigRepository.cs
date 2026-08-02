@@ -16,12 +16,18 @@ namespace Infrastructure.Persistence.Repositories
         /// </summary>
         public async Task<(IReadOnlyList<TkConfig> Items, int Total)> GetConfigsAsync(
             int platformId, int subPlatformId, int pageIndex, int pageSize,
-            string? sortField, bool sortDesc, CancellationToken ct = default)
+            string? sortField, bool sortDesc, string? keyword = null, CancellationToken ct = default)
         {
             var query = appDbContext.TkConfigs.AsNoTracking()
                 .Where(c => c.PlatformId == platformId
                          && c.SubPlatformId == subPlatformId
                          && c.ConfigStatus == ConfigStatus.AllEnabled);
+
+            // 按业务名模糊检索（keyword 为空时不加条件；LIKE 模式由 EF 参数化，无注入风险）。
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                query = query.Where(c => EF.Functions.Like(c.ConfigName, $"%{keyword}%"));
+            }
 
             int total = await query.CountAsync(ct);
 

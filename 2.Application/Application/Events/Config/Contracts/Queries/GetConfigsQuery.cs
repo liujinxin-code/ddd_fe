@@ -14,7 +14,8 @@ namespace Application.Events.Config.Contracts.Queries
     public record class GetConfigsQuery(
         int PlatformId = 0,
         int SubPlatformId = 0,
-        long UserId = 0
+        long UserId = 0,
+        string Keyword = ""
     ) : PagedQuery, IRequest<ApiResult<List<ConfigListItem>>>
     {
     }

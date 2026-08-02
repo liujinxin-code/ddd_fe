@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive, ref, watch } from 'vue'
+import { reactive, ref } from 'vue'
 import { Button, Card, Empty, Input, Pagination, Select, Spin, Tag, message } from 'ant-design-vue'
 import { orderApi } from '../../api'
 import ExecutionModal from '../../components/order/ExecutionModal.vue'
@@ -31,8 +31,6 @@ const openExecution = (order) => {
   selectedOrder.value = { ...order, quantity: order.beginQuantity, successCount: order.successQuantity }
   executionModalVisible.value = true
 }
-watch(() => [query.state, query.page, query.pageSize], loadOrders)
-onMounted(loadOrders)
 </script>
 
 <template>

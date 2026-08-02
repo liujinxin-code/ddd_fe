@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive, ref, watch } from 'vue'
+import { reactive, ref } from 'vue'
 import { Card, Empty, Input, Pagination, Select, Spin, Tag, message } from 'ant-design-vue'
 import { authApi } from '../../api'
 
@@ -27,8 +27,6 @@ const loadRecords = async () => {
   finally { loading.value = false }
 }
 const search = () => { query.page = 1; loadRecords() }
-watch(() => [query.status, query.page, query.pageSize], loadRecords)
-onMounted(loadRecords)
 </script>
 
 <template>

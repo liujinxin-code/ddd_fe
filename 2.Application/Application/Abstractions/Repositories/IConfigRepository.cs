@@ -17,7 +17,7 @@ namespace Application.Abstractions.Repositories
         /// </summary>
         Task<(IReadOnlyList<TkConfig> Items, int Total)> GetConfigsAsync(
             int platformId, int subPlatformId, int pageIndex, int pageSize,
-            string? sortField, bool sortDesc, CancellationToken ct = default);
+            string? sortField, bool sortDesc, string? keyword = null, CancellationToken ct = default);
 
         /// <summary>
         /// 批量获取某用户（userid）在给定 config 集合上的单独定价，返回 configId -> custom_price 字典（仅含存在记录的行）。

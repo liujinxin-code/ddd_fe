@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace Open.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [Route("api/[controller]/")]
     [ApiController]
     public class BaseController : ControllerBase
     {

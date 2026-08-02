@@ -59,6 +59,17 @@ builder.Services.AddInfrastructure(config);
 
 builder.Services.AddJwtAuthentication(config);
 
+// 允许所有跨域请求（开发/联调用）。生产环境应收紧为具体前端域名。
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -69,6 +80,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();

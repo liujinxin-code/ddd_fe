@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router'
 import IconLogo from '../components/icons/IconLogo.vue'
 import { Icon } from '../assets/js/iconUtils.js'
 import ChangePasswordModal from '../components/agent/ChangePasswordModal.vue'
-import { authApi } from '../api'
+import { authApi, noticeApi } from '../api'
 import { useAuth } from '../stores/auth'
 
 const auth = useAuth()
@@ -16,58 +16,40 @@ const announcementVisible = ref(false)
 const announcementLoading = ref(false)
 const visibleAnnouncementCount = ref(2)
 
-// The API can map to this shape later; keeping the pin flag on the item makes
-// the display rules explicit: one pinned notice, all other notices in timeline.
-const announcements = ref([
-  {
-    id: 'order-guide',
-    title: '下单须知',
-    content: '请先确认业务说明、数量限制和目标链接；批量下单时每行链接会生成一条独立订单。',
-    date: '2026-07-19',
-    type: 'guide',
-    pinned: true,
-  },
-  {
-    id: 'batch-order',
-    title: '批量下单功能上线',
-    content: '现在支持一次提交多条目标链接，评论类业务也会按评论行数自动匹配订单数量。',
-    date: '2026-07-18',
-    type: 'release',
-    pinned: false,
-  },
-  {
-    id: 'service-update',
-    title: '服务配置持续更新',
-    content: '平台会持续补充热门社交媒体服务，具体价格和数量限制以服务卡片为准。',
-    date: '2026-07-16',
-    type: 'update',
-    pinned: false,
-  },
-  {
-    id: 'maintenance-window',
-    title: '系统维护窗口调整',
-    content: '平台将在低峰期进行服务优化，维护期间已提交订单不受影响。',
-    date: '2026-07-14',
-    type: 'maintenance',
-    pinned: false,
-  },
-  {
-    id: 'account-security',
-    title: '账号安全提醒',
-    content: '请勿向他人透露登录凭据；如发现异常登录，请及时修改密码并联系客服。',
-    date: '2026-07-10',
-    type: 'guide',
-    pinned: false,
-  },
-  {
-    id: 'platform-expansion',
-    title: '新增平台服务',
-    content: '我们会根据使用反馈持续扩展平台服务，欢迎通过客服提交新的业务建议。',
-    date: '2026-07-05',
-    type: 'release',
-    pinned: false,
-  },
-])
+// 公告数据来自后端 Notice 接口（置顶 type=1 优先，普通 type=2 在时间线）。
+// 字段映射：noticeId/noticeContent/noticeType/createTime → { id, title, content, date, type, pinned }
+const announcements = ref([])
+const popupVisible = ref(false)
+const popupContent = ref('')
+
+const loadNotices = async () => {
+  try {
+    const result = await noticeApi.homepage({ page: 1, pageSize: 6 })
+    announcements.value = (result.data || []).map((n) => ({
+      id: n.noticeId,
+      title: n.noticeType === 1 ? '置顶公告' : '平台公告',
+      content: n.noticeContent,
+      date: n.createTime ? new Date(n.createTime).toISOString().slice(0, 10) : '',
+      type: n.noticeType === 1 ? 'release' : 'update',
+      pinned: n.noticeType === 1,
+    }))
+  } catch {
+    // 占位：公告加载失败时不阻塞页面，保持空列表
+  }
+}
+
+const loadPopup = async () => {
+  try {
+    const result = await noticeApi.popup()
+    if (result.data) {
+      popupContent.value = result.data.noticeContent
+      popupVisible.value = true
+    }
+  } catch {
+    // 占位：弹窗公告加载失败忽略
+  }
+}
+
 const pinnedAnnouncement = computed(() => announcements.value.find((item) => item.pinned))
 const timelineAnnouncements = computed(() => announcements.value.filter((item) => !item.pinned))
 const visibleTimelineAnnouncements = computed(() => timelineAnnouncements.value.slice(0, visibleAnnouncementCount.value))
@@ -110,6 +92,8 @@ onMounted(async () => {
   } catch (error) {
     if (error.code !== 401) message.error(error.message)
   }
+  await loadNotices()
+  await loadPopup()
 })
 </script>
 
@@ -141,7 +125,7 @@ onMounted(async () => {
                 <MenuItem v-if="user.isAgent"><router-link to="/app/agent"><Icon icon="UsergroupAddOutlined" /> 代理管理</router-link></MenuItem>
                 <MenuItem><router-link to="/app/order"><Icon icon="OrderedListOutlined" /> 订单列表</router-link></MenuItem>
                 <MenuItem><router-link to="/app/consumption"><Icon icon="MenuUnfoldOutlined" /> 消费列表</router-link></MenuItem>
-                <MenuItem><a href="javascript:;" @click.prevent="changePasswordModalVisible = true"><Icon icon="LockOutlined" /> 修改密码</a></MenuItem>
+                <MenuItem disabled title="功能暂未开放：后端未提供该接口"><span><Icon icon="LockOutlined" /> 修改密码（暂未开放）</span></MenuItem>
                 <MenuItem danger><a href="javascript:;" @click.prevent="handleLogout"><Icon icon="ClearOutlined" /> 退出登录</a></MenuItem>
               </Menu>
             </template>
@@ -226,6 +210,17 @@ onMounted(async () => {
     </main>
 
     <ChangePasswordModal v-model:open="changePasswordModalVisible" @submit="handlePasswordSubmit" />
+
+    <Modal
+      v-model:open="popupVisible"
+      class="announcement-popup"
+      title="公告"
+      :footer="null"
+      width="560px"
+      centered
+    >
+      <p class="announcement-popup-content">{{ popupContent }}</p>
+    </Modal>
 
     <footer class="site-footer">
       <IconLogo />

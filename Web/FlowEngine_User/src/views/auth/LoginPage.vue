@@ -1,12 +1,22 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { Button, Card, Form, Input, Tabs, message } from 'ant-design-vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { authApi } from '../../api'
 import { useAuth } from '../../stores/auth'
 
 const router = useRouter()
+const route = useRoute()
 const auth = useAuth()
+
+// 从 401 跳转过来时提示"登录失效"
+onMounted(() => {
+  if (route.query.reason === 'expired') {
+    message.warning('登录已失效，请重新登录')
+    // 清理 URL 参数，避免刷新重复提示
+    router.replace({ query: {} })
+  }
+})
 
 const activeTab = ref('login')
 const loginFormRef = ref()

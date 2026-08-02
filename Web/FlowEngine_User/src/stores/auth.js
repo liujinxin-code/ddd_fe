@@ -14,14 +14,23 @@ export const useAuth = () => ({
   user: computed(() => state.user),
   isAuthenticated: computed(() => Boolean(localStorage.getItem('flowengine_token'))),
   async login(payload) {
-    const result = await authApi.login(payload)
+    // 登录页传入 { login, password }；后端 LoginQuery 需要 { name, password }
+    const result = await authApi.login({ name: payload.login, password: payload.password })
     localStorage.setItem('flowengine_token', result.data.token)
-    persistUser({ userId: result.data.userId, username: result.data.username })
+    const u = result.data.user
+    persistUser({ userId: u.userid, username: u.username })
     return result.data
   },
   async loadUser() {
-    const result = await authApi.me()
-    persistUser(result.data)
+    const result = await authApi.info()
+    const u = result.data
+    persistUser({
+      userId: u.userid,
+      username: u.username,
+      isAgent: u.isAgent === 1,
+      userAmount: u.userAmount,
+      agentAmount: u.agentAmount,
+    })
     return result.data
   },
   async logout() {

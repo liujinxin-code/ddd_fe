@@ -40,6 +40,10 @@ namespace Application.Events.Config.Validators
             RuleFor(x => x.Sorting)
                 .Must(BeValidSorting).WithMessage("排序字段不合法")
                 .When(x => !string.IsNullOrWhiteSpace(x.Sorting));
+
+            RuleFor(x => x.Keyword)
+                .MaximumLength(50).WithMessage("搜索关键词长度不能超过 50")
+                .When(x => !string.IsNullOrWhiteSpace(x.Keyword));
         }
 
         private static bool BeValidSorting(string? sorting)

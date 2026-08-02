@@ -121,7 +121,7 @@ const saveMarkup = async () => {
     await agentApi.setMarkup({ configId: selectedMarkup.value.configId, markupAddPrice: markupAmount.value })
     message.success('加价配置已保存')
     markupModal.value = false
-    await loadMarkups()
+    // 加价列表接口后端尚未提供，保存后不刷新列表
   } catch (error) { message.error(error.message) }
   finally { saving.value = false }
 }
@@ -139,15 +139,14 @@ const withdraw = async () => {
 }
 
 watch(() => [childQuery.enabled, childQuery.page, childQuery.pageSize], loadChildren)
-watch(() => [markupQuery.page, markupQuery.pageSize], loadMarkups)
-onMounted(() => Promise.all([loadChildren(), loadMarkups(), auth.loadUser()]))
+onMounted(() => Promise.all([loadChildren(), auth.loadUser()]))
 </script>
 
 <template>
   <div class="agent-page">
     <header class="page-header">
       <div><h2>代理管理</h2><p>管理直属用户、余额转赠与业务加价</p></div>
-      <div class="header-actions"><Button @click="withdrawModal = true">提取代理余额</Button><Button type="primary" @click="childModal = true">新增用户</Button></div>
+      <div class="header-actions"><Button disabled title="功能暂未开放：后端未提供该接口">提取代理余额（暂未开放）</Button><Button type="primary" @click="childModal = true">新增用户</Button></div>
     </header>
 
     <Row :gutter="[16, 16]" class="stats">
