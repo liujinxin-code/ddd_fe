@@ -60,5 +60,12 @@ namespace Application.Abstractions.Repositories
         /// <param name="keyword">可选关键词，按用户名或邮箱模糊匹配（null/空表示查全部）</param>
         /// <param name="ct"></param>
         Task<(IReadOnlyList<TkUser> Items, int Total)> GetChildrenByAgentAsync(long agentUserid, int pageIndex, int pageSize, string? keyword, string? sortField, bool sortDesc, CancellationToken ct = default);
+
+        /// <summary>
+        /// 统计指定代理的下级用户数量：已启用数与总数（IsAgent=0 且未删除）。
+        /// </summary>
+        /// <param name="agentUserid">上级代理id</param>
+        /// <param name="ct"></param>
+        Task<(int EnabledCount, int TotalCount)> GetChildrenStatsAsync(long agentUserid, CancellationToken ct = default);
     }
 }

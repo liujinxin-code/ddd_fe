@@ -58,6 +58,8 @@ export const homeApi = {
 }
 
 export const agentApi = {
+  // 代理仪表盘：POST {} → { userAmount, agentAmount, enabledChildrenCount, totalChildrenCount }
+  dashboard: () => request('/Agent/dashboard', { method: 'POST', body: {} }),
   // 下级用户分页：POST { pageIndex, pageSize, keyword }
   children: async (params) => {
     const result = await request('/Agent/children', {
@@ -74,10 +76,12 @@ export const agentApi = {
       email: c.email,
       userAmount: c.userAmount,
       enabled: c.userStatus === 1, // TkUserStatus：Enable=1 / Disable=0
-      createTime: null, // 后端下级列表未返回创建时间
+      createTime: c.createTime,
     }))
     return { ...result, data }
   },
+  // 设置总体加价百分比：POST { overallPercent }（0-200，每代理仅一条，首次新增之后修改）
+  setOverallPrice: (overallPercent) => request('/Agent/overall-price', { method: 'POST', body: { overallPercent } }),
   // 创建下级用户：POST { username, email, password }
   createChild: (body) => request('/Agent/create-children', { method: 'POST', body }),
   // 业务加价列表：后端尚未提供 GET 列表端点，临时禁用调用（不发送请求）

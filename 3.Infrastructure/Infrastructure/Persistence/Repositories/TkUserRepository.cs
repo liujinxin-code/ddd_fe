@@ -111,6 +111,20 @@ namespace Infrastructure.Persistence.Repositories
         }
 
         /// <summary>
+        /// 统计指定代理的下级用户数量：已启用数与总数（IsAgent=0 且未删除）。
+        /// </summary>
+        public async Task<(int EnabledCount, int TotalCount)> GetChildrenStatsAsync(long agentUserid, CancellationToken ct = default)
+        {
+            var query = appDbContext.TkUsers.AsNoTracking()
+                .Where(t => t.AgentUserid == agentUserid && t.IsAgent == 0 && !t.IsDelete);
+
+            int total = await query.CountAsync(ct);
+            int enabled = await query.CountAsync(t => t.UserStatus == Domain.Enums.TkUserStatus.Enable, ct);
+
+            return (enabled, total);
+        }
+
+        /// <summary>
         /// 仅允许白名单内的字段排序，避免任意列名导致 EF 翻译失败或被用于注入。
         /// </summary>
         private static IQueryable<TkUser> ApplyChildrenSorting(IQueryable<TkUser> query, string? sortField, bool sortDesc)
@@ -124,6 +138,7 @@ namespace Infrastructure.Persistence.Repositories
                 "userstatus" => t => t.UserStatus,
                 "agentuserid" => t => t.AgentUserid,
                 "createby" => t => t.Createby,
+                "createtime" => t => t.CreateTime,
                 "userid" => t => t.Userid,
                 _ => t => t.Userid
             };

@@ -46,5 +46,10 @@ namespace Application.Common.Models.Agent
         /// 创建人
         /// </summary>
         public string Createby { get; set; } = string.Empty;
+
+        /// <summary>
+        /// 创建时间
+        /// </summary>
+        public DateTimeOffset CreateTime { get; set; }
     }
 }

@@ -43,7 +43,8 @@ namespace Application.Events.Agent.Handlers.Queries
                 UserAmount = t.UserAmount,
                 UserStatus = t.UserStatus,
                 AgentUserid = t.AgentUserid,
-                Createby = t.Createby
+                Createby = t.Createby,
+                CreateTime = t.CreateTime
             }).ToList();
 
             // data 为 List（IList），ApiResult.Successed 会按 list.Count 回填 DataTotal，

@@ -82,6 +82,19 @@ namespace Open.Controllers
         }
 
         /// <summary>
+        /// 代理管理页仪表盘：用户余额、代理余额、下级用户启用数/总数。
+        /// </summary>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        [HttpPost("dashboard")]
+        [ProducesResponseType(typeof(ApiResult<AgentDashboardItem>), StatusCodes.Status200OK)]
+        public async Task<ApiResult<AgentDashboardItem>> GetDashboardAsync(CancellationToken ct)
+        {
+            var query = new GetAgentDashboardQuery(CurrentUser.Userid);
+            return await mediator.Send(query, ct);
+        }
+
+        /// <summary>
         /// 代理分页查询自己的下级用户（POST 形式），支持按用户名或邮箱关键词模糊匹配（Keyword），以及排序字段（Sorting 形如 "useramount desc"）。
         /// 请求体：{ "PageIndex":1, "PageSize":20, "Keyword":"tom", "Sorting":"useramount desc" }
         /// </summary>

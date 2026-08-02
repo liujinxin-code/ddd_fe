@@ -26,8 +26,20 @@ const childForm = reactive({ email: '', username: '', password: '' })
 const amountForm = reactive({ amount: null })
 const statusEnabled = ref(true)
 const markupAmount = ref(0)
+const dashboard = reactive({ userAmount: 0, agentAmount: 0, enabledChildrenCount: 0, totalChildrenCount: 0 })
+const overallPercent = ref(0)
+const overallLoading = ref(false)
 
-const activeCount = computed(() => children.value.filter((x) => x.enabled).length)
+const loadDashboard = async () => {
+  try {
+    const result = await agentApi.dashboard()
+    const data = result.data || {}
+    dashboard.userAmount = data.userAmount || 0
+    dashboard.agentAmount = data.agentAmount || 0
+    dashboard.enabledChildrenCount = data.enabledChildrenCount || 0
+    dashboard.totalChildrenCount = data.totalChildrenCount || 0
+  } catch (error) { message.error(error.message) }
+}
 
 const loadChildren = async () => {
   childLoading.value = true
@@ -138,8 +150,20 @@ const withdraw = async () => {
   finally { saving.value = false }
 }
 
+const saveOverallPrice = async () => {
+  if (overallPercent.value === null || overallPercent.value === undefined || overallPercent.value < 0 || overallPercent.value > 200) {
+    return message.warning('请输入 0-200 之间的有效百分比')
+  }
+  overallLoading.value = true
+  try {
+    await agentApi.setOverallPrice(Number(overallPercent.value))
+    message.success('总体加价百分比已保存')
+  } catch (error) { message.error(error.message) }
+  finally { overallLoading.value = false }
+}
+
 watch(() => [childQuery.enabled, childQuery.page, childQuery.pageSize], loadChildren)
-onMounted(() => Promise.all([loadChildren(), auth.loadUser()]))
+onMounted(() => Promise.all([loadDashboard(), loadChildren(), auth.loadUser()]))
 </script>
 
 <template>
@@ -150,9 +174,9 @@ onMounted(() => Promise.all([loadChildren(), auth.loadUser()]))
     </header>
 
     <Row :gutter="[16, 16]" class="stats">
-      <Col :xs="24" :md="8"><Card><span>用户余额</span><strong>¥{{ Number(user.userAmount || 0).toFixed(2) }}</strong></Card></Col>
-      <Col :xs="24" :md="8"><Card><span>代理余额</span><strong>¥{{ Number(user.agentAmount || 0).toFixed(2) }}</strong></Card></Col>
-      <Col :xs="24" :md="8"><Card><span>本页启用用户</span><strong>{{ activeCount }} / {{ children.length }}</strong></Card></Col>
+      <Col :xs="24" :md="8"><Card><span>用户余额</span><strong>¥{{ Number(dashboard.userAmount).toFixed(2) }}</strong></Card></Col>
+      <Col :xs="24" :md="8"><Card><span>代理余额</span><strong>¥{{ Number(dashboard.agentAmount).toFixed(2) }}</strong></Card></Col>
+      <Col :xs="24" :md="8"><Card><span>启用用户 / 全部用户</span><strong>{{ dashboard.enabledChildrenCount }} / {{ dashboard.totalChildrenCount }}</strong></Card></Col>
     </Row>
 
     <Card class="section">
@@ -165,6 +189,21 @@ onMounted(() => Promise.all([loadChildren(), auth.loadUser()]))
         </article>
       </div><Empty v-else-if="!childLoading" description="暂无直属用户" /></Spin>
       <Pagination v-model:current="childQuery.page" v-model:page-size="childQuery.pageSize" :total="childTotal" show-size-changer />
+    </Card>
+
+    <Card class="section">
+      <div class="toolbar"><h3>总体加价设置</h3></div>
+      <Spin :spinning="overallLoading">
+        <div class="overall-form">
+          <p class="tips">为所有业务统一设置加价百分比（0-200%），首次保存为新增，之后为修改。</p>
+          <div class="overall-input-row">
+            <InputNumber v-model:value="overallPercent" :min="0" :max="200" :precision="0" placeholder="请输入百分比" style="width: 160px">
+              <template #addonAfter>%</template>
+            </InputNumber>
+            <Button type="primary" :loading="overallLoading" @click="saveOverallPrice">保存</Button>
+          </div>
+        </div>
+      </Spin>
     </Card>
 
     <Card class="section">
@@ -200,5 +239,8 @@ h2,h3,p { margin:0; } .page-header p,.tips,dt,.stats span { color:#9ca3af; }
 .item { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius:8px; padding:1rem; display:grid; gap:.75rem; }
 dl { display:grid; grid-template-columns:auto 1fr; gap:.45rem .8rem; margin:0; } dd { margin:0; text-align:right; word-break:break-word; }
 .actions { justify-content:flex-end; } .form { display:grid; gap:.65rem; }
-@media(max-width:768px){.agent-page{padding:1rem}.filters,.filters :deep(.ant-input-search){width:100%}.grid{grid-template-columns:1fr}.actions>*{flex:1}}
+.overall-form { display:grid; gap:.75rem; }
+.overall-form .tips { min-height:auto; max-height:none; }
+.overall-input-row { display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; }
+@media(max-width:768px){.agent-page{padding:1rem}.filters,.filters :deep(.ant-input-search){width:100%}.grid{grid-template-columns:1fr}.actions>*{flex:1}.overall-input-row :deep(.ant-input-number){width:100% !important}}
 </style>
