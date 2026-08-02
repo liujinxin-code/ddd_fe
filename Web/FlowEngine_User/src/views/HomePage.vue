@@ -125,7 +125,7 @@ onMounted(async () => {
                 <MenuItem v-if="user.isAgent"><router-link to="/app/agent"><Icon icon="UsergroupAddOutlined" /> 代理管理</router-link></MenuItem>
                 <MenuItem><router-link to="/app/order"><Icon icon="OrderedListOutlined" /> 订单列表</router-link></MenuItem>
                 <MenuItem><router-link to="/app/consumption"><Icon icon="MenuUnfoldOutlined" /> 消费列表</router-link></MenuItem>
-                <MenuItem disabled title="功能暂未开放：后端未提供该接口"><span><Icon icon="LockOutlined" /> 修改密码（暂未开放）</span></MenuItem>
+                <MenuItem @click="changePasswordModalVisible = true"><span><Icon icon="LockOutlined" /> 修改密码</span></MenuItem>
                 <MenuItem danger><a href="javascript:;" @click.prevent="handleLogout"><Icon icon="ClearOutlined" /> 退出登录</a></MenuItem>
               </Menu>
             </template>

@@ -1,11 +1,18 @@
 <script setup>
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { Button, Card, Col, Empty, Input, InputNumber, Modal, Pagination, Row, Select, Spin, Tag, message } from 'ant-design-vue'
-import { agentApi } from '../../api'
+import { agentApi, homeApi } from '../../api'
 import { useAuth } from '../../stores/auth'
 
 const auth = useAuth()
 const user = computed(() => auth.user.value || {})
+
+// 价格可精确到小数点后 6 位，去掉末尾无意义的 0
+const formatPrice6 = (value) => Number(value || 0).toLocaleString('zh-CN', {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 6,
+})
+
 const children = ref([])
 const childTotal = ref(0)
 const childLoading = ref(false)
@@ -29,6 +36,15 @@ const markupAmount = ref(0)
 const dashboard = reactive({ userAmount: 0, agentAmount: 0, enabledChildrenCount: 0, totalChildrenCount: 0 })
 const overallPercent = ref(0)
 const overallLoading = ref(false)
+
+// 业务加价新增模态框状态
+const addMarkupModal = ref(false)
+const addMarkupLoading = ref(false)
+const platforms = ref([])
+const subPlatforms = ref([])
+const markupConfigOptions = ref([])
+const addMarkupForm = reactive({ platformId: null, subPlatformId: null, configId: null, markupAddPrice: null })
+const selectedMarkupConfig = ref(null)
 
 const loadDashboard = async () => {
   try {
@@ -55,10 +71,123 @@ const loadMarkups = async () => {
   markupLoading.value = true
   try {
     const result = await agentApi.markups(markupQuery)
-    markups.value = result.data || []
+    markups.value = (result.data || []).map((m) => ({
+      markupId: m.markupId,
+      configId: m.configId,
+      configName: m.configName,
+      configTips: m.configNotice,
+      configPrice: m.configPrice,
+      basePrice: m.basePrice,
+      markupAddPrice: m.markupAddPrice,
+      priceUnit: m.showPriceUnit,
+      childDisplayPrice: m.childDisplayPrice,
+      createTime: m.createTime,
+    }))
     markupTotal.value = result.count
   } catch (error) { message.error(error.message) }
   finally { markupLoading.value = false }
+}
+
+// ── 业务加价新增模态框 ──
+const loadPlatformsForMarkup = async () => {
+  try {
+    const result = await homeApi.platforms()
+    platforms.value = result.data || []
+  } catch (error) { message.error(error.message) }
+}
+
+const loadSubsForMarkup = async () => {
+  addMarkupForm.subPlatformId = null
+  addMarkupForm.configId = null
+  selectedMarkupConfig.value = null
+  markupConfigOptions.value = []
+  if (!addMarkupForm.platformId) {
+    subPlatforms.value = []
+    return
+  }
+  try {
+    const result = await homeApi.subs(addMarkupForm.platformId)
+    subPlatforms.value = result.data || []
+  } catch (error) { message.error(error.message) }
+}
+
+const loadMarkupConfigs = async () => {
+  addMarkupForm.configId = null
+  selectedMarkupConfig.value = null
+  if (!addMarkupForm.platformId || !addMarkupForm.subPlatformId) {
+    markupConfigOptions.value = []
+    return
+  }
+  addMarkupLoading.value = true
+  try {
+    const result = await agentApi.markupConfigs({
+      platformId: addMarkupForm.platformId,
+      subPlatformId: addMarkupForm.subPlatformId,
+      page: 1,
+      pageSize: 100,
+    })
+    markupConfigOptions.value = result.data || []
+  } catch (error) { message.error(error.message) }
+  finally { addMarkupLoading.value = false }
+}
+
+const onMarkupConfigChange = () => {
+  selectedMarkupConfig.value = markupConfigOptions.value.find((c) => c.configId === addMarkupForm.configId) || null
+}
+
+const openAddMarkup = async () => {
+  Object.assign(addMarkupForm, { platformId: null, subPlatformId: null, configId: null, markupAddPrice: null })
+  selectedMarkupConfig.value = null
+  subPlatforms.value = []
+  markupConfigOptions.value = []
+  await loadPlatformsForMarkup()
+  addMarkupModal.value = true
+}
+
+const saveAddMarkup = async () => {
+  if (!addMarkupForm.platformId) return message.warning('请选择平台')
+  if (!addMarkupForm.subPlatformId) return message.warning('请选择子平台')
+  if (!addMarkupForm.configId) return message.warning('请选择业务配置')
+  if (addMarkupForm.markupAddPrice === null || addMarkupForm.markupAddPrice === undefined || addMarkupForm.markupAddPrice < 0) {
+    return message.warning('请输入有效的加价金额')
+  }
+  saving.value = true
+  try {
+    await agentApi.setMarkup({ configId: addMarkupForm.configId, markupAddPrice: addMarkupForm.markupAddPrice })
+    message.success('单业务加价已保存')
+    addMarkupModal.value = false
+    await loadMarkups()
+  } catch (error) { message.error(error.message) }
+  finally { saving.value = false }
+}
+
+const deleteMarkup = (item) => Modal.confirm({
+  title: `删除 [${item.configId}] ${item.configName || `业务 ${item.configId}`} 的加价？`,
+  content: '删除后下级用户对该业务将不再享受此加价，恢复为总体加价或基准价。',
+  okText: '确认删除', cancelText: '取消', centered: true, okButtonProps: { danger: true },
+  async onOk() {
+    try {
+      await agentApi.deleteMarkup(item.configId)
+      message.success('加价已删除')
+      await loadMarkups()
+    } catch (error) { message.error(error.message) }
+  },
+})
+
+const platformOptions = computed(() =>
+  platforms.value.map((p) => ({ value: p.platformId, label: p.platformName || `平台 ${p.platformId}` })),
+)
+const subPlatformOptions = computed(() =>
+  subPlatforms.value.map((s) => ({ value: s.subPlatformId, label: s.subPlatformName || `子平台 ${s.subPlatformId}` })),
+)
+const markupConfigSelectOptions = computed(() =>
+  markupConfigOptions.value.map((c) => ({ value: c.configId, label: `[${c.configId}] ${c.configName || `业务 ${c.configId}`}` })),
+)
+
+// 下拉框按 label 模糊匹配
+const filterOption = (input, option) => {
+  const label = typeof option?.label === 'string' ? option.label : String(option?.label || '')
+  return label.toLowerCase().includes(input.toLowerCase())
 }
 
 const saveChild = async () => {
@@ -128,12 +257,15 @@ const openMarkup = (item) => {
 }
 
 const saveMarkup = async () => {
+  if (markupAmount.value === null || markupAmount.value === undefined || markupAmount.value < 0) {
+    return message.warning('请输入有效的加价金额')
+  }
   saving.value = true
   try {
     await agentApi.setMarkup({ configId: selectedMarkup.value.configId, markupAddPrice: markupAmount.value })
     message.success('加价配置已保存')
     markupModal.value = false
-    // 加价列表接口后端尚未提供，保存后不刷新列表
+    await loadMarkups()
   } catch (error) { message.error(error.message) }
   finally { saving.value = false }
 }
@@ -150,6 +282,15 @@ const withdraw = async () => {
   finally { saving.value = false }
 }
 
+const loadOverallPrice = async () => {
+  overallLoading.value = true
+  try {
+    const result = await agentApi.getOverallPrice()
+    overallPercent.value = result.data?.overallPercent ?? 0
+  } catch (error) { message.error(error.message) }
+  finally { overallLoading.value = false }
+}
+
 const saveOverallPrice = async () => {
   if (overallPercent.value === null || overallPercent.value === undefined || overallPercent.value < 0 || overallPercent.value > 200) {
     return message.warning('请输入 0-200 之间的有效百分比')
@@ -163,7 +304,8 @@ const saveOverallPrice = async () => {
 }
 
 watch(() => [childQuery.enabled, childQuery.page, childQuery.pageSize], loadChildren)
-onMounted(() => Promise.all([loadDashboard(), loadChildren(), auth.loadUser()]))
+watch(() => [markupQuery.page, markupQuery.pageSize], loadMarkups)
+onMounted(() => Promise.all([loadDashboard(), loadChildren(), loadMarkups(), loadOverallPrice(), auth.loadUser()]))
 </script>
 
 <template>
@@ -207,13 +349,13 @@ onMounted(() => Promise.all([loadDashboard(), loadChildren(), auth.loadUser()]))
     </Card>
 
     <Card class="section">
-      <div class="toolbar"><h3>业务加价</h3><Input.Search v-model:value="markupQuery.keyword" placeholder="搜索业务名称" @search="markupQuery.page = 1; loadMarkups()" /></div>
+      <div class="toolbar"><h3>业务加价</h3><div class="filters"><Input.Search v-model:value="markupQuery.keyword" placeholder="搜索业务名称或ID" @search="markupQuery.page = 1; loadMarkups()" /><Button type="primary" @click="openAddMarkup">新增加价</Button></div></div>
       <Spin :spinning="markupLoading"><div v-if="markups.length" class="grid">
         <article v-for="item in markups" :key="item.configId" class="item">
-          <div class="item-title"><strong>{{ item.configName || `服务 ${item.configId}` }}</strong><span>#{{ item.configId }}</span></div>
+          <div class="item-title"><strong>[{{ item.configId }}] {{ item.configName || `服务 ${item.configId}` }}</strong></div>
           <p class="tips">{{ item.configTips || '暂无说明' }}</p>
-          <dl><dt>官方价格</dt><dd>¥{{ Number(item.configPrice).toFixed(2) }}</dd><dt>基础价格</dt><dd>¥{{ Number(item.basePrice).toFixed(2) }}</dd><dt>整包加价</dt><dd>¥{{ Number(item.markupAddPrice).toFixed(2) }}</dd><dt>下级展示价</dt><dd>¥{{ Number(item.childDisplayPrice).toFixed(2) }}</dd><dt>价格单位</dt><dd>{{ item.priceUnit }}</dd><dt>单个加价</dt><dd>¥{{ Number(item.agentSingleAddPrice).toFixed(2) }}</dd></dl>
-          <div class="actions"><Button type="primary" size="small" @click="openMarkup(item)">设置加价</Button></div>
+          <dl><dt>基础价格</dt><dd>¥{{ formatPrice6(item.basePrice) }}</dd><dt>加价金额</dt><dd>¥{{ formatPrice6(item.markupAddPrice) }}</dd><dt>下级展示价格</dt><dd>¥{{ formatPrice6(item.childDisplayPrice) }}/个</dd></dl>
+          <div class="actions"><Button type="primary" size="small" @click="openMarkup(item)">设置加价</Button><Button size="small" danger @click="deleteMarkup(item)">删除</Button></div>
         </article>
       </div><Empty v-else-if="!markupLoading" description="暂无业务配置" /></Spin>
       <Pagination v-model:current="markupQuery.page" v-model:page-size="markupQuery.pageSize" :total="markupTotal" show-size-changer />
@@ -222,7 +364,24 @@ onMounted(() => Promise.all([loadDashboard(), loadChildren(), auth.loadUser()]))
     <Modal v-model:open="childModal" title="新增直属用户" :confirm-loading="saving" @ok="saveChild"><div class="form"><label>邮箱</label><Input v-model:value="childForm.email"/><label>用户名</label><Input v-model:value="childForm.username"/><label>密码</label><Input.Password v-model:value="childForm.password"/></div></Modal>
     <Modal v-model:open="transferModal" :title="`向 ${selectedChild?.username || ''} 赠送余额`" :confirm-loading="saving" @ok="transfer"><InputNumber v-model:value="amountForm.amount" :min="0.01" :precision="2" style="width:100%"/></Modal>
     <Modal v-model:open="statusModal" :title="`修改 ${selectedChild?.username || ''} 状态`" :confirm-loading="saving" @ok="saveStatus"><Select v-model:value="statusEnabled" style="width:100%"><Select.Option :value="true">已启用</Select.Option><Select.Option :value="false">已停用</Select.Option></Select></Modal>
-    <Modal v-model:open="markupModal" :title="`设置 ${selectedMarkup?.configName || ''} 加价`" :confirm-loading="saving" @ok="saveMarkup"><div class="form"><span>基础价格：¥{{ Number(selectedMarkup?.basePrice || 0).toFixed(2) }} / {{ selectedMarkup?.priceUnit || 1 }}</span><label>整包加价</label><InputNumber v-model:value="markupAmount" :min="0.01" :precision="2" style="width:100%"/></div></Modal>
+    <Modal v-model:open="markupModal" :title="selectedMarkup ? `设置 [${selectedMarkup.configId}] ${selectedMarkup.configName} 加价` : '设置加价'" :confirm-loading="saving" @ok="saveMarkup"><div class="form"><span>基础价格：¥{{ formatPrice6(selectedMarkup?.basePrice) }}/个</span><label>整包加价</label><InputNumber v-model:value="markupAmount" :min="0" :precision="6" style="width:100%"/></div></Modal>
+    <Modal v-model:open="addMarkupModal" title="新增单业务加价" :confirm-loading="saving" @ok="saveAddMarkup">
+      <Spin :spinning="addMarkupLoading">
+        <div class="form markup-add-form">
+          <label>平台</label>
+          <Select v-model:value="addMarkupForm.platformId" :options="platformOptions" placeholder="请选择平台" show-search :filter-option="filterOption" style="width:100%" @change="loadSubsForMarkup" />
+          <label>子平台</label>
+          <Select v-model:value="addMarkupForm.subPlatformId" :options="subPlatformOptions" placeholder="请选择子平台" show-search :filter-option="filterOption" style="width:100%" @change="loadMarkupConfigs" />
+          <label>业务配置</label>
+          <Select v-model:value="addMarkupForm.configId" :options="markupConfigSelectOptions" placeholder="请选择业务配置" show-search :filter-option="filterOption" style="width:100%" @change="onMarkupConfigChange" />
+          <div v-if="selectedMarkupConfig" class="base-price-hint">
+            <span>基准价格：¥{{ formatPrice6(selectedMarkupConfig.basePrice) }}/个</span>
+          </div>
+          <label>加价金额</label>
+          <InputNumber v-model:value="addMarkupForm.markupAddPrice" :min="0" :precision="6" placeholder="请输入加价金额" style="width:100%" />
+        </div>
+      </Spin>
+    </Modal>
     <Modal v-model:open="withdrawModal" title="提取代理余额" :confirm-loading="saving" @ok="withdraw"><div class="form"><span>可提取：¥{{ Number(user.agentAmount || 0).toFixed(2) }}</span><InputNumber v-model:value="amountForm.amount" :min="0.01" :max="Number(user.agentAmount || 0)" :precision="2" style="width:100%"/></div></Modal>
   </div>
 </template>
@@ -242,5 +401,7 @@ dl { display:grid; grid-template-columns:auto 1fr; gap:.45rem .8rem; margin:0; }
 .overall-form { display:grid; gap:.75rem; }
 .overall-form .tips { min-height:auto; max-height:none; }
 .overall-input-row { display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; }
-@media(max-width:768px){.agent-page{padding:1rem}.filters,.filters :deep(.ant-input-search){width:100%}.grid{grid-template-columns:1fr}.actions>*{flex:1}.overall-input-row :deep(.ant-input-number){width:100% !important}}
+.markup-add-form label { color:#9ca3af; font-size:.875rem; }
+.base-price-hint { display:flex; gap:1rem; color:#f59e0b; font-size:.875rem; padding:.35rem 0; }
+@media(max-width:768px){.agent-page{padding:1rem}.filters,.filters :deep(.ant-input-search){width:100%}.grid{grid-template-columns:1fr}.actions>*{flex:1}.overall-input-row :deep(.ant-input-number){width:100% !important}.markup-add-form :deep(.ant-select),.markup-add-form :deep(.ant-input-number){width:100% !important}}
 </style>

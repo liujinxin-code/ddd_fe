@@ -17,8 +17,8 @@ export const authApi = {
   info: () => request('/User/info'),
   // 退出登录（GET）
   logout: () => request('/User/logout'),
-  // 修改密码：后端尚未提供此端点，临时禁用调用（不发送请求）
-  changePassword: () => notImplemented('修改密码'),
+  // 修改密码：body { oldPassword, newPassword }
+  changePassword: (body) => request('/User/change-password', { method: 'POST', body }),
   // 消费流水：后端尚未提供此端点，临时禁用调用（不发送请求）
   consumptions: () => notImplemented('消费流水'),
 }
@@ -80,14 +80,35 @@ export const agentApi = {
     }))
     return { ...result, data }
   },
+  // 获取当前总体加价百分比 → { overallPercent }
+  getOverallPrice: () => request('/Agent/overall-price-info', { method: 'POST' }),
   // 设置总体加价百分比：POST { overallPercent }（0-200，每代理仅一条，首次新增之后修改）
   setOverallPrice: (overallPercent) => request('/Agent/overall-price', { method: 'POST', body: { overallPercent } }),
   // 创建下级用户：POST { username, email, password }
   createChild: (body) => request('/Agent/create-children', { method: 'POST', body }),
-  // 业务加价列表：后端尚未提供 GET 列表端点，临时禁用调用（不发送请求）
-  markups: () => notImplemented('业务加价列表'),
-  // 设置单业务加价：POST { configId, markupAddPrice }
+  // 业务加价列表：POST { pageIndex, pageSize, keyword } → [{ markupId, configId, configName, configNotice, configPrice, basePrice, markupAddPrice, showPriceUnit, childDisplayPrice, createTime }]
+  markups: (params) => request('/Agent/markups', {
+    method: 'POST',
+    body: {
+      pageIndex: params.page,
+      pageSize: params.pageSize,
+      keyword: params.keyword || undefined,
+    },
+  }),
+  // 新增加价可选配置列表：POST { platformId, subPlatformId, pageIndex, pageSize } → [{ configId, configName, configNotice, basePrice, showPriceUnit, minQuantity, maxQuantity, orderUnit }]
+  markupConfigs: (params) => request('/Agent/markup-configs', {
+    method: 'POST',
+    body: {
+      platformId: params.platformId,
+      subPlatformId: params.subPlatformId,
+      pageIndex: params.page,
+      pageSize: params.pageSize,
+    },
+  }),
+  // 设置单业务加价：POST { configId, markupAddPrice }（存在则修改，不存在则新增）
   setMarkup: (body) => request('/Agent/markup', { method: 'POST', body }),
+  // 删除单业务加价：POST { configId }
+  deleteMarkup: (configId) => request('/Agent/markup-delete', { method: 'POST', body: { configId } }),
   // 修改下级状态：POST { childrenUserid, userStatus }
   changeStatus: (userId, payload) =>
     request('/Agent/update-status', {

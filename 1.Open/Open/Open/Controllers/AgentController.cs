@@ -127,6 +127,17 @@ namespace Open.Controllers
         }
 
         /// <summary>
+        /// 获取代理当前总体加价百分比。未设置时返回 0。
+        /// </summary>
+        [HttpPost("overall-price-info")]
+        [ProducesResponseType(typeof(ApiResult<AgentOverallPriceItem>), StatusCodes.Status200OK)]
+        public async Task<ApiResult<AgentOverallPriceItem>> GetOverallPriceAsync(CancellationToken ct)
+        {
+            var query = new GetAgentOverallPriceQuery(CurrentUser.Userid);
+            return await mediator.Send(query, ct);
+        }
+
+        /// <summary>
         /// 代理新增 / 修改自己名下某 config 的加价金额（同一 config 存在则修改，否则新增）。
         /// </summary>
         [HttpPost("markup")]
@@ -152,6 +163,36 @@ namespace Open.Controllers
                 AgentUserId = CurrentUser.Userid
             };
             return await mediator.Send(cmd, ct);
+        }
+
+        /// <summary>
+        /// 代理分页获取自己名下的单业务加价列表，支持按业务名称关键字检索。
+        /// 请求体：{ "PageIndex":1, "PageSize":6, "Keyword":"粉丝" }
+        /// </summary>
+        [HttpPost("markups")]
+        [ProducesResponseType(typeof(ApiResult<List<AgentMarkupListItem>>), StatusCodes.Status200OK)]
+        public async Task<ApiResult<List<AgentMarkupListItem>>> GetMarkupsAsync([FromBody] GetAgentMarkupsQuery query, CancellationToken ct)
+        {
+            query = query with
+            {
+                UserId = CurrentUser.Userid
+            };
+            return await mediator.Send(query, ct);
+        }
+
+        /// <summary>
+        /// 代理在「新增单业务加价」模态框中，按平台/子平台获取尚未加价的 config 列表（含代理基准价）。
+        /// 请求体：{ "PlatformId":1, "SubPlatformId":2, "PageIndex":1, "PageSize":100 }
+        /// </summary>
+        [HttpPost("markup-configs")]
+        [ProducesResponseType(typeof(ApiResult<List<AgentMarkupConfigItem>>), StatusCodes.Status200OK)]
+        public async Task<ApiResult<List<AgentMarkupConfigItem>>> GetMarkupConfigsAsync([FromBody] GetAgentMarkupConfigsQuery query, CancellationToken ct)
+        {
+            query = query with
+            {
+                UserId = CurrentUser.Userid
+            };
+            return await mediator.Send(query, ct);
         }
     }
 }

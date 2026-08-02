@@ -56,5 +56,19 @@ namespace Open.Controllers
             return userinfo;
         }
 
+        /// <summary>
+        /// 修改当前登录用户密码（需验证原密码）。
+        /// </summary>
+        [HttpPost("change-password")]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status200OK)]
+        public async Task<ApiResult> ChangePasswordAsync([FromBody] ChangePasswordCommand cmd, CancellationToken ct)
+        {
+            cmd = cmd with
+            {
+                UserId = CurrentUser.Userid
+            };
+            return await mediator.Send(cmd, ct);
+        }
+
     }
 }

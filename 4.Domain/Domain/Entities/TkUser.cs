@@ -172,5 +172,14 @@ namespace Domain.Entities
         {
             UserVersion++;
         }
+
+        /// <summary>
+        /// 修改自身密码：调用方需先在校验旧密码正确（Hash 验证在基础设施层完成）后调用。
+        /// </summary>
+        public void ChangePasswordFunc(string newPasswordHash)
+        {
+            Password = newPasswordHash;
+            Touch();
+        }
     }
 }

@@ -236,7 +236,7 @@ onMounted(async () => {
             <p class="header-desc">专业、安全、高效的社交媒体增长服务，覆盖 TikTok、Facebook、Instagram 等主流平台。</p>
           </div>
           <div class="header-search">
-            <input v-model="keyword" placeholder="搜索业务名称..." class="search-input" spellcheck="false" @input="onKeywordInput" @keyup.enter="search" />
+            <input v-model="keyword" placeholder="搜索业务名称或ID..." class="search-input" spellcheck="false" @input="onKeywordInput" @keyup.enter="search" />
             <button v-if="keyword" class="search-clear" type="button" title="清空搜索" @click="clearKeyword">×</button>
             <button class="search-btn" type="button" @click="search"><Icon icon="SearchOutlined" /></button>
           </div>
@@ -246,7 +246,7 @@ onMounted(async () => {
           <Spin :spinning="loading">
             <div v-if="services.length" class="service-grid">
               <article v-for="item in services" :key="item.configId" class="service-card" @click="openOrder(item)">
-                <h3 class="card-title">{{ item.configName || `服务 ${item.configId}` }}</h3>
+                <h3 class="card-title">[{{ item.configId }}] {{ item.configName || `服务 ${item.configId}` }}</h3>
                 <p class="card-desc">{{ item.configTips || '暂无服务说明' }}</p>
                 <div class="card-footer">
                   <div class="card-meta">
@@ -281,8 +281,8 @@ onMounted(async () => {
 
     <!-- ═══ 下单弹窗 ═══ -->
     <Modal v-model:open="orderVisible" title="提交订单" :confirm-loading="ordering" ok-text="确认下单" cancel-text="取消" @ok="submitOrder">
-      <div v-if="selectedService" class="order-form">
-        <div class="order-summary"><strong>{{ selectedService.configName }}</strong><span>单价 ¥{{ Number(selectedService.price).toFixed(2) }} / {{ selectedService.priceUnit }} 个</span></div>
+        <div v-if="selectedService" class="order-form">
+        <div class="order-summary"><strong>[{{ selectedService.configId }}] {{ selectedService.configName }}</strong><span>单价 ¥{{ Number(selectedService.price).toFixed(2) }} / {{ selectedService.priceUnit }} 个</span></div>
         <div v-if="selectedService.configTips" class="order-tips"><label>业务说明</label><p>{{ selectedService.configTips }}</p></div>
         <template v-if="!isAccountTemplate(selectedService)">
           <label>目标链接（每行一个，可批量提交）</label>

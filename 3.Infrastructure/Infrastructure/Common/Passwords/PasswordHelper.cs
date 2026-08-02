@@ -27,6 +27,58 @@ namespace Infrastructure.Common.Passwords
             return Convert.ToBase64String(salt.Concat(hash).ToArray());
         }
 
+        public bool VerifyPassword(string password, string storedHash)
+        {
+            if (string.IsNullOrWhiteSpace(storedHash))
+            {
+                return false;
+            }
+
+            var salt = Encoding.UTF8.GetBytes(options.Value.Salt);
+
+            byte[] decoded;
+            try
+            {
+                decoded = Convert.FromBase64String(storedHash);
+            }
+            catch
+            {
+                return false;
+            }
+
+            // 存储格式：base64(salt + hash)，需剥离前缀 salt 才能取出原始 hash
+            if (decoded.Length <= salt.Length)
+            {
+                return false;
+            }
+
+            var stored = new byte[decoded.Length - salt.Length];
+            Buffer.BlockCopy(decoded, salt.Length, stored, 0, stored.Length);
+
+            using var argon2 = new Argon2id(Encoding.UTF8.GetBytes(password))
+            {
+                Salt = salt,
+                DegreeOfParallelism = 4,
+                MemorySize = 65536,
+                Iterations = 4
+            };
+
+            var computed = argon2.GetBytes(32);
+            if (computed.Length != stored.Length)
+            {
+                return false;
+            }
+
+            // 常时比较，避免计时侧信道
+            int diff = 0;
+            for (int i = 0; i < computed.Length; i++)
+            {
+                diff |= computed[i] ^ stored[i];
+            }
+
+            return diff == 0;
+        }
+
         public string GenerateRandomPwd()
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";

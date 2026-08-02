@@ -23,10 +23,18 @@ namespace Infrastructure.Persistence.Repositories
                          && c.SubPlatformId == subPlatformId
                          && c.ConfigStatus == ConfigStatus.AllEnabled);
 
-            // 按业务名模糊检索（keyword 为空时不加条件；LIKE 模式由 EF 参数化，无注入风险）。
+            // 按业务名或 config_id 模糊检索（keyword 为空时不加条件；LIKE 模式由 EF 参数化，无注入风险）。
             if (!string.IsNullOrWhiteSpace(keyword))
             {
-                query = query.Where(c => EF.Functions.Like(c.ConfigName, $"%{keyword}%"));
+                var kw = keyword.Trim();
+                if (int.TryParse(kw, out var configIdKeyword))
+                {
+                    query = query.Where(c => EF.Functions.Like(c.ConfigName, $"%{kw}%") || c.ConfigId == configIdKeyword);
+                }
+                else
+                {
+                    query = query.Where(c => EF.Functions.Like(c.ConfigName, $"%{kw}%"));
+                }
             }
 
             int total = await query.CountAsync(ct);

@@ -1,5 +1,7 @@
 using Application.Abstractions;
+using Application.Common.Models.Agent;
 using Domain.Entities;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -28,5 +30,17 @@ namespace Application.Abstractions.Repositories
 
         /// <summary>删除一条单业务加价记录。</summary>
         void DeleteMarkup(TkPriceAgentMarkup entity, CancellationToken ct = default);
+
+        /// <summary>
+        /// 分页获取某代理的单业务加价记录，并与 tk_config 关联，支持按业务名称模糊检索。
+        /// 返回加价记录与对应配置的联合读取模型及总条数。
+        /// </summary>
+        Task<(IReadOnlyList<AgentMarkupWithConfig> Items, int Total)> GetMarkupsByAgentAsync(
+            long agentUserId, int pageIndex, int pageSize, string? keyword, CancellationToken ct = default);
+
+        /// <summary>
+        /// 获取某代理已加价的 configId 集合（用于新增时排除已存在记录）。
+        /// </summary>
+        Task<IReadOnlyList<int>> GetMarkupConfigIdsByAgentAsync(long agentUserId, CancellationToken ct = default);
     }
 }
