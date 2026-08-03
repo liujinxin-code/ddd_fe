@@ -181,5 +181,24 @@ namespace Domain.Entities
             Password = newPasswordHash;
             Touch();
         }
+
+        /// <summary>
+        /// 代理将代理收益余额提取到个人用户余额。
+        /// </summary>
+        /// <param name="amount">提取金额</param>
+        /// <exception cref="InvalidOperationException"></exception>
+        public void WithdrawAgentAmountToUserAmountFunc(decimal amount)
+        {
+            if (amount <= 0) throw new InvalidOperationException("提取金额必须大于 0");
+            RequiredAgentFunc();
+            if (AgentAmount <= 0 || AgentAmount - amount < 0)
+            {
+                throw new InvalidOperationException("代理余额不足，无法提取！");
+            }
+
+            AgentAmount -= amount;
+            UserAmount += amount;
+            Touch();
+        }
     }
 }

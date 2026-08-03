@@ -124,8 +124,8 @@ export const agentApi = {
       method: 'POST',
       body: { childrenUserid: body.childUserId, transferAmount: body.amount },
     }),
-  // 提取代理余额：后端尚未提供此端点，临时禁用调用（不发送请求）
-  withdraw: () => notImplemented('提取代理余额'),
+  // 提取代理余额到用户余额：POST { amount }
+  withdraw: (amount) => request('/Agent/withdraw', { method: 'POST', body: { amount } }),
 }
 
 export const orderApi = {

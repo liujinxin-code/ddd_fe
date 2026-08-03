@@ -1,22 +1,31 @@
-# 修改密码接口补齐与前端对接
+# 提取代理余额功能实现概览
 
-## 现状
-- 后端 `UserController` 原先没有修改密码端点。
-- 前端 `authApi.changePassword` 是 `notImplemented` 占位，`HomePage.vue` 的「修改密码」菜单项是 `disabled` 状态。
-- `ChangePasswordModal` 组件已完整实现（原始密码 / 新密码 / 确认新密码，含两次一致校验）。
+## 问题
+代理管理页顶部的「提取代理余额（暂未开放）」按钮无法点击：后端没有对应接口，前端 `agentApi.withdraw` 也是 `notImplemented` 占位。
 
-## 后端新增
-- `IPasswordHelper.VerifyPassword(password, storedHash)` + 实现（Argon2id，按 `base64(salt+hash)` 剥离 salt 后做常时比较）。
-- `TkUser.ChangePasswordFunc(newPasswordHash)` 领域方法（更新 `Password` 并递增版本号）。
-- `ChangePasswordCommand`(record) + `ChangePasswordCommandHandler`：
-  - 校验登录态、原密码非空、新密码 ≥ 6 位、新旧密码不同（防无意义修改）。
-  - `GetByIdAsync` 取被追踪实体，验证原密码后更新并 `SaveChangesAsync`。
-- `UserController` 新增 `POST /User/change-password`，`UserId` 由 `CurrentUser.Userid` 注入（防越权）。
+## 后端改动
+1. **领域层** `4.Domain/Domain/Entities/TkUser.cs`
+   - 新增 `WithdrawAgentAmountToUserAmountFunc(decimal amount)`：校验代理身份、金额 > 0、代理余额充足，将 `AgentAmount` 转到 `UserAmount` 并递增 `UserVersion`。
+
+2. **应用层** `2.Application/Application/Events/Agent/`
+   - 新增 `WithdrawAgentAmountCommand`（`AgentUserId`, `Amount`）。
+   - 新增 `WithdrawAgentAmountCommandValidator`（金额 > 0）。
+   - 新增 `WithdrawAgentAmountCommandHandler`：乐观并发重试加载代理、调用领域方法、写入 `ConsumeStatus.AgentWithdraw` 流水并落库。
+
+3. **接口层** `1.Open/Open/Open/Controllers/AgentController.cs`
+   - 新增 `POST /Agent/withdraw`，`AgentUserId` 由 `CurrentUser.Userid` 注入，防止越权。
 
 ## 前端改动
-- `src/api/index.js`：`changePassword` 改为真实请求 `POST /User/change-password`，body `{ oldPassword, newPassword }`。
-- `src/views/HomePage.vue`：把「修改密码」菜单项从 `disabled` 改为点击打开 `ChangePasswordModal`。
+1. `src/api/index.js`
+   - `agentApi.withdraw` 从 `notImplemented` 占位改为真实请求 `POST /Agent/withdraw`，body `{ amount }`。
+
+2. `src/views/agent/agentIndex.vue`
+   - 顶部「提取代理余额」按钮由 `disabled` 改为可点击，打开提取模态框。
+   - 提取成功后同时刷新仪表盘与当前用户信息，确保余额显示及时更新。
 
 ## 验证
-- 后端 `Application` + `Infrastructure` `dotnet build` 成功；`Open` 因本地 VS/调试进程占用 DLL 导致复制失败（无编译错误），重启 `1.Open` 后生效。
+- 后端 `Domain` / `Application` / `Infrastructure` / `Open` 均 `dotnet build` 成功。
 - 前端 `npm run build` 通过（exit 0）。
+
+## 后续
+重启 `1.Open` 服务后刷新代理管理页，即可正常使用「提取代理余额」功能。

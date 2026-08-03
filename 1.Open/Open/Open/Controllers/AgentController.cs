@@ -48,6 +48,20 @@ namespace Open.Controllers
         }
 
         /// <summary>
+        /// 代理将代理收益余额提取到个人用户余额。
+        /// </summary>
+        [HttpPost("withdraw")]
+        [ProducesResponseType(typeof(ApiResult), StatusCodes.Status200OK)]
+        public async Task<ApiResult> WithdrawAgentAmountAsync([FromBody] WithdrawAgentAmountCommand cmd, CancellationToken ct)
+        {
+            cmd = cmd with
+            {
+                AgentUserId = CurrentUser.Userid
+            };
+            return await mediator.Send(cmd, ct);
+        }
+
+        /// <summary>
         /// 重置下级用户密码
         /// </summary>
         /// <param name="cmd"></param>

@@ -274,10 +274,10 @@ const withdraw = async () => {
   if (!amountForm.amount || amountForm.amount <= 0) return message.warning('请输入有效金额')
   saving.value = true
   try {
-    await agentApi.withdraw({ amount: amountForm.amount })
+    await agentApi.withdraw(amountForm.amount)
     message.success('代理余额已提取到用户余额')
     withdrawModal.value = false
-    await auth.loadUser()
+    await Promise.all([loadDashboard(), auth.loadUser()])
   } catch (error) { message.error(error.message) }
   finally { saving.value = false }
 }
@@ -312,7 +312,7 @@ onMounted(() => Promise.all([loadDashboard(), loadChildren(), loadMarkups(), loa
   <div class="agent-page">
     <header class="page-header">
       <div><h2>代理管理</h2><p>管理直属用户、余额转赠与业务加价</p></div>
-      <div class="header-actions"><Button disabled title="功能暂未开放：后端未提供该接口">提取代理余额（暂未开放）</Button><Button type="primary" @click="childModal = true">新增用户</Button></div>
+      <div class="header-actions"><Button @click="withdrawModal = true; amountForm.amount = null">提取代理余额</Button><Button type="primary" @click="childModal = true">新增用户</Button></div>
     </header>
 
     <Row :gutter="[16, 16]" class="stats">
