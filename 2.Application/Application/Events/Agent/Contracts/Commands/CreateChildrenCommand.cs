@@ -9,8 +9,5 @@ using System.Threading.Tasks;
 
 namespace Application.Events.Agent.Contracts.Commands
 {
-    public record class CreateChildrenCommand(string Username, string Email, string Password) : IRequest<ApiResult>
-    {
-        public long AgentUserid { get; set; }
-    }
+    public record class CreateChildrenCommand(string Username, string Email, string Password) : IRequest<ApiResult>;
 }

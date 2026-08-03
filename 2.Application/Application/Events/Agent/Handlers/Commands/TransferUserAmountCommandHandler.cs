@@ -17,7 +17,8 @@ namespace Application.Events.Agent.Handlers.Commands
     public class TransferUserAmountCommandHandler(
             ITkUserRepository tkUserRepository
          , IConsumeLogRepository consumeLogRepository,
-            IUnitOfWork unitOfWork
+            IUnitOfWork unitOfWork,
+            ICurrentUser currentUser
          ) : IRequestHandler<TransferUserAmountCommand, ApiResult>
     {
         public async Task<ApiResult> Handle(TransferUserAmountCommand cmd, CancellationToken ct)
@@ -29,7 +30,7 @@ namespace Application.Events.Agent.Handlers.Commands
             {
                 await unitOfWork.ExecuteWithRetryAsync(async () =>
                 {
-                    var agent = await tkUserRepository.GetByIdAsync(cmd.AgentUserid);
+                    var agent = await tkUserRepository.GetByIdAsync(currentUser.Userid);
                     if (agent == null) throw new BusinessException("代理不存在");
 
                     var children = await tkUserRepository.GetByIdAsync(cmd.ChildrenUserid);

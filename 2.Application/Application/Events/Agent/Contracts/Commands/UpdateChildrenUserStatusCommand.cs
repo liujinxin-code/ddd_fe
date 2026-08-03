@@ -10,5 +10,5 @@ using System.Threading.Tasks;
 
 namespace Application.Events.Agent.Contracts.Commands
 {
-    public record class UpdateChildrenUserStatusCommand(long AgentUserid, long ChildrenUserid, TkUserStatus UserStatus) : IRequest<ApiResult>;
+    public record class UpdateChildrenUserStatusCommand(long ChildrenUserid, TkUserStatus UserStatus) : IRequest<ApiResult>;
 }

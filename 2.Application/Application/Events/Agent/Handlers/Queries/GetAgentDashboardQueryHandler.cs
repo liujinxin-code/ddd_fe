@@ -10,12 +10,13 @@ using System.Threading.Tasks;
 namespace Application.Events.Agent.Handlers.Queries
 {
     public class GetAgentDashboardQueryHandler(
-        ITkUserRepository tkUserRepository)
+        ITkUserRepository tkUserRepository,
+        ICurrentUser currentUser)
         : IRequestHandler<GetAgentDashboardQuery, ApiResult<AgentDashboardItem>>
     {
         public async Task<ApiResult<AgentDashboardItem>> Handle(GetAgentDashboardQuery query, CancellationToken ct)
         {
-            var user = await tkUserRepository.GetByIdAsync(query.AgentUserid, ct);
+            var user = await tkUserRepository.GetByIdAsync(currentUser.Userid, ct);
             if (user == null)
             {
                 return new ApiResult<AgentDashboardItem>
@@ -26,7 +27,7 @@ namespace Application.Events.Agent.Handlers.Queries
                 };
             }
 
-            var (enabledCount, totalCount) = await tkUserRepository.GetChildrenStatsAsync(query.AgentUserid, ct);
+            var (enabledCount, totalCount) = await tkUserRepository.GetChildrenStatsAsync(currentUser.Userid, ct);
 
             var item = new AgentDashboardItem
             {

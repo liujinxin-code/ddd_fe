@@ -14,13 +14,14 @@ namespace Application.Events.Agent.Handlers.Queries
 {
     public class GetAgentMarkupsQueryHandler(
         IAgentPricingRepository agentPricingRepository,
-        IConfigRepository configRepository)
+        IConfigRepository configRepository,
+        ICurrentUser currentUser)
         : IRequestHandler<GetAgentMarkupsQuery, ApiResult<List<AgentMarkupListItem>>>
     {
         public async Task<ApiResult<List<AgentMarkupListItem>>> Handle(GetAgentMarkupsQuery query, CancellationToken ct)
         {
             var (items, total) = await agentPricingRepository.GetMarkupsByAgentAsync(
-                query.UserId, query.PageIndex, query.PageSize, query.Keyword, ct);
+                currentUser.Userid, query.PageIndex, query.PageSize, query.Keyword, ct);
 
             if (items.Count == 0)
             {
@@ -28,7 +29,7 @@ namespace Application.Events.Agent.Handlers.Queries
             }
 
             var configIds = items.Select(x => x.Config.ConfigId).ToList();
-            var agentCustom = await configRepository.GetAgentCustomPricesAsync(query.UserId, configIds, ct);
+            var agentCustom = await configRepository.GetAgentCustomPricesAsync(currentUser.Userid, configIds, ct);
 
             var list = items.Select(x =>
             {

@@ -3,7 +3,6 @@ using Application.Common.Models.Agent;
 using Application.Common.Models.User;
 using Application.Events.Agent.Contracts.Commands;
 using Application.Events.Agent.Contracts.Queries;
-using Application.Events.User.Contracts.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -17,33 +16,20 @@ namespace Open.Controllers
         /// <summary>
         /// 代理创建下级用户
         /// </summary>
-        /// <param name="cmd"></param>
-        /// <param name="ct"></param>
-        /// <returns></returns>
         [HttpPost("create-children")]
         [ProducesResponseType(typeof(ApiResult<LoginResponse>), StatusCodes.Status200OK)]
         public async Task<ApiResult> CreateChildrenAsync([FromBody] CreateChildrenCommand cmd, CancellationToken ct)
         {
-            cmd = cmd with
-            {
-                AgentUserid = CurrentUser.Userid
-            };
             return await mediator.Send(cmd, ct);
         }
+
         /// <summary>
         /// 代理向下级用户转赠余额
         /// </summary>
-        /// <param name="cmd"></param>
-        /// <param name="ct"></param>
-        /// <returns></returns>
         [HttpPost("transfer")]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status200OK)]
         public async Task<ApiResult> TransferUserAmountAsync([FromBody] TransferUserAmountCommand cmd, CancellationToken ct)
         {
-            cmd = cmd with
-            {
-                AgentUserid = CurrentUser.Userid
-            };
             return await mediator.Send(cmd, ct);
         }
 
@@ -54,57 +40,37 @@ namespace Open.Controllers
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status200OK)]
         public async Task<ApiResult> WithdrawAgentAmountAsync([FromBody] WithdrawAgentAmountCommand cmd, CancellationToken ct)
         {
-            cmd = cmd with
-            {
-                AgentUserId = CurrentUser.Userid
-            };
             return await mediator.Send(cmd, ct);
         }
 
         /// <summary>
         /// 重置下级用户密码
         /// </summary>
-        /// <param name="cmd"></param>
-        /// <param name="ct"></param>
-        /// <returns></returns>
         [HttpPost("reset-password")]
         [ProducesResponseType(typeof(ApiResult<ResetChildrenPasswordResponse>), StatusCodes.Status200OK)]
         public async Task<ApiResult<ResetChildrenPasswordResponse>> ResetChildrenPasswordAsync([FromBody] ResetChildrenPasswordCommand cmd, CancellationToken ct)
         {
-            cmd = cmd with
-            {
-                AgentUserid = CurrentUser.Userid
-            };
             return await mediator.Send(cmd, ct);
         }
 
         /// <summary>
         /// 修改下级用户状态
         /// </summary>
-        /// <param name="cmd"></param>
-        /// <param name="ct"></param>
-        /// <returns></returns>
         [HttpPost("update-status")]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status200OK)]
         public async Task<ApiResult> UpdateChildrenUserStatusAsync([FromBody] UpdateChildrenUserStatusCommand cmd, CancellationToken ct)
         {
-            cmd = cmd with
-            {
-                AgentUserid = CurrentUser.Userid
-            };
             return await mediator.Send(cmd, ct);
         }
 
         /// <summary>
         /// 代理管理页仪表盘：用户余额、代理余额、下级用户启用数/总数。
         /// </summary>
-        /// <param name="ct"></param>
-        /// <returns></returns>
         [HttpPost("dashboard")]
         [ProducesResponseType(typeof(ApiResult<AgentDashboardItem>), StatusCodes.Status200OK)]
         public async Task<ApiResult<AgentDashboardItem>> GetDashboardAsync(CancellationToken ct)
         {
-            var query = new GetAgentDashboardQuery(CurrentUser.Userid);
+            var query = new GetAgentDashboardQuery();
             return await mediator.Send(query, ct);
         }
 
@@ -112,17 +78,10 @@ namespace Open.Controllers
         /// 代理分页查询自己的下级用户（POST 形式），支持按用户名或邮箱关键词模糊匹配（Keyword），以及排序字段（Sorting 形如 "useramount desc"）。
         /// 请求体：{ "PageIndex":1, "PageSize":20, "Keyword":"tom", "Sorting":"useramount desc" }
         /// </summary>
-        /// <param name="query"></param>
-        /// <param name="ct"></param>
-        /// <returns></returns>
         [HttpPost("children")]
         [ProducesResponseType(typeof(ApiResult<List<ChildrenUserListItem>>), StatusCodes.Status200OK)]
         public async Task<ApiResult<List<ChildrenUserListItem>>> GetChildrenUsersAsync([FromBody] GetChildrenUsersQuery query, CancellationToken ct)
         {
-            query = query with
-            {
-                AgentUserid = CurrentUser.Userid
-            };
             return await mediator.Send(query, ct);
         }
 
@@ -133,10 +92,6 @@ namespace Open.Controllers
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status200OK)]
         public async Task<ApiResult> UpsertOverallPriceAsync([FromBody] UpsertAgentOverallPriceCommand cmd, CancellationToken ct)
         {
-            cmd = cmd with
-            {
-                UserId = CurrentUser.Userid
-            };
             return await mediator.Send(cmd, ct);
         }
 
@@ -147,7 +102,7 @@ namespace Open.Controllers
         [ProducesResponseType(typeof(ApiResult<AgentOverallPriceItem>), StatusCodes.Status200OK)]
         public async Task<ApiResult<AgentOverallPriceItem>> GetOverallPriceAsync(CancellationToken ct)
         {
-            var query = new GetAgentOverallPriceQuery(CurrentUser.Userid);
+            var query = new GetAgentOverallPriceQuery();
             return await mediator.Send(query, ct);
         }
 
@@ -158,10 +113,6 @@ namespace Open.Controllers
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status200OK)]
         public async Task<ApiResult> UpsertMarkupAsync([FromBody] UpsertAgentMarkupCommand cmd, CancellationToken ct)
         {
-            cmd = cmd with
-            {
-                AgentUserId = CurrentUser.Userid
-            };
             return await mediator.Send(cmd, ct);
         }
 
@@ -172,10 +123,6 @@ namespace Open.Controllers
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status200OK)]
         public async Task<ApiResult> DeleteMarkupAsync([FromBody] DeleteAgentMarkupCommand cmd, CancellationToken ct)
         {
-            cmd = cmd with
-            {
-                AgentUserId = CurrentUser.Userid
-            };
             return await mediator.Send(cmd, ct);
         }
 
@@ -187,10 +134,6 @@ namespace Open.Controllers
         [ProducesResponseType(typeof(ApiResult<List<AgentMarkupListItem>>), StatusCodes.Status200OK)]
         public async Task<ApiResult<List<AgentMarkupListItem>>> GetMarkupsAsync([FromBody] GetAgentMarkupsQuery query, CancellationToken ct)
         {
-            query = query with
-            {
-                UserId = CurrentUser.Userid
-            };
             return await mediator.Send(query, ct);
         }
 
@@ -202,10 +145,6 @@ namespace Open.Controllers
         [ProducesResponseType(typeof(ApiResult<List<AgentMarkupConfigItem>>), StatusCodes.Status200OK)]
         public async Task<ApiResult<List<AgentMarkupConfigItem>>> GetMarkupConfigsAsync([FromBody] GetAgentMarkupConfigsQuery query, CancellationToken ct)
         {
-            query = query with
-            {
-                UserId = CurrentUser.Userid
-            };
             return await mediator.Send(query, ct);
         }
     }

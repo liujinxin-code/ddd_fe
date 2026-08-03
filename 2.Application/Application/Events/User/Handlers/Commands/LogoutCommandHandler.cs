@@ -10,13 +10,14 @@ using System.Threading.Tasks;
 
 namespace Application.Events.User.Handlers.Commands
 {
-    public class LogoutCommandHandler(ITokenCacheService tokenCacheService
+    public class LogoutCommandHandler(ITokenCacheService tokenCacheService,
+        ICurrentUser currentUser
    ) : IRequestHandler<LogoutCommand, ApiResult>
     {
 
         public async Task<ApiResult> Handle(LogoutCommand args, CancellationToken ct)
         {
-            await tokenCacheService.RemoveTokenAsync(args.Jti, args.Userid);
+            await tokenCacheService.RemoveTokenAsync(currentUser.Jti, currentUser.Userid);
             return ApiResult.Successed("退出成功");
         }
     }

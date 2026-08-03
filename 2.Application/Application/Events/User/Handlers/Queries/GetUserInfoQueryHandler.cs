@@ -14,11 +14,11 @@ using System.Threading.Tasks;
 
 namespace Application.Events.User.Handlers.Queries
 {
-    public class GetUserInfoQueryHandler(ITkUserRepository tkUserRepository) : IRequestHandler<GetUserInfoQuery, ApiResult<UserInfoResponse>>
+    public class GetUserInfoQueryHandler(ITkUserRepository tkUserRepository, ICurrentUser currentUser) : IRequestHandler<GetUserInfoQuery, ApiResult<UserInfoResponse>>
     {
         public async Task<ApiResult<UserInfoResponse>> Handle(GetUserInfoQuery query, CancellationToken ct)
         {
-            TkUser? user = await tkUserRepository.GetByIdAsync(query.Userid, ct);
+            TkUser? user = await tkUserRepository.GetByIdAsync(currentUser.Userid, ct);
             if (user == null)
             {
                 throw new BusinessException("用户不存在");

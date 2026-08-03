@@ -40,8 +40,7 @@ namespace Open.Controllers
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status200OK)]
         public async Task<ApiResult> LogoutAsync()
         {
-            var newArgs = CurrentUser.Adapt<LogoutCommand>();
-            return await mediator.Send(newArgs);
+            return await mediator.Send(new LogoutCommand());
         }
         /// <summary>
         /// 获取用户个人信息
@@ -51,9 +50,7 @@ namespace Open.Controllers
         [ProducesResponseType(typeof(ApiResult<GetUserInfoQuery>), StatusCodes.Status200OK)]
         public async Task<ApiResult<UserInfoResponse>> GetUserInfoAsync()
         {
-            var newArgs = CurrentUser.Adapt<GetUserInfoQuery>();
-            var userinfo = await mediator.Send(newArgs);
-            return userinfo;
+            return await mediator.Send(new GetUserInfoQuery());
         }
 
         /// <summary>
@@ -63,10 +60,6 @@ namespace Open.Controllers
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status200OK)]
         public async Task<ApiResult> ChangePasswordAsync([FromBody] ChangePasswordCommand cmd, CancellationToken ct)
         {
-            cmd = cmd with
-            {
-                UserId = CurrentUser.Userid
-            };
             return await mediator.Send(cmd, ct);
         }
 

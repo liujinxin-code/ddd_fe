@@ -16,11 +16,23 @@ namespace Application.Events.Config.Handlers.Queries
 {
     public class GetConfigsQueryHandler(
         IConfigRepository configRepository,
-        ITkUserRepository userRepository)
+        ITkUserRepository userRepository,
+        ICurrentUser currentUser)
         : IRequestHandler<GetConfigsQuery, ApiResult<List<ConfigListItem>>>
     {
         public async Task<ApiResult<List<ConfigListItem>>> Handle(GetConfigsQuery query, CancellationToken ct)
         {
+            if (!currentUser.IsAuthenticated || currentUser.Userid <= 0)
+            {
+                return new ApiResult<List<ConfigListItem>>
+                {
+                    Code = 401,
+                    Message = "登录失效",
+                    Data = new List<ConfigListItem>(),
+                    DataTotal = 0
+                };
+            }
+
             // 解析排序：格式 "字段 [asc|desc]"，缺省按 config_sort 升序。
             string sortField;
             bool sortDesc;
@@ -46,7 +58,7 @@ namespace Application.Events.Config.Handlers.Queries
             }
 
             // 加载当前用户，确定其是否有上级代理，从而决定定价路径。
-            var user = await userRepository.GetByIdAsNoTrackingAsync(query.UserId, ct);
+            var user = await userRepository.GetByIdAsNoTrackingAsync(currentUser.Userid, ct);
             if (user is null)
             {
                 return new ApiResult<List<ConfigListItem>>
@@ -63,7 +75,7 @@ namespace Application.Events.Config.Handlers.Queries
 
             // 一次性装配当前用户的定价上下文（批量查询，避免 N+1）。
             var configIds = configs.Select(c => c.ConfigId).ToList();
-            var userCustom = await configRepository.GetUserCustomPricesAsync(query.UserId, configIds, ct);
+            var userCustom = await configRepository.GetUserCustomPricesAsync(currentUser.Userid, configIds, ct);
 
             Dictionary<int, decimal> agentCustom = new();
             Dictionary<int, decimal> agentMarkup = new();

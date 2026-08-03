@@ -8,10 +8,9 @@ namespace Application.Events.Agent.Contracts.Queries
     /// <summary>
     /// 代理获取自己名下单业务加价记录列表（tk_price_agent_markup）。
     /// 支持按业务名称关键字检索、分页排序。
-    /// UserId 由控制器从当前登录用户注入（CurrentUser.Userid），前台不可伪造。
+    /// 当前登录用户id 由 ICurrentUser 注入（前台不可伪造）。
     /// </summary>
     public record class GetAgentMarkupsQuery(
-        long UserId = 0,
         string Keyword = ""
     ) : PagedQuery, IRequest<ApiResult<List<AgentMarkupListItem>>>;
 }

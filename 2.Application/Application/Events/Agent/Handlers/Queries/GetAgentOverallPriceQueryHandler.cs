@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace Application.Events.Agent.Handlers.Queries
 {
-    public class GetAgentOverallPriceQueryHandler(IAgentPricingRepository agentPricingRepository)
+    public class GetAgentOverallPriceQueryHandler(IAgentPricingRepository agentPricingRepository, ICurrentUser currentUser)
         : IRequestHandler<GetAgentOverallPriceQuery, ApiResult<AgentOverallPriceItem>>
     {
         public async Task<ApiResult<AgentOverallPriceItem>> Handle(GetAgentOverallPriceQuery request, CancellationToken ct)
         {
-            var entity = await agentPricingRepository.GetOverallByUserAsync(request.UserId, ct);
+            var entity = await agentPricingRepository.GetOverallByUserAsync(currentUser.Userid, ct);
             var percent = entity?.OverallPercent ?? 0;
 
             return new ApiResult<AgentOverallPriceItem>

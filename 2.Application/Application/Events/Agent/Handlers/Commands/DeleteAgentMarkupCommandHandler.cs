@@ -11,12 +11,13 @@ namespace Application.Events.Agent.Handlers.Commands
 {
     public class DeleteAgentMarkupCommandHandler(
         IAgentPricingRepository agentPricingRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICurrentUser currentUser)
         : IRequestHandler<DeleteAgentMarkupCommand, ApiResult>
     {
         public async Task<ApiResult> Handle(DeleteAgentMarkupCommand request, CancellationToken ct)
         {
-            var existing = await agentPricingRepository.GetMarkupAsync(request.ConfigId, request.AgentUserId, ct);
+            var existing = await agentPricingRepository.GetMarkupAsync(request.ConfigId, currentUser.Userid, ct);
             if (existing is null)
             {
                 throw new BusinessException("该配置加价记录不存在");

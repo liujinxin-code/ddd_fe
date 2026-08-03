@@ -12,11 +12,22 @@ using System.Threading.Tasks;
 
 namespace Application.Events.Agent.Handlers.Queries
 {
-    public class GetChildrenUsersQueryHandler(ITkUserRepository tkUserRepository)
+    public class GetChildrenUsersQueryHandler(ITkUserRepository tkUserRepository, ICurrentUser currentUser)
         : IRequestHandler<GetChildrenUsersQuery, ApiResult<List<ChildrenUserListItem>>>
     {
         public async Task<ApiResult<List<ChildrenUserListItem>>> Handle(GetChildrenUsersQuery query, CancellationToken ct)
         {
+            if (!currentUser.IsAuthenticated || currentUser.Userid <= 0)
+            {
+                return new ApiResult<List<ChildrenUserListItem>>
+                {
+                    Code = 401,
+                    Message = "登录失效",
+                    Data = new List<ChildrenUserListItem>(),
+                    DataTotal = 0
+                };
+            }
+
             // 解析排序：格式 "字段 [asc|desc]"，缺省按 userid 倒序（最新创建的在前）。
             string sortField;
             bool sortDesc;
@@ -33,7 +44,7 @@ namespace Application.Events.Agent.Handlers.Queries
             }
 
             var (items, total) = await tkUserRepository.GetChildrenByAgentAsync(
-                query.AgentUserid, query.PageIndex, query.PageSize, query.Keyword, sortField, sortDesc, ct);
+                currentUser.Userid, query.PageIndex, query.PageSize, query.Keyword, sortField, sortDesc, ct);
 
             var list = items.Select(t => new ChildrenUserListItem
             {

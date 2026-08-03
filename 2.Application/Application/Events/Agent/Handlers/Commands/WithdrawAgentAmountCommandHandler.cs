@@ -13,16 +13,20 @@ namespace Application.Events.Agent.Handlers.Commands
     public class WithdrawAgentAmountCommandHandler(
             ITkUserRepository tkUserRepository,
             IConsumeLogRepository consumeLogRepository,
-            IUnitOfWork unitOfWork
+            IUnitOfWork unitOfWork,
+            ICurrentUser currentUser
          ) : IRequestHandler<WithdrawAgentAmountCommand, ApiResult>
     {
         public async Task<ApiResult> Handle(WithdrawAgentAmountCommand cmd, CancellationToken ct)
         {
+            if (!currentUser.IsAuthenticated || currentUser.Userid <= 0)
+                return ApiResult.UnAuth();
+
             try
             {
                 await unitOfWork.ExecuteWithRetryAsync(async () =>
                 {
-                    var agent = await tkUserRepository.GetByIdAsync(cmd.AgentUserId);
+                    var agent = await tkUserRepository.GetByIdAsync(currentUser.Userid);
                     if (agent == null) throw new BusinessException("代理不存在");
 
                     var userBefore = agent.UserAmount;

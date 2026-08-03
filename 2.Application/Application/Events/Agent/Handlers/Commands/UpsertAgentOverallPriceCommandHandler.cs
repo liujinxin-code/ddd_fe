@@ -11,15 +11,16 @@ namespace Application.Events.Agent.Handlers.Commands
 {
     public class UpsertAgentOverallPriceCommandHandler(
         IAgentPricingRepository agentPricingRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICurrentUser currentUser)
         : IRequestHandler<UpsertAgentOverallPriceCommand, ApiResult>
     {
         public async Task<ApiResult> Handle(UpsertAgentOverallPriceCommand request, CancellationToken ct)
         {
-            var existing = await agentPricingRepository.GetOverallByUserAsync(request.UserId, ct);
+            var existing = await agentPricingRepository.GetOverallByUserAsync(currentUser.Userid, ct);
             if (existing is null)
             {
-                var entity = new TkPriceOverall(request.UserId, request.OverallPercent);
+                var entity = new TkPriceOverall(currentUser.Userid, request.OverallPercent);
                 await agentPricingRepository.AddOverallAsync(entity, ct);
             }
             else

@@ -18,11 +18,12 @@ namespace Application.Events.User.Handlers.Commands
     public class ChangePasswordCommandHandler(
         ITkUserRepository tkUserRepository,
         IUnitOfWork unitOfWork,
-        IPasswordHelper passwordHelper) : IRequestHandler<ChangePasswordCommand, ApiResult>
+        IPasswordHelper passwordHelper,
+        ICurrentUser currentUser) : IRequestHandler<ChangePasswordCommand, ApiResult>
     {
         public async Task<ApiResult> Handle(ChangePasswordCommand cmd, CancellationToken ct)
         {
-            if (cmd.UserId <= 0)
+            if (currentUser.Userid <= 0)
             {
                 throw new BusinessException("用户未登录或身份无效");
             }
@@ -40,7 +41,7 @@ namespace Application.Events.User.Handlers.Commands
             }
 
             // 取被追踪实体，更新后由 IUnitOfWork 持久化
-            var user = await tkUserRepository.GetByIdAsync(cmd.UserId, ct);
+            var user = await tkUserRepository.GetByIdAsync(currentUser.Userid, ct);
             if (user == null)
             {
                 throw new BusinessException("用户不存在");

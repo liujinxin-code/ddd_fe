@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Application.Events.User.Contracts.Queries
 {
-    public record class GetUserInfoQuery(long Userid) : IRequest<ApiResult<UserInfoResponse>>
+    public record class GetUserInfoQuery() : IRequest<ApiResult<UserInfoResponse>>
     {
     }
 }

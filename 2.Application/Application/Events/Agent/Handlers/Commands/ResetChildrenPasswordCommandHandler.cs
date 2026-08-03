@@ -17,7 +17,8 @@ namespace Application.Events.Agent.Handlers.Commands
     public class ResetChildrenPasswordCommandHandler(
         IPasswordHelper passwordHelper,
         ITkUserRepository tkUserRepository,
-        IUnitOfWork unitOfWork
+        IUnitOfWork unitOfWork,
+        ICurrentUser currentUser
            ) : IRequestHandler<ResetChildrenPasswordCommand, ApiResult<ResetChildrenPasswordResponse>>
     {
 
@@ -26,7 +27,7 @@ namespace Application.Events.Agent.Handlers.Commands
         {
             string newPassword = passwordHelper.GenerateRandomPwd();
             string newPasswordHash = passwordHelper.GeneratePasswordHash(newPassword);
-            var agent = await tkUserRepository.GetByIdAsync(request.AgentUserid, ct);
+            var agent = await tkUserRepository.GetByIdAsync(currentUser.Userid, ct);
             if (agent == null) throw new BusinessException("代理不存在");
             var children = await tkUserRepository.GetByIdAsync(request.ChildrenUserid, ct);
             if (children == null) throw new BusinessException("用户不存在");

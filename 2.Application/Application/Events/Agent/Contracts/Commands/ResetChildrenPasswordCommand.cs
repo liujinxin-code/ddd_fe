@@ -9,5 +9,5 @@ using System.Threading.Tasks;
 
 namespace Application.Events.Agent.Contracts.Commands
 {
-    public record class ResetChildrenPasswordCommand(long AgentUserid, long ChildrenUserid) : IRequest<ApiResult<ResetChildrenPasswordResponse>>;
+    public record class ResetChildrenPasswordCommand(long ChildrenUserid) : IRequest<ApiResult<ResetChildrenPasswordResponse>>;
 }

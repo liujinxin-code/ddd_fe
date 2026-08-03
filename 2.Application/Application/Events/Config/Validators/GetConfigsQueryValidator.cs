@@ -28,9 +28,6 @@ namespace Application.Events.Config.Validators
             RuleFor(x => x.SubPlatformId)
                 .GreaterThan(0).WithMessage("子平台id必须大于0");
 
-            RuleFor(x => x.UserId)
-                .GreaterThan(0).WithMessage("用户id必须大于0");
-
             RuleFor(x => x.PageIndex)
                 .GreaterThanOrEqualTo(1).WithMessage("页码必须大于等于 1");
 

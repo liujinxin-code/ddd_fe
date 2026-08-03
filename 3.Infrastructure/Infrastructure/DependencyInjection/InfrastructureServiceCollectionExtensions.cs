@@ -3,10 +3,12 @@ using Application.Abstractions.Auth;
 using Application.Abstractions.Caching;
 using Application.Abstractions.Passwords;
 using Application.Abstractions.Repositories;
+using Application.Common.Models;
 using Application.Events.Agent.Contracts;
 using Infrastructure.Common.Auth;
 using Infrastructure.Common.Caching;
 using Infrastructure.Common.Passwords;
+using Infrastructure.Common;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -60,6 +62,11 @@ namespace Infrastructure.DependencyInjection
             services.AddScoped<IPasswordHelper, PasswordHelper>();
             services.AddScoped<ITokenCacheService, TokenCacheService>();
             services.AddScoped<IJwtHelper, JwtHelper>();
+
+            // 当前登录用户：基于已通过 [Authorize] 验证的 JWT Claims，供 Application 层 Handler 注入。
+            // 用户身份只源于服务端 JWT，前台无法伪造。
+            services.AddHttpContextAccessor();
+            services.AddScoped<ICurrentUser, CurrentUserAccessor>();
 
             return services;
 

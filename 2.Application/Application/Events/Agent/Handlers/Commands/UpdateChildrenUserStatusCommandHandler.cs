@@ -19,14 +19,15 @@ namespace Application.Events.Agent.Handlers.Commands
     public class UpdateChildrenUserStatusCommandHandler(
         ITkUserRepository tkUserRepository,
         ITokenCacheService tokenCacheService,
-        IUnitOfWork unitOfWork
+        IUnitOfWork unitOfWork,
+        ICurrentUser currentUser
           ) : IRequestHandler<UpdateChildrenUserStatusCommand, ApiResult>
     {
 
 
         public async Task<ApiResult> Handle(UpdateChildrenUserStatusCommand request, CancellationToken ct)
         {
-            var agent = await tkUserRepository.GetByIdAsync(request.AgentUserid);
+            var agent = await tkUserRepository.GetByIdAsync(currentUser.Userid);
             if (agent == null) throw new BusinessException("代理不存在");
             var children = await tkUserRepository.GetByIdAsync(request.ChildrenUserid);
             if (children == null) throw new BusinessException("用户不存在");

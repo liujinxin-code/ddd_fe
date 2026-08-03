@@ -17,12 +17,13 @@ namespace Application.Events.Agent.Handlers.Commands
     public class CreateChildrenCommandHandler(
         ITkUserRepository tkUserRepository,
         IPasswordHelper passwordHelper,
-        IUnitOfWork unitOfWork
+        IUnitOfWork unitOfWork,
+        ICurrentUser currentUser
     ) : IRequestHandler<CreateChildrenCommand, ApiResult>
     {
         public async Task<ApiResult> Handle(CreateChildrenCommand cmd, CancellationToken ct)
         {
-            var agent = await tkUserRepository.GetByIdAsync(cmd.AgentUserid);
+            var agent = await tkUserRepository.GetByIdAsync(currentUser.Userid);
             if (agent == null) throw new BusinessException("代理不存在");
             agent.RequiredAgentFunc();
             string email = cmd.Email.Trim().ToLower();

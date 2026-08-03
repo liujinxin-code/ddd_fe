@@ -18,13 +18,14 @@ namespace Application.Events.Agent.Handlers.Queries
     /// </summary>
     public class GetAgentMarkupConfigsQueryHandler(
         IConfigRepository configRepository,
-        IAgentPricingRepository agentPricingRepository)
+        IAgentPricingRepository agentPricingRepository,
+        ICurrentUser currentUser)
         : IRequestHandler<GetAgentMarkupConfigsQuery, ApiResult<List<AgentMarkupConfigItem>>>
     {
         public async Task<ApiResult<List<AgentMarkupConfigItem>>> Handle(GetAgentMarkupConfigsQuery query, CancellationToken ct)
         {
             // 获取当前代理已加价的 configId 集合。
-            var existingMarkupConfigIds = await agentPricingRepository.GetMarkupConfigIdsByAgentAsync(query.UserId, ct);
+            var existingMarkupConfigIds = await agentPricingRepository.GetMarkupConfigIdsByAgentAsync(currentUser.Userid, ct);
 
             // 读取指定平台+子平台下、前台可见、且未加价的配置。
             var (configs, _) = await configRepository.GetConfigsAsync(
@@ -49,7 +50,7 @@ namespace Application.Events.Agent.Handlers.Queries
             }
 
             var configIds = availableConfigs.Select(c => c.ConfigId).ToList();
-            var agentCustom = await configRepository.GetAgentCustomPricesAsync(query.UserId, configIds, ct);
+            var agentCustom = await configRepository.GetAgentCustomPricesAsync(currentUser.Userid, configIds, ct);
 
             var list = availableConfigs.Select(c =>
             {

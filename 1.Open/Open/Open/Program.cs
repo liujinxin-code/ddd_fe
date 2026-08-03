@@ -1,7 +1,6 @@
 using Application.DependencyInjection;
 using Infrastructure.DependencyInjection;
 using Microsoft.OpenApi.Models;
-using Open.Filters;
 using Open.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +8,7 @@ builder.Host.UseInfrastructureSerilog(builder.Configuration);
 
 // Add services to the container.
 
-builder.Services.AddControllers(o => o.Filters.Add<CurrentUserFilter>());
+builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
