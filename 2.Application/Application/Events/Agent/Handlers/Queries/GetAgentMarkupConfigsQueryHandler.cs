@@ -27,7 +27,7 @@ namespace Application.Events.Agent.Handlers.Queries
             // 获取当前代理已加价的 configId 集合。
             var existingMarkupConfigIds = await agentPricingRepository.GetMarkupConfigIdsByAgentAsync(currentUser.Userid, ct);
 
-            // 读取指定平台+子平台下、前台可见、且未加价的配置。
+            // 读取指定平台+业务类型下、前台可见、且未加价的配置。
             var (configs, _) = await configRepository.GetConfigsAsync(
                 query.PlatformId,
                 query.SubPlatformId,

@@ -138,7 +138,7 @@ namespace Open.Controllers
         }
 
         /// <summary>
-        /// 代理在「新增单业务加价」模态框中，按平台/子平台获取尚未加价的 config 列表（含代理基准价）。
+        /// 代理在「新增单业务加价」模态框中，按平台/业务类型获取尚未加价的 config 列表（含代理基准价）。
         /// 请求体：{ "PlatformId":1, "SubPlatformId":2, "PageIndex":1, "PageSize":100 }
         /// </summary>
         [HttpPost("markup-configs")]

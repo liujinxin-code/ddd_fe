@@ -48,7 +48,7 @@ namespace Application.Events.Config.Handlers.Queries
                 sortDesc = parts.Length > 1 && parts[1].Equals("desc", StringComparison.OrdinalIgnoreCase);
             }
 
-            // 查询该子平台下前台可见的业务配置（分页）。
+            // 查询该业务类型下前台可见的业务配置（分页）。
             var (configs, total) = await configRepository.GetConfigsAsync(
                 query.PlatformId, query.SubPlatformId, query.PageIndex, query.PageSize, sortField, sortDesc, query.Keyword, ct);
 

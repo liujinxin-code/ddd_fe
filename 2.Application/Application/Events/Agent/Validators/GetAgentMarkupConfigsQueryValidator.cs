@@ -11,7 +11,7 @@ namespace Application.Events.Agent.Validators
                 .GreaterThan(0).WithMessage("平台id必须大于0");
 
             RuleFor(x => x.SubPlatformId)
-                .GreaterThan(0).WithMessage("子平台id必须大于0");
+                .GreaterThan(0).WithMessage("业务类型id必须大于0");
 
             RuleFor(x => x.PageIndex)
                 .GreaterThan(0).WithMessage("页码必须大于0");

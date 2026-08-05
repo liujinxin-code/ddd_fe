@@ -22,7 +22,7 @@ namespace Infrastructure.Persistence.Repositories
         }
 
         /// <summary>
-        /// 按 platform_id 过滤该平台下的子平台（只读）。
+        /// 按 platform_id 过滤该平台下的业务类型（只读）。
         /// </summary>
         public async Task<IReadOnlyList<TkPlatformSub>> GetSubsByPlatformAsync(int platformId, CancellationToken ct = default)
         {

@@ -12,7 +12,7 @@ namespace Infrastructure.Persistence.Repositories
     public class ConfigRepository(AppDbContext appDbContext) : IConfigRepository
     {
         /// <summary>
-        /// 按 平台 + 子平台 过滤，仅取前台可见（config_status=1 全部启用）的配置，分页+排序白名单。
+        /// 按 平台 + 业务类型 过滤，仅取前台可见（config_status=1 全部启用）的配置，分页+排序白名单。
         /// </summary>
         public async Task<(IReadOnlyList<TkConfig> Items, int Total)> GetConfigsAsync(
             int platformId, int subPlatformId, int pageIndex, int pageSize,
@@ -95,6 +95,19 @@ namespace Infrastructure.Persistence.Repositories
         {
             return await appDbContext.TkPriceOveralls.AsNoTracking()
                 .FirstOrDefaultAsync(o => o.UserId == agentUserId, ct);
+        }
+
+        public async Task<IReadOnlyList<TkConfig>> GetByIdsAsync(IEnumerable<int> configIds, CancellationToken ct = default)
+        {
+            var ids = configIds as List<int> ?? configIds.ToList();
+            if (ids.Count == 0)
+            {
+                return new List<TkConfig>();
+            }
+
+            return await appDbContext.TkConfigs.AsNoTracking()
+                .Where(c => ids.Contains(c.ConfigId))
+                .ToListAsync(ct);
         }
 
         /// <summary>

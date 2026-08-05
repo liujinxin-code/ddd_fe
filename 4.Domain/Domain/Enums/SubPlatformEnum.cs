@@ -1,7 +1,7 @@
 namespace Domain.Enums;
 
 /// <summary>
-/// 子平台状态：0 停用 / 1 启用（对应 tk_platform_sub.sub_platform_status）
+/// 业务类型状态：0 停用 / 1 启用（对应 tk_platform_sub.sub_platform_status）
 /// </summary>
 public enum SubPlatformStatus
 {

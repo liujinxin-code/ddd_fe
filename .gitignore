@@ -363,11 +363,6 @@ MigrationBackup/
 .workbuddy/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/Web/FlowEngine_User/dist-check3
-/Web/FlowEngine_User/dist-check2
-/Web/FlowEngine_User/dist-check
-/Web/FlowEngine_User/dist-btn
-/Web/FlowEngine_User/dist-kw
-/Web/FlowEngine_User/dist-search
-/Web/FlowEngine_User/dist-select
-/Web/FlowEngine_User/dist-select2
+# 前端构建产物（Vite 输出 + 子代理验证临时目录）。dist 本身已由 Web/FlowEngine_User/.gitignore 覆盖，这里兜底忽略所有 dist* 目录
+/Web/FlowEngine_User/dist/
+/Web/FlowEngine_User/dist-*/

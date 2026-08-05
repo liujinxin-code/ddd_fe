@@ -26,7 +26,7 @@ export const authApi = {
 export const homeApi = {
   // 平台列表：POST {} → [{ platformId, platformName }]
   platforms: () => request('/Platform/list', { method: 'POST', body: {} }),
-  // 子平台列表（二级联动）：POST { platformId } → [{ subPlatformId, subPlatformName, subPlatformNotice }]
+  // 业务类型列表（二级联动）：POST { platformId } → [{ subPlatformId, subPlatformName, subPlatformNotice }]
   subs: (platformId) => request('/Platform/subs', { method: 'POST', body: { platformId } }),
   // 业务配置列表：POST { platformId, subPlatformId, pageIndex, pageSize, sorting }
   // 需 platform + subPlatform 两级；返回字段映射为前端使用的命名。
@@ -43,11 +43,19 @@ export const homeApi = {
       },
     })
     const data = (result.data || []).map((c) => ({
+      // 基础字段
       configId: c.configId,
       configName: c.configName,
+      configNotice: c.configNotice,
       configTips: c.configNotice,
-      price: c.displayPrice, // 前台展示价（= showPriceUnit × unitPrice）
-      priceUnit: c.showPriceUnit, // 展示单位（如 1000）
+      // 价格字段（保留后端原始命名，供卡片模板使用）
+      unitPrice: c.unitPrice,
+      showPriceUnit: c.showPriceUnit,
+      displayPrice: c.displayPrice,
+      // 兼容弹窗使用的别名
+      price: c.displayPrice,
+      priceUnit: c.showPriceUnit,
+      // 数量约束
       minQuantity: c.minQuantity,
       maxQuantity: c.maxQuantity,
       orderUnit: c.orderUnit,
@@ -129,9 +137,32 @@ export const agentApi = {
 }
 
 export const orderApi = {
-  // 订单列表 / 批量下单：后端尚未提供订单端点，临时禁用调用（不发送请求）
-  list: () => notImplemented('订单列表'),
-  createBatch: () => notImplemented('下单'),
+  // 批量下单：POST /Order/create
+  // body { items: [{ configId, orderLink, quantity, comments }] }
+  //  - 粉丝模板(1)：orderLink 必填 + quantity 必填
+  //  - 评论模板(2)：orderLink 必填 + comments 必填（一条评论 = 一个数量，订单数量恒等于评论条数，无需传 quantity）
+  //  - 账户模板(3)：orderLink 可空 + quantity = 购买账户个数（同次多个账户算一个订单）
+  // 金额由服务端按用户定价计算并即时扣余额；任一明细失败则整批回滚。
+  // → data { orderNos: string[], totalAmount: number }
+  createBatch: (items) => request('/Order/create', { method: 'POST', body: { items } }),
+  // 我的订单分页列表：POST /Order/list
+  // body { orderState, keyword, pageIndex, pageSize, sorting }
+  //  - orderState：0 不筛选 / 1 正在执行 / 2 已完单 / 3 部分完成 / 4 已取消（未收费）
+  //  - keyword 匹配订单号或下单链接；sorting 白名单 createtime/orderamount/quantity/orderstate
+  // 只返回当前登录用户自己的订单（用户id 由后端从 JWT 注入，前端不传，杜绝越权）。
+  // → data [{ orderNo, orderState, orderLink, platformName, subPlatformName, configName,
+  //           orderAmount, quantity, successQuantity, beginQuantity, refundAmount, createTime, jsonTemplate }]
+  list: (params = {}) =>
+    request('/Order/list', {
+      method: 'POST',
+      body: {
+        orderState: params.state || 0,
+        keyword: params.keyword || '',
+        pageIndex: params.page || 1,
+        pageSize: params.pageSize || 10,
+        sorting: params.sorting || 'createtime desc',
+      },
+    }),
 }
 
 export const noticeApi = {

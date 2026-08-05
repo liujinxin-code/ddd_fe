@@ -23,7 +23,7 @@ namespace Open.Controllers
         }
 
         /// <summary>
-        /// 根据 platform_id 获取该平台下的子平台列表，用于第二个下拉框（二级联动）。
+        /// 根据 platform_id 获取该平台下的业务类型列表，用于第二个下拉框（二级联动）。
         /// 返回 sub_platform_id + sub_platform_name。
         /// 请求体：{ "PlatformId": 1 }
         /// </summary>

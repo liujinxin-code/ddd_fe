@@ -12,7 +12,7 @@ namespace Application.Abstractions.Repositories
     public interface IConfigRepository
     {
         /// <summary>
-        /// 按 平台 + 子平台 过滤，仅取前台可见（config_status=1 全部启用）的业务配置，分页并返回总数。
+        /// 按 平台 + 业务类型 过滤，仅取前台可见（config_status=1 全部启用）的业务配置，分页并返回总数。
         /// 排序字段来自白名单（configid/configname/configprice/configsort/minquantity/maxquantity/createtime），缺省按 config_sort 升序。
         /// </summary>
         Task<(IReadOnlyList<TkConfig> Items, int Total)> GetConfigsAsync(
@@ -38,5 +38,10 @@ namespace Application.Abstractions.Repositories
         /// 获取某代理的总体加价配置（按 userid 唯一），不存在返回 null。
         /// </summary>
         Task<TkPriceOverall?> GetAgentOverallAsync(long agentUserId, CancellationToken ct = default);
+
+        /// <summary>
+        /// 按 config_id 列表批量加载业务配置（不限状态，可用性由调用方校验），用于下单时解析价格与渠道。
+        /// </summary>
+        Task<IReadOnlyList<TkConfig>> GetByIdsAsync(IEnumerable<int> configIds, CancellationToken ct = default);
     }
 }

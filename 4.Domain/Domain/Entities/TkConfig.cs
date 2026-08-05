@@ -35,7 +35,7 @@ namespace Domain.Entities
         /// <summary>平台id</summary>
         public int PlatformId { get; private set; }
 
-        /// <summary>子平台id</summary>
+        /// <summary>业务类型id</summary>
         public int SubPlatformId { get; private set; }
 
         /// <summary>渠道id（不参与价格计算，仅作分类/筛选）</summary>

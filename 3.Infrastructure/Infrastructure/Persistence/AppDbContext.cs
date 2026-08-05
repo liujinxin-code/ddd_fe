@@ -24,6 +24,8 @@ namespace Infrastructure.Persistence
         public DbSet<TkPriceOverall> TkPriceOveralls => Set<TkPriceOverall>();
         public DbSet<TkPriceAgentMarkup> TkPriceAgentMarkups => Set<TkPriceAgentMarkup>();
         public DbSet<TkNotice> TkNotices => Set<TkNotice>();
+        public DbSet<TkOrder> TkOrders => Set<TkOrder>();
+        public DbSet<TkComment> TkComments => Set<TkComment>();
         /// <summary>
         /// 使用 Fluent API 显式映射数据库字段。
         /// 这样领域实体可以使用 C# 风格命名，不必被数据库下划线字段名污染。
@@ -49,6 +51,7 @@ namespace Infrastructure.Persistence
                 entity.Property(x => x.ApiKey).HasColumnName("api_key");
                 entity.Property(x => x.UserVersion).HasColumnName("user_version").IsConcurrencyToken();
                 entity.Property(x => x.IsDelete).HasColumnName("is_delete");
+                entity.Property(x => x.DeleteTime).HasColumnName("delete_time");
                 entity.Property(x => x.CreateTime).HasColumnName("create_time");
                 entity.Property(x => x.SignleClient).HasColumnName("signle_client");
 
@@ -155,6 +158,59 @@ namespace Infrastructure.Persistence
                 entity.Property(x => x.NoticeContent).HasColumnName("notice_content").HasMaxLength(2000);
                 entity.Property(x => x.NoticeType).HasColumnName("notice_type").HasConversion<int>();
                 entity.Property(x => x.CreateTime).HasColumnName("create_time");
+            });
+
+            modelBuilder.Entity<TkOrder>(entity =>
+            {
+                entity.ToTable("tk_order");
+                entity.HasKey(x => x.OrderId);
+                entity.Property(x => x.OrderId).HasColumnName("order_id").ValueGeneratedOnAdd();
+                entity.Property(x => x.OrderNo).HasColumnName("order_no").HasMaxLength(50).IsRequired();
+                entity.Property(x => x.OrderState).HasColumnName("order_state").HasConversion<int>();
+                entity.Property(x => x.OrderLink).HasColumnName("order_link").HasMaxLength(500).IsRequired();
+                entity.Property(x => x.ConfigId).HasColumnName("config_id");
+                entity.Property(x => x.Userid).HasColumnName("userid");
+                entity.Property(x => x.OrderAmount).HasColumnName("order_amount").HasPrecision(11, 6);
+                entity.Property(x => x.Quantity).HasColumnName("quantity");
+                entity.Property(x => x.SuccessQuantity).HasColumnName("success_quantity");
+                entity.Property(x => x.BeginQuantity).HasColumnName("begin_quantity");
+                entity.Property(x => x.EndQuantity).HasColumnName("end_quantity");
+                entity.Property(x => x.PushState).HasColumnName("push_state");
+                entity.Property(x => x.SerialNo).HasColumnName("serial_no").HasMaxLength(50).IsRequired();
+                entity.Property(x => x.ChannelId).HasColumnName("channel_id");
+                entity.Property(x => x.ChannelServerId).HasColumnName("channel_server_id");
+                entity.Property(x => x.AgentUserid).HasColumnName("agent_userid");
+                entity.Property(x => x.AgentSingleAddPrice).HasColumnName("agent_single_add_price").HasPrecision(10, 6);
+                entity.Property(x => x.IsDifference).HasColumnName("is_difference");
+                entity.Property(x => x.AgentOrderAmount).HasColumnName("agent_order_amount").HasPrecision(10, 6);
+                entity.Property(x => x.RefundAmount).HasColumnName("refund_amount").HasPrecision(11, 6);
+                entity.Property(x => x.CreateTime).HasColumnName("create_time");
+                entity.HasIndex(x => x.OrderNo).IsUnique().HasDatabaseName("ux_order_no");
+                entity.HasIndex(x => x.Userid).HasDatabaseName("ix_order_userid");
+
+                // 评论作为订单聚合的子实体：一次 SaveChanges 内自动回填 tk_comment.order_id
+                entity.HasMany(x => x.Comments)
+                      .WithOne()
+                      .HasForeignKey(c => c.OrderId)
+                      .OnDelete(DeleteBehavior.Cascade);
+                entity.Navigation(x => x.Comments).UsePropertyAccessMode(PropertyAccessMode.Field);
+            });
+
+            modelBuilder.Entity<TkComment>(entity =>
+            {
+                entity.ToTable("tk_comment");
+                entity.HasKey(x => x.CommentId);
+                entity.Property(x => x.CommentId).HasColumnName("comment_id").ValueGeneratedOnAdd();
+                entity.Property(x => x.OrderId).HasColumnName("order_id");
+                entity.Property(x => x.CommentContent).HasColumnName("comment_content").HasMaxLength(500).IsRequired();
+                entity.Property(x => x.CommentState).HasColumnName("comment_state");
+                entity.Property(x => x.Userid).HasColumnName("userid");
+                // 软删除统一走 DeleteAuditor：is_delete 标记 + delete_time 删除时间（预留换评论场景）
+                // 库里 is_delete 是 int（非 tinyint(1)），显式声明 bool <-> int 转换，避免依赖驱动的隐式转型
+                entity.Property(x => x.IsDelete).HasColumnName("is_delete").HasConversion<int>();
+                entity.Property(x => x.DeleteTime).HasColumnName("delete_time");
+                entity.Property(x => x.CreateTime).HasColumnName("create_time");
+                entity.HasIndex(x => x.OrderId).HasDatabaseName("ix_comment_order_id");
             });
         }
     }

@@ -146,7 +146,7 @@ const openAddMarkup = async () => {
 
 const saveAddMarkup = async () => {
   if (!addMarkupForm.platformId) return message.warning('请选择平台')
-  if (!addMarkupForm.subPlatformId) return message.warning('请选择子平台')
+  if (!addMarkupForm.subPlatformId) return message.warning('请选择业务类型')
   if (!addMarkupForm.configId) return message.warning('请选择业务配置')
   if (addMarkupForm.markupAddPrice === null || addMarkupForm.markupAddPrice === undefined || addMarkupForm.markupAddPrice < 0) {
     return message.warning('请输入有效的加价金额')
@@ -178,7 +178,7 @@ const platformOptions = computed(() =>
   platforms.value.map((p) => ({ value: p.platformId, label: p.platformName || `平台 ${p.platformId}` })),
 )
 const subPlatformOptions = computed(() =>
-  subPlatforms.value.map((s) => ({ value: s.subPlatformId, label: s.subPlatformName || `子平台 ${s.subPlatformId}` })),
+  subPlatforms.value.map((s) => ({ value: s.subPlatformId, label: s.subPlatformName || `业务类型 ${s.subPlatformId}` })),
 )
 const markupConfigSelectOptions = computed(() =>
   markupConfigOptions.value.map((c) => ({ value: c.configId, label: `[${c.configId}] ${c.configName || `业务 ${c.configId}`}` })),
@@ -370,8 +370,8 @@ onMounted(() => Promise.all([loadDashboard(), loadChildren(), loadMarkups(), loa
         <div class="form markup-add-form">
           <label>平台</label>
           <Select v-model:value="addMarkupForm.platformId" :options="platformOptions" placeholder="请选择平台" show-search :filter-option="filterOption" style="width:100%" @change="loadSubsForMarkup" />
-          <label>子平台</label>
-          <Select v-model:value="addMarkupForm.subPlatformId" :options="subPlatformOptions" placeholder="请选择子平台" show-search :filter-option="filterOption" style="width:100%" @change="loadMarkupConfigs" />
+          <label>业务类型</label>
+          <Select v-model:value="addMarkupForm.subPlatformId" :options="subPlatformOptions" placeholder="请选择业务类型" show-search :filter-option="filterOption" style="width:100%" @change="loadMarkupConfigs" />
           <label>业务配置</label>
           <Select v-model:value="addMarkupForm.configId" :options="markupConfigSelectOptions" placeholder="请选择业务配置" show-search :filter-option="filterOption" style="width:100%" @change="onMarkupConfigChange" />
           <div v-if="selectedMarkupConfig" class="base-price-hint">

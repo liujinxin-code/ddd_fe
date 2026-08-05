@@ -200,5 +200,24 @@ namespace Domain.Entities
             UserAmount += amount;
             Touch();
         }
+
+        /// <summary>
+        /// 下单扣减余额：校验用户状态可用、余额充足后扣减 user_amount，并递增版本号
+        /// （与 tk_user.user_version 乐观并发令牌配合，避免与并发下单/转账丢更新）。
+        /// </summary>
+        /// <param name="amount">本次下单总扣款金额（必须大于 0）</param>
+        /// <exception cref="InvalidOperationException">用户禁用 / 余额不足时抛出，由全局中间件转 400</exception>
+        public void DeductForOrderFunc(decimal amount)
+        {
+            if (amount <= 0) throw new InvalidOperationException("订单金额必须大于 0");
+            RequiredUserStatus();
+            if (UserAmount - amount < 0)
+            {
+                throw new InvalidOperationException("余额不足，无法下单！");
+            }
+
+            UserAmount -= amount;
+            Touch();
+        }
     }
 }
