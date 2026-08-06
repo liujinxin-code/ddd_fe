@@ -59,6 +59,7 @@ namespace Infrastructure.DependencyInjection
             services.AddScoped<IAgentPricingRepository, AgentPricingRepository>();
             services.AddScoped<INoticeRepository, NoticeRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<ITicketRepository, TicketRepository>();
 
             services.AddScoped<IPasswordHelper, PasswordHelper>();
             services.AddScoped<ITokenCacheService, TokenCacheService>();

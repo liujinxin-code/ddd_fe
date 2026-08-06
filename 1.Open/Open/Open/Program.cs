@@ -85,6 +85,9 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
+// 启用静态文件服务（工单图片上传到 wwwroot/images/... 后通过 /images/... 访问）
+app.UseStaticFiles();
+
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllers();

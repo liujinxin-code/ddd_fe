@@ -1,8 +1,9 @@
 <script setup>
 import { onMounted, onUnmounted, reactive, ref, computed } from 'vue'
-import { Button, Empty, Input, Pagination, Select, Spin, Table, Tag, message } from 'ant-design-vue'
-import { orderApi } from '../../api'
+import { Button, Empty, Input, Modal, Pagination, Select, Spin, Table, Tag, message } from 'ant-design-vue'
+import { enumApi, orderApi } from '../../api'
 import ExecutionModal from '../../components/order/ExecutionModal.vue'
+import { formatMoney } from '../../utils/format'
 
 const orders = ref([])
 const total = ref(0)
@@ -10,6 +11,15 @@ const loading = ref(false)
 const query = reactive({ keyword: '', state: undefined, page: 1, pageSize: 10 })
 const selectedOrder = ref(null)
 const executionModalVisible = ref(false)
+
+// ── 评论详情弹窗（评论业务展示下单时提交的评论内容） ──
+const commentModalVisible = ref(false)
+const commentOrder = ref(null)
+const openComment = (order) => {
+  commentOrder.value = order
+  commentModalVisible.value = true
+}
+const closeComment = () => { commentModalVisible.value = false }
 
 // ── 响应式断点 ──────────────────────────────────────────────
 const isMobile = ref(false)
@@ -20,41 +30,46 @@ const checkMobile = () => {
 }
 
 let resizeObserver = null
-onMounted(() => {
+onMounted(async () => {
   checkMobile()
   window.addEventListener('resize', checkMobile)
+  try {
+    const result = await enumApi.orderState()
+    enumOptions.value = result.data || []
+  } catch (error) {
+    message.error(error.message || '加载枚举失败')
+  }
   loadOrders()
 })
 onUnmounted(() => {
   window.removeEventListener('resize', checkMobile)
 })
 
-// 订单状态：与后端 OrderState 枚举一一对应
-const stateMeta = {
-  1: { text: '正在执行', color: 'processing' },
-  2: { text: '已完单', color: 'success' },
-  3: { text: '部分完成', color: 'warning' },
-  4: { text: '已取消', color: 'default' },
-}
-const stateOptions = [
+// 订单状态：从后端枚举同步，避免前后端文案不一致
+const enumOptions = ref([])
+const stateOptions = computed(() => [
   { value: 0, label: '全部状态' },
-  { value: 1, label: '正在执行' },
-  { value: 2, label: '已完单' },
-  { value: 3, label: '部分完成' },
-  { value: 4, label: '已取消（未收费）' },
-]
+  ...(enumOptions.value || []).map((item) => ({ value: item.value, label: item.label })),
+])
+const stateMeta = computed(() => {
+  const map = {}
+  const colorMap = {
+    1: 'processing', // 正在执行
+    2: 'success',    // 已完单
+    3: 'warning',    // 部分完成
+    4: 'default',    // 已取消
+  }
+  for (const item of enumOptions.value || []) {
+    map[item.value] = { text: item.label, color: colorMap[item.value] || 'default' }
+  }
+  return map
+})
 
 // 增量业务（粉丝 1 / 评论 2）才有执行详情；账户业务（3）一次性交付，无执行过程
 const isIncremental = (order) => [1, 2].includes(Number(order?.jsonTemplate))
 
-// 金额展示：整数不补 .00，小数保留有效位
-const fmtMoney = (value) => {
-  const n = Number(value) || 0
-  return n.toLocaleString('en-US', {
-    minimumFractionDigits: n % 1 === 0 ? 0 : 2,
-    useGrouping: false,
-  })
-}
+// 金额展示：对齐后端 decimal(11,6)，最多 6 位小数并去尾零
+const fmtMoney = formatMoney
 
 const fmtTime = (value) => {
   if (!value) return '-'
@@ -206,7 +221,10 @@ const openExecution = (order) => {
             </template>
 
             <template v-else-if="column.key === 'action'">
-              <Button v-if="isIncremental(record)" type="link" size="small" @click="openExecution(record)">
+              <Button v-if="record.jsonTemplate === 2" type="link" size="small" @click="openComment(record)">
+                评论详情
+              </Button>
+              <Button v-else-if="record.jsonTemplate === 1" type="link" size="small" @click="openExecution(record)">
                 执行详情
               </Button>
               <span v-else class="muted">—</span>
@@ -285,7 +303,14 @@ const openExecution = (order) => {
               <div class="card-foot">
                 <span class="card-time">{{ fmtTime(order.createTime) }}</span>
                 <Button
-                  v-if="isIncremental(order)"
+                  v-if="order.jsonTemplate === 2"
+                  type="primary"
+                  size="small"
+                  ghost
+                  @click="openComment(order)"
+                >评论详情</Button>
+                <Button
+                  v-else-if="order.jsonTemplate === 1"
                   type="primary"
                   size="small"
                   ghost
@@ -316,6 +341,25 @@ const openExecution = (order) => {
     </section>
 
     <ExecutionModal v-model:open="executionModalVisible" :initial-values="selectedOrder" />
+
+    <!-- ═══════ 评论详情弹窗（评论业务下单内容） ═══════ -->
+    <Modal
+      v-model:open="commentModalVisible"
+      :title="commentOrder ? `评论详情 · ${commentOrder.orderNo}` : '评论详情'"
+      :width="isMobile ? '95vw' : '520px'"
+      :footer="null"
+      @cancel="closeComment"
+    >
+      <div v-if="commentOrder" class="comment-detail">
+        <div v-if="commentOrder.comments && commentOrder.comments.length" class="comment-list">
+          <div v-for="(c, i) in commentOrder.comments" :key="i" class="comment-item">
+            <span class="comment-index">{{ i + 1 }}</span>
+            <span class="comment-text">{{ c }}</span>
+          </div>
+        </div>
+        <Empty v-else description="该订单暂无评论内容" />
+      </div>
+    </Modal>
   </div>
 </template>
 
@@ -530,6 +574,38 @@ $r-md: 12px;
 .card-time {
   font-size: 0.72rem;
   color: $text-muted;
+}
+
+/* ═══════ 评论详情弹窗 ═══════ */
+.comment-detail { display: grid; gap: 0.6rem; padding-top: 0.25rem; }
+.comment-list { display: grid; gap: 0.55rem; }
+.comment-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  background: #f8fafb;
+  border: 1px solid #eef1f5;
+  border-radius: 8px;
+  padding: 0.6rem 0.7rem;
+  line-height: 1.6;
+}
+.comment-index {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: $color-primary;
+  color: #fff;
+  font-size: 0.72rem;
+  margin-top: 0.1rem;
+}
+.comment-text {
+  font-size: 0.85rem;
+  color: $text-primary;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* ═══════ 响应式微调 ═══════ */

@@ -7,10 +7,12 @@ import { Icon } from '../assets/js/iconUtils.js'
 import ChangePasswordModal from '../components/agent/ChangePasswordModal.vue'
 import { authApi, noticeApi } from '../api'
 import { useAuth } from '../stores/auth'
+import { formatMoney } from '../utils/format'
 
 const auth = useAuth()
 const router = useRouter()
 const user = computed(() => auth.user.value || {})
+const fmtMoney = formatMoney
 const changePasswordModalVisible = ref(false)
 const announcementVisible = ref(false)
 const announcementLoading = ref(false)
@@ -107,11 +109,12 @@ onMounted(async () => {
           <router-link v-if="user.isAgent" to="/app/agent" active-class="active">代理管理</router-link>
           <router-link to="/app/order" active-class="active">订单列表</router-link>
           <router-link to="/app/consumption" active-class="active">消费列表</router-link>
+          <router-link to="/app/ticket" active-class="active">联系客服</router-link>
         </nav>
         <div class="user-info">
           <div class="balance-info">
             <span>{{ user.isAgent ? '代理用户' : '普通用户' }}</span>
-            <strong>余额 ¥{{ Number(user.userAmount || 0).toFixed(2) }}</strong>
+            <strong>余额 ¥{{ fmtMoney(user.userAmount) }}</strong>
           </div>
           <Dropdown>
             <a class="user-trigger" @click.prevent>
@@ -125,6 +128,7 @@ onMounted(async () => {
                 <MenuItem v-if="user.isAgent"><router-link to="/app/agent"><Icon icon="UsergroupAddOutlined" /> 代理管理</router-link></MenuItem>
                 <MenuItem><router-link to="/app/order"><Icon icon="OrderedListOutlined" /> 订单列表</router-link></MenuItem>
                 <MenuItem><router-link to="/app/consumption"><Icon icon="MenuUnfoldOutlined" /> 消费列表</router-link></MenuItem>
+                <MenuItem><router-link to="/app/ticket"><Icon icon="CustomerServiceOutlined" /> 联系客服</router-link></MenuItem>
                 <MenuItem @click="changePasswordModalVisible = true"><span><Icon icon="LockOutlined" /> 修改密码</span></MenuItem>
                 <MenuItem danger><a href="javascript:;" @click.prevent="handleLogout"><Icon icon="ClearOutlined" /> 退出登录</a></MenuItem>
               </Menu>

@@ -50,5 +50,11 @@ namespace Application.Common.Models.Order
         /// 前端据此判断是否为「增量业务」（1、2）以决定是否展示执行详情。
         /// </summary>
         public int JsonTemplate { get; set; }
+
+        /// <summary>
+        /// 评论业务（json_template=2）下单时提交的评论内容列表；非评论业务为空集合。
+        /// 仅取未软删除的评论，按评论主键升序，用于前端「评论详情」弹窗展示。
+        /// </summary>
+        public List<string> Comments { get; set; } = new();
     }
 }

@@ -26,6 +26,7 @@ namespace Infrastructure.Persistence
         public DbSet<TkNotice> TkNotices => Set<TkNotice>();
         public DbSet<TkOrder> TkOrders => Set<TkOrder>();
         public DbSet<TkComment> TkComments => Set<TkComment>();
+        public DbSet<TkTicket> TkTickets => Set<TkTicket>();
         /// <summary>
         /// 使用 Fluent API 显式映射数据库字段。
         /// 这样领域实体可以使用 C# 风格命名，不必被数据库下划线字段名污染。
@@ -194,6 +195,23 @@ namespace Infrastructure.Persistence
                       .HasForeignKey(c => c.OrderId)
                       .OnDelete(DeleteBehavior.Cascade);
                 entity.Navigation(x => x.Comments).UsePropertyAccessMode(PropertyAccessMode.Field);
+            });
+
+            modelBuilder.Entity<TkTicket>(entity =>
+            {
+                entity.ToTable("tk_ticket");
+                entity.HasKey(x => x.TicketId);
+                entity.Property(x => x.TicketId).HasColumnName("ticket_id").ValueGeneratedOnAdd();
+                entity.Property(x => x.TicketNo).HasColumnName("ticket_no").HasMaxLength(50);
+                entity.Property(x => x.TicketContent).HasColumnName("ticket_content").HasMaxLength(3000).IsRequired();
+                entity.Property(x => x.TicketImages).HasColumnName("ticket_images").HasMaxLength(2000).IsRequired();
+                entity.Property(x => x.TicketResult).HasColumnName("ticket_result").HasMaxLength(2000).IsRequired();
+                // 注意：数据库列名 tikcket_status 是建表时的拼写（少一个 c），此处保持列名映射不变。
+                entity.Property(x => x.TicketStatus).HasColumnName("tikcket_status");
+                entity.Property(x => x.CreateTime).HasColumnName("create_time");
+                entity.Property(x => x.TicketType).HasColumnName("ticket_type");
+                entity.Property(x => x.Userid).HasColumnName("userid");
+                entity.HasIndex(x => x.Userid).HasDatabaseName("ix_ticket_userid");
             });
 
             modelBuilder.Entity<TkComment>(entity =>

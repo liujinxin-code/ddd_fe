@@ -1,3 +1,5 @@
+using System.ComponentModel;
+
 namespace Domain.Enums;
 
 /// <summary>
@@ -6,14 +8,18 @@ namespace Domain.Enums;
 public enum OrderState
 {
     /// <summary>正在执行（下单成功，履约进行中）</summary>
+    [Description("正在执行")]
     Running = 1,
 
     /// <summary>已完单（全量完成）</summary>
+    [Description("已完单")]
     Completed = 2,
 
     /// <summary>部分完成（成功数量小于下单数量，差额部分退费）</summary>
+    [Description("部分完成")]
     PartiallyCompleted = 3,
 
     /// <summary>已取消（未收费）</summary>
+    [Description("已取消（未收费）")]
     Cancelled = 4
 }

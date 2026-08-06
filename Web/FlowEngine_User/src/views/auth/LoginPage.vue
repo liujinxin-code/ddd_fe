@@ -9,11 +9,14 @@ const router = useRouter()
 const route = useRoute()
 const auth = useAuth()
 
-// 从 401 跳转过来时提示"登录失效"
+// 从 401 / 403 跳转过来时提示对应原因
 onMounted(() => {
   if (route.query.reason === 'expired') {
     message.warning('登录已失效，请重新登录')
     // 清理 URL 参数，避免刷新重复提示
+    router.replace({ query: {} })
+  } else if (route.query.reason === 'forbidden') {
+    message.warning('权限不足，请重新登录')
     router.replace({ query: {} })
   }
 })

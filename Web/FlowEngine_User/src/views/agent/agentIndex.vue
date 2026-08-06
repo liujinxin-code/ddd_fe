@@ -3,15 +3,13 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { Button, Card, Col, Empty, Input, InputNumber, Modal, Pagination, Row, Select, Spin, Tag, message } from 'ant-design-vue'
 import { agentApi, homeApi } from '../../api'
 import { useAuth } from '../../stores/auth'
+import { formatMoney } from '../../utils/format'
 
 const auth = useAuth()
 const user = computed(() => auth.user.value || {})
 
-// 价格可精确到小数点后 6 位，去掉末尾无意义的 0
-const formatPrice6 = (value) => Number(value || 0).toLocaleString('zh-CN', {
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 6,
-})
+// 金额/价格统一格式化：最多 6 位小数并去尾零
+const formatPrice6 = formatMoney
 
 const children = ref([])
 const childTotal = ref(0)
@@ -316,8 +314,8 @@ onMounted(() => Promise.all([loadDashboard(), loadChildren(), loadMarkups(), loa
     </header>
 
     <Row :gutter="[16, 16]" class="stats">
-      <Col :xs="24" :md="8"><Card><span>用户余额</span><strong>¥{{ Number(dashboard.userAmount).toFixed(2) }}</strong></Card></Col>
-      <Col :xs="24" :md="8"><Card><span>代理余额</span><strong>¥{{ Number(dashboard.agentAmount).toFixed(2) }}</strong></Card></Col>
+      <Col :xs="24" :md="8"><Card><span>用户余额</span><strong>¥{{ formatPrice6(dashboard.userAmount) }}</strong></Card></Col>
+      <Col :xs="24" :md="8"><Card><span>代理余额</span><strong>¥{{ formatPrice6(dashboard.agentAmount) }}</strong></Card></Col>
       <Col :xs="24" :md="8"><Card><span>启用用户 / 全部用户</span><strong>{{ dashboard.enabledChildrenCount }} / {{ dashboard.totalChildrenCount }}</strong></Card></Col>
     </Row>
 
@@ -326,7 +324,7 @@ onMounted(() => Promise.all([loadDashboard(), loadChildren(), loadMarkups(), loa
       <Spin :spinning="childLoading"><div v-if="children.length" class="grid">
         <article v-for="child in children" :key="child.userId" class="item">
           <div class="item-title"><strong>{{ child.username }}</strong><Tag :color="child.enabled ? 'green' : 'red'">{{ child.enabled ? '已启用' : '已停用' }}</Tag></div>
-          <dl><dt>用户 ID</dt><dd>{{ child.userId }}</dd><dt>邮箱</dt><dd>{{ child.email }}</dd><dt>余额</dt><dd>¥{{ Number(child.userAmount).toFixed(2) }}</dd><dt>创建时间</dt><dd>{{ child.createTime ? new Date(child.createTime).toLocaleString('zh-CN') : '-' }}</dd></dl>
+          <dl><dt>用户 ID</dt><dd>{{ child.userId }}</dd><dt>邮箱</dt><dd>{{ child.email }}</dd><dt>余额</dt><dd>¥{{ formatPrice6(child.userAmount) }}</dd><dt>创建时间</dt><dd>{{ child.createTime ? new Date(child.createTime).toLocaleString('zh-CN') : '-' }}</dd></dl>
           <div class="actions"><Button size="small" @click="openStatus(child)">状态</Button><Button size="small" type="primary" @click="openTransfer(child)">赠送余额</Button><Button size="small" danger @click="resetPassword(child)">重置密码</Button></div>
         </article>
       </div><Empty v-else-if="!childLoading" description="暂无直属用户" /></Spin>
@@ -362,7 +360,7 @@ onMounted(() => Promise.all([loadDashboard(), loadChildren(), loadMarkups(), loa
     </Card>
 
     <Modal v-model:open="childModal" title="新增直属用户" :confirm-loading="saving" @ok="saveChild"><div class="form"><label>邮箱</label><Input v-model:value="childForm.email"/><label>用户名</label><Input v-model:value="childForm.username"/><label>密码</label><Input.Password v-model:value="childForm.password"/></div></Modal>
-    <Modal v-model:open="transferModal" :title="`向 ${selectedChild?.username || ''} 赠送余额`" :confirm-loading="saving" @ok="transfer"><InputNumber v-model:value="amountForm.amount" :min="0.01" :precision="2" style="width:100%"/></Modal>
+    <Modal v-model:open="transferModal" :title="`向 ${selectedChild?.username || ''} 赠送余额`" :confirm-loading="saving" @ok="transfer"><InputNumber v-model:value="amountForm.amount" :min="0.01" :precision="6" style="width:100%"/></Modal>
     <Modal v-model:open="statusModal" :title="`修改 ${selectedChild?.username || ''} 状态`" :confirm-loading="saving" @ok="saveStatus"><Select v-model:value="statusEnabled" style="width:100%"><Select.Option :value="true">已启用</Select.Option><Select.Option :value="false">已停用</Select.Option></Select></Modal>
     <Modal v-model:open="markupModal" :title="selectedMarkup ? `设置 [${selectedMarkup.configId}] ${selectedMarkup.configName} 加价` : '设置加价'" :confirm-loading="saving" @ok="saveMarkup"><div class="form"><span>基础价格：¥{{ formatPrice6(selectedMarkup?.basePrice) }}/个</span><label>整包加价</label><InputNumber v-model:value="markupAmount" :min="0" :precision="6" style="width:100%"/></div></Modal>
     <Modal v-model:open="addMarkupModal" title="新增单业务加价" :confirm-loading="saving" @ok="saveAddMarkup">
@@ -382,7 +380,7 @@ onMounted(() => Promise.all([loadDashboard(), loadChildren(), loadMarkups(), loa
         </div>
       </Spin>
     </Modal>
-    <Modal v-model:open="withdrawModal" title="提取代理余额" :confirm-loading="saving" @ok="withdraw"><div class="form"><span>可提取：¥{{ Number(user.agentAmount || 0).toFixed(2) }}</span><InputNumber v-model:value="amountForm.amount" :min="0.01" :max="Number(user.agentAmount || 0)" :precision="2" style="width:100%"/></div></Modal>
+    <Modal v-model:open="withdrawModal" title="提取代理余额" :confirm-loading="saving" @ok="withdraw"><div class="form"><span>可提取：¥{{ formatPrice6(user.agentAmount) }}</span><InputNumber v-model:value="amountForm.amount" :min="0.01" :max="Number(user.agentAmount || 0)" :precision="6" style="width:100%"/></div></Modal>
   </div>
 </template>
 

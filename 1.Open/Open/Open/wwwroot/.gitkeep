@@ -1,0 +1,3 @@
+# 静态资源根目录：工单图片上传到 wwwroot/images/yyyyMMdd/
+# 该目录由 .NET UseStaticFiles() 提供静态服务，访问路径为 /images/...
+# .gitkeep 仅为保留空目录结构，上传的图片不纳入版本控制。

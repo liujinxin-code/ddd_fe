@@ -5,6 +5,7 @@ const homeIndex = () => import('../views/home/homeIndex.vue')
 const agentIndex = () => import('../views/agent/agentIndex.vue')
 const orderIndex = () => import('../views/order/orderIndex.vue')
 const consumptionIndex = () => import('../views/consumption/consumptionIndex.vue')
+const ticketIndex = () => import('../views/ticket/ticketIndex.vue')
 const LoginPage = () => import('../views/auth/LoginPage.vue')
 
 const router = createRouter({
@@ -43,6 +44,11 @@ const router = createRouter({
           path: 'consumption',
           name: 'consumptionIndex',
           component: consumptionIndex,
+        },
+        {
+          path: 'ticket',
+          name: 'ticketIndex',
+          component: ticketIndex,
         },
       ],
     },

@@ -87,7 +87,13 @@ namespace Infrastructure.Persistence.Repositories
                     BeginQuantity = o.BeginQuantity,
                     RefundAmount = o.RefundAmount,
                     CreateTime = o.CreateTime,
-                    JsonTemplate = c == null ? 0 : (int)c.JsonTemplate
+                    JsonTemplate = c == null ? 0 : (int)c.JsonTemplate,
+                    // 评论业务下单时提交的评论内容（未软删除），按主键升序；非评论业务为空集合。
+                    Comments = appDbContext.TkComments
+                        .Where(cc => cc.OrderId == o.OrderId && !cc.IsDelete)
+                        .OrderBy(cc => cc.CommentId)
+                        .Select(cc => cc.CommentContent)
+                        .ToList()
                 };
 
             var items = await query

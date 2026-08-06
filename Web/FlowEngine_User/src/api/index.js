@@ -1,4 +1,4 @@
-import { request } from './http'
+import { request, uploadFiles } from './http'
 
 // 后端尚未提供该接口时，调用直接抛出明确提示且不发送任何请求（用于临时禁用前端对接）。
 const notImplemented = (feature) => {
@@ -19,8 +19,24 @@ export const authApi = {
   logout: () => request('/User/logout'),
   // 修改密码：body { oldPassword, newPassword }
   changePassword: (body) => request('/User/change-password', { method: 'POST', body }),
-  // 消费流水：后端尚未提供此端点，临时禁用调用（不发送请求）
-  consumptions: () => notImplemented('消费流水'),
+  // 消费流水（余额变动）分页列表：POST /ConsumeLog/list
+  // body { consumeStatus, keyword, pageIndex, pageSize, sorting }
+  //  - consumeStatus：-1 不筛选 / 0 订单消费 / 1 充值 / 2 代理提现(个人余额增加) /
+  //    3 转赠支出 / 4 转赠收入 / 5 订单退款 / 6 代理提现(代理收益余额减少)
+  //  - keyword 匹配流水号；sorting 白名单 createtime/beforeamount/afteramount/consumestatus
+  // 只返回当前登录用户自己的流水（用户id 由后端从 JWT 注入，前端不传，杜绝越权）。
+  // → data [{ consumeId, consumeNo, consumeStatus, beforeAmount, afterAmount, changeAmount, createTime }]
+  consumptions: (params = {}) =>
+    request('/ConsumeLog/list', {
+      method: 'POST',
+      body: {
+        consumeStatus: params.status == null ? -1 : Number(params.status),
+        keyword: params.keyword || '',
+        pageIndex: params.page || 1,
+        pageSize: params.pageSize || 10,
+        sorting: params.sorting || 'createtime desc',
+      },
+    }),
 }
 
 export const homeApi = {
@@ -165,6 +181,17 @@ export const orderApi = {
     }),
 }
 
+export const enumApi = {
+  // 枚举同步：消费流水类型 → [{ value, name, label }]
+  consumeStatus: () => request('/Enum/consume-status', { method: 'POST', body: {} }),
+  // 枚举同步：订单状态 → [{ value, name, label }]
+  orderState: () => request('/Enum/order-state', { method: 'POST', body: {} }),
+  // 枚举同步：工单状态 → [{ value, name, label }]
+  ticketStatus: () => request('/Enum/ticket-status', { method: 'POST', body: {} }),
+  // 枚举同步：工单问题类型 → [{ value, name, label }]
+  ticketType: () => request('/Enum/ticket-type', { method: 'POST', body: {} }),
+}
+
 export const noticeApi = {
   // 首页公告分页：POST { pageIndex, pageSize } → [{ noticeId, noticeContent, noticeType, createTime }]
   homepage: (params) =>
@@ -174,4 +201,44 @@ export const noticeApi = {
     }),
   // 弹窗公告：POST {} → 单条或 null
   popup: () => request('/Notice/popup', { method: 'POST', body: {} }),
+}
+
+// 静态资源根地址（如 http://localhost:9080），用于拼接后端返回的图片相对路径 /images/...
+const ASSET_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api')
+  .replace(/\/$/, '')
+  .replace(/\/api$/, '')
+
+export const ticketApi = {
+  // 工单列表（仅当前登录用户本人）：POST /Ticket/list
+  // body { ticketStatus, ticketType, keyword, pageIndex, pageSize, sorting }
+  //  - ticketStatus：-1 不筛选 / 0 待处理 / 1 已处理
+  //  - ticketType：-1 不筛选 / 0 订单问题 / 1 下单问题 / 2 网站问题 / 3 网站建议
+  //  - keyword 匹配工单内容；sorting 白名单 createtime/ticketstatus/tickettype
+  // → data [{ ticketId, ticketContent, ticketImages:[url...], ticketResult, ticketStatus, ticketType, userid, createTime }]
+  list: (params = {}) =>
+    request('/Ticket/list', {
+      method: 'POST',
+      body: {
+        ticketStatus: params.status == null ? -1 : Number(params.status),
+        ticketType: params.type == null ? -1 : Number(params.type),
+        keyword: params.keyword || '',
+        pageIndex: params.page || 1,
+        pageSize: params.pageSize || 10,
+        sorting: params.sorting || 'createtime desc',
+      },
+    }),
+  // 提交工单：POST /Ticket/create
+  // body { ticketContent, ticketType, ticketImages:[url...] }
+  // → data 为新工单 id
+  create: (body) => request('/Ticket/create', { method: 'POST', body }),
+  // 上传工单图片（multipart，最多 5 张，单张≤5MB，仅 png/jpg）：POST /Ticket/upload
+  // → data 为图片相对 URL 数组
+  upload: (files) => uploadFiles('/Ticket/upload', files),
+}
+
+// 将后端返回的图片相对路径拼接为可访问的完整地址
+export const resolveAssetUrl = (path) => {
+  if (!path) return ''
+  if (/^https?:\/\//.test(path)) return path
+  return `${ASSET_BASE_URL}${path}`
 }

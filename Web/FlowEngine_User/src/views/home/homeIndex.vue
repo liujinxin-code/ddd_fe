@@ -4,6 +4,7 @@ import { Empty, Input, InputNumber, Modal, Pagination, Select, Spin, message } f
 import { homeApi, orderApi } from '../../api'
 import { useAuth } from '../../stores/auth'
 import { Icon } from '../../assets/js/iconUtils.js'
+import { formatMoney } from '../../utils/format'
 
 const auth = useAuth()
 
@@ -40,16 +41,8 @@ const currentSubName = computed(() => {
 const isCommentTemplate = (service) => service?.jsonTemplate === 2
 const isAccountTemplate = (service) => service?.jsonTemplate === 3
 
-// 金额格式化：保留原始精度，不去尾零（decimal(10,6) 对齐）
-// 不指定 maximumFractionDigits，让 toLocaleString 自动按数值决定小数位数
-const fmtMoney = (value) => {
-  const n = Number(value) || 0
-  // 整数返回 "0" 而非 "0.00"；小数保留全部有效位
-  return n.toLocaleString('en-US', {
-    minimumFractionDigits: n % 1 === 0 ? 0 : 2,
-    useGrouping: false,
-  })
-}
+// 金额格式化：对齐后端 decimal(11,6)，最多 6 位小数并去尾零
+const fmtMoney = formatMoney
 
 // 展示价：优先取后端已算好的 displayPrice（避免 JS 浮点误差），fallback 到 unitPrice × showPriceUnit
 const displayPriceOf = (item) => {
@@ -242,7 +235,7 @@ const submitOrder = async () => {
     )
     const result = await orderApi.createBatch(items)
     const { orderNos = [], totalAmount = 0 } = result.data || {}
-    message.success(`下单成功：${orderNos.length} 条订单，共扣款 ¥${Number(totalAmount).toFixed(2)}`)
+    message.success(`下单成功：${orderNos.length} 条订单，共扣款 ¥${fmtMoney(totalAmount)}`)
     orderVisible.value = false
     // 静默刷新余额，失败不打断下单成功的反馈
     auth.loadUser().catch(() => {})
@@ -365,7 +358,7 @@ onMounted(async () => {
       @ok="submitOrder"
     >
       <div v-if="selectedService" class="order-form">
-        <div class="order-summary"><strong>[{{ selectedService.configId }}] {{ selectedService.configName }}</strong><span>单价 ¥{{ Number(selectedService.price).toFixed(2) }} / {{ selectedService.priceUnit }} 个</span></div>
+        <div class="order-summary"><strong>[{{ selectedService.configId }}] {{ selectedService.configName }}</strong><span>单价 ¥{{ fmtMoney(selectedService.price) }} / {{ selectedService.priceUnit }} 个</span></div>
         <div v-if="selectedService.configNotice || selectedService.configTips" class="order-tips"><label>业务说明</label><p>{{ selectedService.configNotice || selectedService.configTips }}</p></div>
         <template v-if="!isAccountTemplate(selectedService)">
           <label>目标链接（每行一个，可批量提交）</label>
@@ -386,7 +379,7 @@ onMounted(async () => {
           <span class="estimated-breakdown">
             {{ orderCount }} 条订单 × {{ perOrderQuantity }}{{ isCommentTemplate(selectedService) ? ' 条评论' : ' 个' }}
           </span>
-          <span class="estimated-amount">预计 ¥{{ estimatedAmount.toFixed(2) }}</span>
+          <span class="estimated-amount">预计 ¥{{ fmtMoney(estimatedAmount) }}</span>
         </div>
       </div>
     </Modal>
