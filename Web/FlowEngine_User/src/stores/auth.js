@@ -28,6 +28,7 @@ export const useAuth = () => ({
       userId: u.userid,
       username: u.username,
       isAgent: u.isAgent === 1,
+      agentUserId: u.agentUserid || 0,
       userAmount: u.userAmount,
       agentAmount: u.agentAmount,
     })

@@ -88,7 +88,7 @@ namespace Infrastructure.Persistence.Repositories
         /// <summary>
         /// 分页查询指定代理的下级用户（IsAgent=0 且未删除），支持排序字段与方向。
         /// </summary>
-        public async Task<(IReadOnlyList<TkUser> Items, int Total)> GetChildrenByAgentAsync(long agentUserid, int pageIndex, int pageSize, string? keyword, string? sortField, bool sortDesc, CancellationToken ct = default)
+        public async Task<(IReadOnlyList<TkUser> Items, int Total)> GetChildrenByAgentAsync(long agentUserid, int pageIndex, int pageSize, string? keyword, string? sortField, bool sortDesc, int? userStatus = null, CancellationToken ct = default)
         {
             var query = appDbContext.TkUsers.AsNoTracking()
                 .Where(t => t.AgentUserid == agentUserid && t.IsAgent == 0 && !t.IsDelete);
@@ -96,6 +96,11 @@ namespace Infrastructure.Persistence.Repositories
             if (!string.IsNullOrWhiteSpace(keyword))
             {
                 query = query.Where(t => t.Username.Contains(keyword) || t.Email.Contains(keyword));
+            }
+
+            if (userStatus.HasValue)
+            {
+                query = query.Where(t => t.UserStatus == (Domain.Enums.TkUserStatus)userStatus.Value);
             }
 
             int total = await query.CountAsync(ct);

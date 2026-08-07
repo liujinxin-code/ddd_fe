@@ -84,7 +84,8 @@ export const homeApi = {
 export const agentApi = {
   // 代理仪表盘：POST {} → { userAmount, agentAmount, enabledChildrenCount, totalChildrenCount }
   dashboard: () => request('/Agent/dashboard', { method: 'POST', body: {} }),
-  // 下级用户分页：POST { pageIndex, pageSize, keyword }
+  // 下级用户分页：POST { pageIndex, pageSize, keyword, userStatus }
+  //  - userStatus：undefined=全部 / 1=启用 / 0=停用（对应 TkUserStatus 枚举；前端用 childQuery.enabled 映射）
   children: async (params) => {
     const result = await request('/Agent/children', {
       method: 'POST',
@@ -92,6 +93,7 @@ export const agentApi = {
         pageIndex: params.page,
         pageSize: params.pageSize,
         keyword: params.keyword || undefined,
+        userStatus: params.enabled === undefined ? undefined : (params.enabled ? 1 : 0),
       },
     })
     const data = (result.data || []).map((c) => ({
@@ -150,6 +152,15 @@ export const agentApi = {
     }),
   // 提取代理余额到用户余额：POST { amount }
   withdraw: (amount) => request('/Agent/withdraw', { method: 'POST', body: { amount } }),
+}
+
+export const serviceImageApi = {
+  // 获取当前用户应展示的客服微信图片 → { imageUrl, agentUserid }
+  myWechat: () => request('/ServiceImage/my-wechat', { method: 'POST' }),
+  // 获取当前用户自己上传的客服微信图片（代理后台预览）
+  myOwn: () => request('/ServiceImage/my-own', { method: 'POST' }),
+  // 代理上传/更换自己的客服微信图片：POST { imageUrl }
+  upload: (imageUrl) => request('/ServiceImage/upload', { method: 'POST', body: { imageUrl } }),
 }
 
 export const orderApi = {

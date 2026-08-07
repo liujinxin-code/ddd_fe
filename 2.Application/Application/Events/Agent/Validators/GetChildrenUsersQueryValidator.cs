@@ -24,6 +24,10 @@ namespace Application.Events.Agent.Validators
             RuleFor(x => x.Keyword)
                 .MaximumLength(50).WithMessage("关键词长度不能超过 50 字符")
                 .When(x => !string.IsNullOrWhiteSpace(x.Keyword));
+
+            RuleFor(x => x.UserStatus)
+                .InclusiveBetween(0, 1).WithMessage("用户状态筛选仅支持 0(停用) 或 1(启用)")
+                .When(x => x.UserStatus.HasValue);
         }
     }
 }

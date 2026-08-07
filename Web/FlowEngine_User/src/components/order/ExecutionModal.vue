@@ -74,7 +74,7 @@ const handleClose = () => emit('update:open', false)
         <Progress :percent="percent" :status="progressStatus" :show-info="false" stroke-color="#586ee1" />
       </div>
 
-      <p class="tips">数据由渠道履约回传，存在分钟级延迟；部分完成的订单会按未完成数量退费。</p>
+      <p class="tips">数据由机房回传，存在分钟级延迟；部分完成的订单会按未完成数量退费。</p>
 
       <div class="modal-actions">
         <Button type="primary" @click="handleClose">关闭</Button>

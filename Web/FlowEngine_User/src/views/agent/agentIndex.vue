@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, reactive, ref, watch } from 'vue'
-import { Button, Card, Col, Empty, Input, InputNumber, Modal, Pagination, Row, Select, Spin, Tag, message } from 'ant-design-vue'
-import { agentApi, homeApi } from '../../api'
+import { Button, Card, Col, Empty, Image, Input, InputNumber, Modal, Pagination, Row, Select, Spin, Tag, Upload, message } from 'ant-design-vue'
+import { agentApi, homeApi, resolveAssetUrl, serviceImageApi, ticketApi } from '../../api'
 import { useAuth } from '../../stores/auth'
 import { formatMoney } from '../../utils/format'
 
@@ -43,6 +43,10 @@ const subPlatforms = ref([])
 const markupConfigOptions = ref([])
 const addMarkupForm = reactive({ platformId: null, subPlatformId: null, configId: null, markupAddPrice: null })
 const selectedMarkupConfig = ref(null)
+
+// 代理客服微信图片上传
+const wechatImageUrl = ref('')
+const wechatUploadLoading = ref(false)
 
 const loadDashboard = async () => {
   try {
@@ -301,9 +305,39 @@ const saveOverallPrice = async () => {
   finally { overallLoading.value = false }
 }
 
+const loadAgentWechatImage = async () => {
+  if (!user.value.isAgent) return
+  try {
+    const result = await serviceImageApi.myOwn()
+    wechatImageUrl.value = resolveAssetUrl(result.data?.imageUrl)
+  } catch (error) { message.error(error.message) }
+}
+
+const uploadWechatImage = async ({ file, onSuccess, onError }) => {
+  wechatUploadLoading.value = true
+  try {
+    const uploadResult = await ticketApi.upload([file])
+    const urls = uploadResult.data || []
+    if (!urls.length) throw new Error('图片上传失败')
+    await serviceImageApi.upload(urls[0])
+    wechatImageUrl.value = resolveAssetUrl(urls[0])
+    message.success('客服微信图片已保存')
+    onSuccess?.()
+  } catch (error) {
+    message.error(error.message)
+    onError?.(error)
+  } finally {
+    wechatUploadLoading.value = false
+  }
+}
+
 watch(() => [childQuery.enabled, childQuery.page, childQuery.pageSize], loadChildren)
 watch(() => [markupQuery.page, markupQuery.pageSize], loadMarkups)
-onMounted(() => Promise.all([loadDashboard(), loadChildren(), loadMarkups(), loadOverallPrice(), auth.loadUser()]))
+onMounted(async () => {
+  // F2：先确保用户态就绪，再决定是否加载客服图片，避免全新登录首进漏加载
+  await auth.loadUser()
+  await Promise.all([loadDashboard(), loadChildren(), loadMarkups(), loadOverallPrice(), loadAgentWechatImage()])
+})
 </script>
 
 <template>
@@ -331,20 +365,42 @@ onMounted(() => Promise.all([loadDashboard(), loadChildren(), loadMarkups(), loa
       <Pagination v-model:current="childQuery.page" v-model:page-size="childQuery.pageSize" :total="childTotal" show-size-changer />
     </Card>
 
-    <Card class="section">
-      <div class="toolbar"><h3>总体加价设置</h3></div>
-      <Spin :spinning="overallLoading">
-        <div class="overall-form">
-          <p class="tips">为所有业务统一设置加价百分比（0-200%），首次保存为新增，之后为修改。</p>
-          <div class="overall-input-row">
-            <InputNumber v-model:value="overallPercent" :min="0" :max="200" :precision="0" placeholder="请输入百分比" style="width: 160px">
-              <template #addonAfter>%</template>
-            </InputNumber>
-            <Button type="primary" :loading="overallLoading" @click="saveOverallPrice">保存</Button>
-          </div>
-        </div>
-      </Spin>
-    </Card>
+    <Row :gutter="[16, 16]" class="equal-height-row">
+      <Col :xs="24" :md="12">
+        <Card class="section">
+          <div class="toolbar"><h3>总体加价设置</h3></div>
+          <Spin :spinning="overallLoading">
+            <div class="overall-form">
+              <p class="tips">为所有业务统一设置加价百分比（0-200%），首次保存为新增，之后为修改。</p>
+              <div class="overall-input-row">
+                <InputNumber v-model:value="overallPercent" :min="0" :max="200" :precision="0" placeholder="请输入百分比" style="width: 160px">
+                  <template #addonAfter>%</template>
+                </InputNumber>
+                <Button type="primary" :loading="overallLoading" @click="saveOverallPrice">保存</Button>
+              </div>
+            </div>
+          </Spin>
+        </Card>
+      </Col>
+
+      <Col v-if="user.isAgent" :xs="24" :md="12">
+        <Card class="section">
+          <div class="toolbar"><h3>客服微信图片</h3></div>
+          <Spin :spinning="wechatUploadLoading">
+            <div class="wechat-form">
+              <p class="tips">上传你的微信二维码，下级用户点击首页「添加微信」时将优先展示此图片。</p>
+              <div class="wechat-preview">
+                <Image v-if="wechatImageUrl" :src="wechatImageUrl" alt="客服微信" class="wechat-preview-img" preview />
+                <div v-else class="wechat-empty">暂未上传</div>
+              </div>
+              <Upload :show-upload-list="false" :custom-request="uploadWechatImage" accept="image/png,image/jpeg,image/jpg">
+                <Button :loading="wechatUploadLoading" type="primary">{{ wechatImageUrl ? '更换图片' : '上传图片' }}</Button>
+              </Upload>
+            </div>
+          </Spin>
+        </Card>
+      </Col>
+    </Row>
 
     <Card class="section">
       <div class="toolbar"><h3>业务加价</h3><div class="filters"><Input.Search v-model:value="markupQuery.keyword" placeholder="搜索业务名称或ID" @search="markupQuery.page = 1; loadMarkups()" /><Button type="primary" @click="openAddMarkup">新增加价</Button></div></div>
@@ -385,21 +441,34 @@ onMounted(() => Promise.all([loadDashboard(), loadChildren(), loadMarkups(), loa
 </template>
 
 <style scoped lang="scss">
-.agent-page { padding: 1.5rem; color: #f3f4f6; display: grid; gap: 1.25rem; }
+.agent-page { padding: 1.5rem; color: #253142; display: grid; gap: 1.25rem; }
 .page-header,.toolbar,.header-actions,.filters,.item-title,.actions { display:flex; align-items:center; justify-content:space-between; gap:.75rem; flex-wrap:wrap; }
-h2,h3,p { margin:0; } .page-header p,.tips,dt,.stats span { color:#9ca3af; }
+h2,h3,p { margin:0; } .page-header p,.tips,dt,.stats span { color:#68768a; }
 .tips { line-height:1.6; min-height:4.8rem; max-height:4.8rem; overflow-y:auto; padding-right:.25rem; word-break:break-word; }
-.stats :deep(.ant-card),.section { background:#111827; border:1px solid rgba(255,255,255,.08); border-radius:8px; }
-.stats :deep(.ant-card-body) { display:grid; gap:.35rem; } .stats strong { color:#f59e0b; font-size:1.5rem; }
+.stats :deep(.ant-card),.section { background:#f8fafb; border:1px solid #d5dde3; border-radius:8px; }
+.stats :deep(.ant-card-body) { display:grid; gap:.35rem; } .stats strong { color:#586ee1; font-size:1.5rem; }
+.equal-height-row { align-items: stretch; }
+.equal-height-row > div { display: flex; }
+.equal-height-row .section { flex: 1; }
 .section :deep(.ant-card-body) { display:grid; gap:1rem; }
 .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(310px,1fr)); gap:1rem; }
-.item { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius:8px; padding:1rem; display:grid; gap:.75rem; }
+.item { background:#e9eef2; border:1px solid #d5dde3; border-radius:8px; padding:1rem; display:grid; gap:.75rem; }
 dl { display:grid; grid-template-columns:auto 1fr; gap:.45rem .8rem; margin:0; } dd { margin:0; text-align:right; word-break:break-word; }
 .actions { justify-content:flex-end; } .form { display:grid; gap:.65rem; }
 .overall-form { display:grid; gap:.75rem; }
 .overall-form .tips { min-height:auto; max-height:none; }
 .overall-input-row { display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; }
-.markup-add-form label { color:#9ca3af; font-size:.875rem; }
+.markup-add-form label { color:#68768a; font-size:.875rem; }
 .base-price-hint { display:flex; gap:1rem; color:#f59e0b; font-size:.875rem; padding:.35rem 0; }
+.wechat-form { display:grid; gap:.75rem; }
+.wechat-form .tips { min-height:auto; max-height:none; }
+.wechat-preview {
+  width: 120px; height: 120px; border-radius: 8px; overflow: hidden;
+  border: 1px solid #d5dde3; background: #eef2f5;
+  display: flex; align-items: center; justify-content: center;
+  img, :deep(.ant-image-img) { width: 100%; height: 100%; object-fit: cover; }
+  :deep(.ant-image) { display: block; width: 100%; height: 100%; }
+}
+.wechat-empty { color:#68768a; font-size:.8rem; }
 @media(max-width:768px){.agent-page{padding:1rem}.filters,.filters :deep(.ant-input-search){width:100%}.grid{grid-template-columns:1fr}.actions>*{flex:1}.overall-input-row :deep(.ant-input-number){width:100% !important}.markup-add-form :deep(.ant-select),.markup-add-form :deep(.ant-input-number){width:100% !important}}
 </style>

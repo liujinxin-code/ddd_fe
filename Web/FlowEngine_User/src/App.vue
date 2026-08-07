@@ -1,9 +1,15 @@
 <script setup>
+import { computed } from 'vue'
 import { ConfigProvider } from 'ant-design-vue'
 import zhCN from 'ant-design-vue/es/locale/zh_CN'
 import dayjs from 'dayjs' // 引入中文包
 import 'dayjs/locale/zh-cn' // 引入中文包
+import DraggableWechatButton from './components/DraggableWechatButton.vue'
+import { useAuth } from './stores/auth'
 dayjs.locale('zh-cn') // 设置语言[4](@ref)
+
+const auth = useAuth()
+const showWechatButton = computed(() => auth.isAuthenticated.value)
 
 const themeConfig = {
   token: {
@@ -24,6 +30,7 @@ const themeConfig = {
 <template>
   <ConfigProvider :locale="zhCN" :theme="themeConfig">
     <router-view></router-view>
+    <DraggableWechatButton v-if="showWechatButton" />
   </ConfigProvider>
 </template>
 

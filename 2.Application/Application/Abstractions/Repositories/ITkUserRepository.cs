@@ -58,8 +58,9 @@ namespace Application.Abstractions.Repositories
         /// <param name="sortField">排序字段（白名单：userid/username/email/useramount/userstatus/agentuserid/createby）</param>
         /// <param name="sortDesc">是否倒序</param>
         /// <param name="keyword">可选关键词，按用户名或邮箱模糊匹配（null/空表示查全部）</param>
+        /// <param name="userStatus">可选状态筛选（null=全部，1=启用，0=停用），对应 TkUserStatus 枚举</param>
         /// <param name="ct"></param>
-        Task<(IReadOnlyList<TkUser> Items, int Total)> GetChildrenByAgentAsync(long agentUserid, int pageIndex, int pageSize, string? keyword, string? sortField, bool sortDesc, CancellationToken ct = default);
+        Task<(IReadOnlyList<TkUser> Items, int Total)> GetChildrenByAgentAsync(long agentUserid, int pageIndex, int pageSize, string? keyword, string? sortField, bool sortDesc, int? userStatus = null, CancellationToken ct = default);
 
         /// <summary>
         /// 统计指定代理的下级用户数量：已启用数与总数（IsAgent=0 且未删除）。

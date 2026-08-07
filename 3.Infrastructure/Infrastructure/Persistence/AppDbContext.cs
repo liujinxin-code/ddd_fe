@@ -27,6 +27,7 @@ namespace Infrastructure.Persistence
         public DbSet<TkOrder> TkOrders => Set<TkOrder>();
         public DbSet<TkComment> TkComments => Set<TkComment>();
         public DbSet<TkTicket> TkTickets => Set<TkTicket>();
+        public DbSet<TkServiceImage> TkServiceImages => Set<TkServiceImage>();
         /// <summary>
         /// 使用 Fluent API 显式映射数据库字段。
         /// 这样领域实体可以使用 C# 风格命名，不必被数据库下划线字段名污染。
@@ -229,6 +230,17 @@ namespace Infrastructure.Persistence
                 entity.Property(x => x.DeleteTime).HasColumnName("delete_time");
                 entity.Property(x => x.CreateTime).HasColumnName("create_time");
                 entity.HasIndex(x => x.OrderId).HasDatabaseName("ix_comment_order_id");
+            });
+
+            modelBuilder.Entity<TkServiceImage>(entity =>
+            {
+                entity.ToTable("tk_service_image");
+                entity.HasKey(x => x.ImageId);
+                entity.Property(x => x.ImageId).HasColumnName("image_id").ValueGeneratedOnAdd();
+                entity.Property(x => x.ImageUrl).HasColumnName("image_url").HasMaxLength(500).IsRequired();
+                entity.Property(x => x.AgentUserid).HasColumnName("agent_userid");
+                entity.Property(x => x.CreateTime).HasColumnName("create_time");
+                entity.HasIndex(x => x.AgentUserid).IsUnique().HasDatabaseName("ux_agent_userid");
             });
         }
     }

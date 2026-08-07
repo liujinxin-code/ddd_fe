@@ -44,7 +44,7 @@ namespace Application.Events.Agent.Handlers.Queries
             }
 
             var (items, total) = await tkUserRepository.GetChildrenByAgentAsync(
-                currentUser.Userid, query.PageIndex, query.PageSize, query.Keyword, sortField, sortDesc, ct);
+                currentUser.Userid, query.PageIndex, query.PageSize, query.Keyword, sortField, sortDesc, query.UserStatus, ct);
 
             var list = items.Select(t => new ChildrenUserListItem
             {
