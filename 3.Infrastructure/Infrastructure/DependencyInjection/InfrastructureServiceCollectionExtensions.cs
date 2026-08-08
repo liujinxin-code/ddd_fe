@@ -9,6 +9,7 @@ using Infrastructure.Common.Auth;
 using Infrastructure.Common.Caching;
 using Infrastructure.Common.Passwords;
 using Infrastructure.Common;
+using Infrastructure.Common.Files;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -40,6 +41,11 @@ namespace Infrastructure.DependencyInjection
 
             services.AddOptions<DbOptions>().Bind(configuration.GetSection(DbOptions.SectionName))
 .Validate(x => !string.IsNullOrWhiteSpace(x.ConnectionString), "DbOptions:ConnectionString 不能为空").ValidateOnStart();
+
+            services.AddOptions<FileUploadOptions>().Bind(configuration.GetSection(FileUploadOptions.SectionName))
+                .Validate(x => !string.IsNullOrWhiteSpace(x.BaseUrl), "FileSettings:BaseUrl 不能为空").ValidateOnStart()
+                .Validate(x => x.MaxFileCount > 0, "FileSettings:MaxFileCount 必须大于 0").ValidateOnStart();
+
             //数据库初始化
             var dbOptions = configuration.GetSection(DbOptions.SectionName).Get<DbOptions>();
             services.AddDbContext<AppDbContext>(options => options.UseMySql(dbOptions!.ConnectionString,

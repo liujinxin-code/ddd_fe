@@ -219,6 +219,12 @@ const ASSET_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api')
   .replace(/\/$/, '')
   .replace(/\/api$/, '')
 
+export const fileApi = {
+  // 通用文件上传（multipart，单文件≤5MB、数量上限可配置，不限制类型）：POST /File/upload
+  // → data 为可直接访问的完整 http(s) URL 数组（前缀来自后端 appsettings FileSettings:BaseUrl）
+  upload: (files) => uploadFiles('/File/upload', files),
+}
+
 export const ticketApi = {
   // 工单列表（仅当前登录用户本人）：POST /Ticket/list
   // body { ticketStatus, ticketType, keyword, pageIndex, pageSize, sorting }
@@ -242,9 +248,9 @@ export const ticketApi = {
   // body { ticketContent, ticketType, ticketImages:[url...] }
   // → data 为新工单 id
   create: (body) => request('/Ticket/create', { method: 'POST', body }),
-  // 上传工单图片（multipart，最多 5 张，单张≤5MB，仅 png/jpg）：POST /Ticket/upload
-  // → data 为图片相对 URL 数组
-  upload: (files) => uploadFiles('/Ticket/upload', files),
+  // 上传工单图片：复用通用文件上传 /File/upload（见 fileApi.upload）
+  // → data 为图片完整 http(s) URL 数组（单文件≤5MB、数量上限可配置，不限制类型）
+  upload: (files) => uploadFiles('/File/upload', files),
 }
 
 // 将后端返回的图片相对路径拼接为可访问的完整地址

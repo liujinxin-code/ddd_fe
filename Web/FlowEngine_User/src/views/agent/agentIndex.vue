@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { Button, Card, Col, Empty, Image, Input, InputNumber, Modal, Pagination, Row, Select, Spin, Tag, Upload, message } from 'ant-design-vue'
-import { agentApi, homeApi, resolveAssetUrl, serviceImageApi, ticketApi } from '../../api'
+import { agentApi, homeApi, resolveAssetUrl, serviceImageApi, fileApi } from '../../api'
 import { useAuth } from '../../stores/auth'
 import { formatMoney } from '../../utils/format'
 
@@ -316,7 +316,7 @@ const loadAgentWechatImage = async () => {
 const uploadWechatImage = async ({ file, onSuccess, onError }) => {
   wechatUploadLoading.value = true
   try {
-    const uploadResult = await ticketApi.upload([file])
+    const uploadResult = await fileApi.upload([file])
     const urls = uploadResult.data || []
     if (!urls.length) throw new Error('图片上传失败')
     await serviceImageApi.upload(urls[0])
