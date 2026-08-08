@@ -1,0 +1,25 @@
+# 版本控制 / 本地环境
+.git
+.gitignore
+.vs
+.idea
+
+# 前端（Vue 项目单独构建/部署，不需要进 API 镜像）
+Web/
+
+# 构建产物
+**/bin
+**/obj
+**/publish
+
+# 敏感 / 本地配置（机密一律由运行时环境变量注入，勿打包进镜像）
+**/appsettings.json
+**/appsettings.*.json
+**/appsettings.json.user
+**/*.user
+
+# 其他
+**/.DS_Store
+**/Thumbs.db
+logs/
+*.log

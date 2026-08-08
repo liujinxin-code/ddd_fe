@@ -71,19 +71,31 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// 全新部署：若目标库尚无表，按 EF 模型自动建表（仓库当前无 EF 迁移文件）。
+// 仅适合首次部署；后续表结构演进请改用 EF Migrations（dotnet ef migrations add）。
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<Infrastructure.Persistence.AppDbContext>();
+    db.Database.EnsureCreated();
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    // HTTPS 重定向仅用于开发环境。生产环境由反向代理（nginx 等）终结 TLS，
+    // 容器内只暴露 http，否则会把反代转发的 http 请求又 307 回 https，造成死循环。
+    app.UseHttpsRedirection();
 }
-
-app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// 滑动窗口限流：授权接口按 userid:jti 限流，匿名接口按客户端 IP 限流
+app.UseMiddleware<RateLimitMiddleware>();
 
 // 启用静态文件服务（工单图片上传到 wwwroot/images/... 后通过 /images/... 访问）
 app.UseStaticFiles();

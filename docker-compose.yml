@@ -1,0 +1,82 @@
+# 部署 DDD.FE API（.NET 8）+ MySQL 8 + Redis 7
+# 所有机密通过环境变量注入，未硬编码进镜像。
+# 用法（在仓库根目录）：
+#   docker compose up -d --build
+#
+# 说明：
+#  - api 容器内仅暴露 http :8080，TLS 建议由前置 nginx 终结。
+#  - 上传图片持久化到命名卷 uploads（/app/wwwroot/images）。
+#  - appsettings.json 已被 .dockerignore 排除，以下 Section__Key 环境变量
+#    即为运行时真实配置，请替换为你的实际值。
+
+services:
+  api:
+    build: ./publish          # 单阶段运行时镜像：复用本地已发布的 Linux 程序集，仅依赖已缓存的 aspnet:8.0
+    image: ddd-api:latest
+    # 如需固定镜像名可用 image: ddd-api:latest 代替 build
+    ports:
+      - "9080:8080"          # 宿主机:容器；生产可改为 80:8080 并由 nginx 反代
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      # ↓↓↓ 以下替换为真实值（不要提交含明文的 compose 到公开仓库） ↓↓↓
+      - DbOptions__ConnectionString=Server=mysql;Port=3306;Database=ddd_fe;User=ddd_user;Password=CHANGE_ME_DB_PWD;CharSet=utf8mb4;SslMode=none;AllowPublicKeyRetrieval=True
+      - RedisOptions__ConnectionString=redis:6379,password=CHANGE_ME_REDIS_PWD
+      - JwtSettings__Issuer=FlowEngine
+      - JwtSettings__Audience=FlowEngine.Web
+      - JwtSettings__SecretKey=CHANGE_ME_JWT_SECRET_32BYTES_MIN
+      - PasswordOptions__Salt=CHANGE_ME_ARGON_SALT
+      - FileSettings__BaseUrl=http://49.234.58.209:9080
+      - FileSettings__MaxFileCount=10
+      # 滑动窗口限流（详见 RateLimitOptions；authorized=200次/30s，按 userid:jti 计）
+      - RateLimit__AuthorizedLimit=200
+      - RateLimit__AuthorizedWindowSeconds=30
+      - RateLimit__AnonymousLimit=60
+      - RateLimit__AnonymousWindowSeconds=30
+      - RateLimit__EnableAnonymous=true
+      - RateLimit__UnauthenticatedLimit=20
+      - RateLimit__UnauthenticatedWindowSeconds=30
+    volumes:
+      - uploads:/app/wwwroot/images
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: CHANGE_ME_ROOT_PWD
+      MYSQL_DATABASE: ddd_fe
+      MYSQL_USER: ddd_user
+      MYSQL_PASSWORD: CHANGE_ME_DB_PWD
+    # 强制 utf8mb4，与项目一致
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pCHANGE_ME_ROOT_PWD"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    # 设置访问密码（与 RedisOptions__ConnectionString 中的 password 保持一致）
+    command: redis-server --requirepass CHANGE_ME_REDIS_PWD --appendonly yes
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "CHANGE_ME_REDIS_PWD", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
+
+volumes:
+  uploads:
+  mysql-data:
+  redis-data:

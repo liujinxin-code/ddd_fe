@@ -10,8 +10,6 @@ using Shared.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Application.Events.User.Handlers.Commands
@@ -30,8 +28,7 @@ namespace Application.Events.User.Handlers.Commands
             var user = await tkUserRepository.GetUserByUserNameOrEmailAsync(name, ct);
             if (user == null)
                 throw new BusinessException("账户或密码错误");
-            string password = passwordHelper.GeneratePasswordHash(query.Password);
-            if (!CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(user.Password), Encoding.UTF8.GetBytes(password)))
+            if (!passwordHelper.VerifyPassword(query.Password, user.Password))
                 throw new BusinessException("账户或密码错误");
             user.RequiredUserStatus();
             (string, string) tokenRes = jwtHelper.GenerateToken(user.Userid, user.Username, [user.IsAgentFnc() ? "User.Agent" : "User"]);

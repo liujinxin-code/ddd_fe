@@ -12,6 +12,7 @@ using Infrastructure.Common;
 using Infrastructure.Common.Files;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repositories;
+using Infrastructure.Common.RateLimit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -56,6 +57,11 @@ namespace Infrastructure.DependencyInjection
             var multiplexer = ConnectionMultiplexer.Connect(redisOptions!.ConnectionString);
             services.AddSingleton(multiplexer);
             services.AddSingleton(typeof(ICacheService<>), typeof(CacheService<>));
+
+            // 滑动窗口限流：配置 + 限流器（依赖上面的 ConnectionMultiplexer 单例）
+            services.AddOptions<RateLimitOptions>()
+                .Bind(configuration.GetSection(RateLimitOptions.SectionName));
+            services.AddSingleton<ISlidingWindowRateLimiter, SlidingWindowRateLimiter>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ITkUserRepository, TkUserRepository>();
