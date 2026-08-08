@@ -14,7 +14,10 @@
     "lint:eslint": "eslint . --fix --cache",
     "format": "prettier --write --experimental-cli src/",
     "env:prod": "vite --mode production",
-     "env:dev": "vite --mode development"
+    "env:dev": "vite --mode development",
+    "build:prod": "vite build --mode production"
+
+     
   },
   "dependencies": {
     "ant-design-vue": "^4.2.6",

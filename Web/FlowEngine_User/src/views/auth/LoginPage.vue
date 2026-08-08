@@ -44,7 +44,6 @@ const registerForm = reactive({
   password: '',
   confirmPassword: '',
   captcha: '',
-  agentDomain: '',
 })
 
 function generateCaptcha() {
@@ -167,7 +166,7 @@ const handleRegister = async () => {
       email: registerForm.email,
       username: registerForm.username,
       password: registerForm.password,
-      agentDomain: registerForm.agentDomain || null,
+      agentDomain: location.host,
     })
     message.success('注册成功，请登录')
     activeTab.value = 'login'
@@ -177,7 +176,6 @@ const handleRegister = async () => {
       password: '',
       confirmPassword: '',
       captcha: '',
-      agentDomain: '',
     })
     refreshCaptcha()
   } catch (error) {
@@ -249,9 +247,6 @@ const handleRegister = async () => {
                 type="password"
                 placeholder="请输入密码"
               />
-            </Form.Item>
-            <Form.Item label="代理域名（选填）" name="agentDomain">
-              <Input v-model:value="registerForm.agentDomain" placeholder="有代理时填写代理域名" />
             </Form.Item>
             <Form.Item
               label="确认密码"
