@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, onMounted, watch, nextTick } from 'vue'
 import { Button, Card, Form, Input, Tabs, message } from 'ant-design-vue'
 import { useRouter, useRoute } from 'vue-router'
 import { authApi } from '../../api'
@@ -11,6 +11,7 @@ const auth = useAuth()
 
 // 从 401 / 403 跳转过来时提示对应原因
 onMounted(() => {
+  drawCaptcha()
   if (route.query.reason === 'expired') {
     message.warning('登录已失效，请重新登录')
     // 清理 URL 参数，避免刷新重复提示
@@ -23,7 +24,11 @@ onMounted(() => {
 
 const activeTab = ref('login')
 const loginFormRef = ref()
+
+// Tab 切换后 canvas 会重新挂载，需要重绘验证码
+watch(activeTab, () => nextTick(drawCaptcha))
 const registerFormRef = ref()
+const captchaCanvasRef = ref(null)
 const captchaText = ref(generateCaptcha())
 const submitting = ref(false)
 
@@ -51,10 +56,63 @@ function generateCaptcha() {
   return result
 }
 
+function drawCaptcha() {
+  const canvas = captchaCanvasRef.value
+  if (!canvas) return
+  const ctx = canvas.getContext('2d')
+  const width = canvas.width
+  const height = canvas.height
+
+  // 清空画布
+  ctx.clearRect(0, 0, width, height)
+
+  // 背景
+  ctx.fillStyle = '#111827'
+  ctx.fillRect(0, 0, width, height)
+
+  // 干扰线
+  for (let i = 0; i < 6; i += 1) {
+    ctx.strokeStyle = `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.35)`
+    ctx.lineWidth = Math.random() * 2 + 1
+    ctx.beginPath()
+    ctx.moveTo(Math.random() * width, Math.random() * height)
+    ctx.lineTo(Math.random() * width, Math.random() * height)
+    ctx.stroke()
+  }
+
+  // 噪点
+  for (let i = 0; i < 50; i += 1) {
+    ctx.fillStyle = `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.5)`
+    ctx.beginPath()
+    ctx.arc(Math.random() * width, Math.random() * height, Math.random() * 1.5, 0, Math.PI * 2)
+    ctx.fill()
+  }
+
+  // 验证码字符：随机颜色（橙黄范围）、随机旋转、随机上下偏移
+  const chars = captchaText.value.split('')
+  const fontSize = 22
+  ctx.font = `bold ${fontSize}px Arial`
+  ctx.textBaseline = 'middle'
+  const step = width / (chars.length + 1)
+  chars.forEach((char, i) => {
+    const x = step * (i + 1)
+    const y = height / 2 + (Math.random() - 0.5) * 10
+    const angle = (Math.random() - 0.5) * 0.6
+    ctx.save()
+    ctx.translate(x, y)
+    ctx.rotate(angle)
+    ctx.fillStyle = `hsl(${30 + Math.random() * 30}, 100%, ${55 + Math.random() * 20}%)`
+    ctx.textAlign = 'center'
+    ctx.fillText(char, 0, 0)
+    ctx.restore()
+  })
+}
+
 const refreshCaptcha = () => {
   captchaText.value = generateCaptcha()
   loginForm.captcha = ''
   registerForm.captcha = ''
+  drawCaptcha()
 }
 
 const emailRule = [
@@ -144,7 +202,7 @@ const handleRegister = async () => {
 
       <Tabs v-model:activeKey="activeTab" centered>
         <Tabs.TabPane key="login" tab="登录">
-          <Form ref="loginFormRef" :model="loginForm" layout="vertical" class="auth-form">
+          <Form ref="loginFormRef" :model="loginForm" layout="vertical" class="auth-form" @keydown.enter.prevent="handleLogin">
             <Form.Item
               label="邮箱或账号"
               name="account"
@@ -166,7 +224,7 @@ const handleRegister = async () => {
             >
               <div class="captcha-row">
                 <Input v-model:value="loginForm.captcha" placeholder="请输入验证码" />
-                <div class="captcha-box" @click="refreshCaptcha">{{ captchaText }}</div>
+                <canvas ref="captchaCanvasRef" class="captcha-box" width="100" height="40" @click="refreshCaptcha" />
               </div>
             </Form.Item>
             <Button type="primary" block class="submit-btn" :loading="submitting" @click="handleLogin">登录</Button>
@@ -213,7 +271,7 @@ const handleRegister = async () => {
             >
               <div class="captcha-row">
                 <Input v-model:value="registerForm.captcha" placeholder="请输入验证码" />
-                <div class="captcha-box" @click="refreshCaptcha">{{ captchaText }}</div>
+                <canvas ref="captchaCanvasRef" class="captcha-box" width="100" height="40" @click="refreshCaptcha" />
               </div>
             </Form.Item>
             <Button type="primary" block class="submit-btn" :loading="submitting" @click="handleRegister">注册</Button>
@@ -316,17 +374,10 @@ const handleRegister = async () => {
 }
 
 .captcha-box {
-  min-width: 96px;
+  width: 100px;
   height: 40px;
-  padding: 0 0.8rem;
   border-radius: 10px;
   border: 1px dashed #f59e0b;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #f59e0b;
-  font-weight: 700;
-  letter-spacing: 0.2rem;
   cursor: pointer;
   user-select: none;
 }
