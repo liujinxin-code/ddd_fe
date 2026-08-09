@@ -1,5 +1,5 @@
 using Application.Abstractions.Repositories;
-using Application.Common.Models.Agent;
+using Application.Common.Models.Response.Agent;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -38,14 +38,14 @@ namespace Infrastructure.Persistence.Repositories
             appDbContext.TkPriceAgentMarkups.Remove(entity);
         }
 
-        public async Task<(IReadOnlyList<AgentMarkupWithConfig> Items, int Total)> GetMarkupsByAgentAsync(
+        public async Task<(IReadOnlyList<AgentMarkupWithConfigResponse> Items, int Total)> GetMarkupsByAgentAsync(
             long agentUserId, int pageIndex, int pageSize, string? keyword, CancellationToken ct = default)
         {
             var query = from m in appDbContext.TkPriceAgentMarkups.AsNoTracking()
                         join c in appDbContext.TkConfigs.AsNoTracking()
                             on m.ConfigId equals c.ConfigId
                         where m.AgentUserId == agentUserId
-                        select new AgentMarkupWithConfig { Markup = m, Config = c };
+                        select new AgentMarkupWithConfigResponse { Markup = m, Config = c };
 
             if (!string.IsNullOrWhiteSpace(keyword))
             {

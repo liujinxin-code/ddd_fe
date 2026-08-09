@@ -1,6 +1,6 @@
 ﻿using Application.Abstractions;
 using Application.Abstractions.Repositories;
-using Application.Common.Models.ConsumeLogs;
+using Application.Common.Models.Response.ConsumeLog;
 using Domain.Entities;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -39,7 +39,7 @@ namespace Infrastructure.Persistence.Repositories
         /// 消费流水读模型：按用户过滤，可选按类型/流水号检索，白名单字段排序后分页投影。
         /// tk_consumelog 已是扁平流水表，无需连表。
         /// </summary>
-        public async Task<(IReadOnlyList<ConsumeLogListItem> Items, int Total)> GetPagedByUserAsync(
+        public async Task<(IReadOnlyList<ConsumeLogResponse> Items, int Total)> GetPagedByUserAsync(
             int userId,
             int consumeStatus,
             string? keyword,
@@ -67,7 +67,7 @@ namespace Infrastructure.Persistence.Repositories
             int total = await logs.CountAsync(ct);
             if (total == 0)
             {
-                return (new List<ConsumeLogListItem>(), 0);
+                return (new List<ConsumeLogResponse>(), 0);
             }
 
             logs = ApplyConsumeSorting(logs, sortField, sortDesc);
@@ -75,7 +75,7 @@ namespace Infrastructure.Persistence.Repositories
             var items = await logs
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
-                .Select(l => new ConsumeLogListItem
+                .Select(l => new ConsumeLogResponse
                 {
                     ConsumeId = l.ConsumeId,
                     ConsumeNo = l.ConsumeNo,

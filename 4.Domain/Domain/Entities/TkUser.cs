@@ -71,12 +71,9 @@ namespace Domain.Entities
         /// </summary>
         public string Createby { get; private set; }
         /// <summary>
-        /// 用户进行api访问持久key
+        /// 用户进行api访问持久key（长期 JWT）
         /// </summary>
         public string ApiKey { get; private set; }
-        /// <summary>
-        /// 用户信息版本号
-        /// </summary>
         public int UserVersion { get; private set; }
         /// <summary>
         /// 是否单客户端登录
@@ -179,6 +176,17 @@ namespace Domain.Entities
         public void ChangePasswordFunc(string newPasswordHash)
         {
             Password = newPasswordHash;
+            Touch();
+        }
+
+        /// <summary>
+        /// 设置/刷新 API 长期访问 Key（JWT 字符串）。
+        /// </summary>
+        public void SetApiKeyFunc(string apiKey)
+        {
+            if (string.IsNullOrWhiteSpace(apiKey))
+                throw new ArgumentException("API Key 不能为空", nameof(apiKey));
+            ApiKey = apiKey;
             Touch();
         }
 

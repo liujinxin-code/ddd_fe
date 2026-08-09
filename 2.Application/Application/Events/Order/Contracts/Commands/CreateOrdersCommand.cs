@@ -1,5 +1,6 @@
 using Application.Common.Models;
-using Application.Common.Models.Order;
+using Application.Common.Models.Request.Order;
+using Application.Common.Models.Response.Order;
 using MediatR;
 using System.Collections.Generic;
 
@@ -22,5 +23,5 @@ namespace Application.Events.Order.Contracts.Commands
     /// - 增量业务（涨粉/评论）：一个链接 = 一个订单，OrderLink 必填。
     /// - 账户业务（买号）：Quantity = 购买账户个数，多个账户算同一订单，OrderLink 选填。
     /// </summary>
-    public record CreateOrdersCommand(List<CreateOrderItem> Items) : IRequest<ApiResult<CreateOrderResult>>;
+    public record CreateOrdersCommand(List<CreateOrderItemRequest> Items) : IRequest<ApiResult<CreateOrderResponse>>;
 }

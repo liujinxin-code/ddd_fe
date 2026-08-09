@@ -1,5 +1,5 @@
 using Application.Common.Models;
-using Application.Common.Models.ConsumeLogs;
+using Application.Common.Models.Response.ConsumeLog;
 using MediatR;
 using System.Collections.Generic;
 
@@ -14,5 +14,5 @@ namespace Application.Events.ConsumeLogs.Contracts.Queries
         /// <summary>变动类型筛选：-1 表示全部；0-6 对应 ConsumeStatus 枚举各值</summary>
         int ConsumeStatus = -1,
         string? Keyword = null
-    ) : PagedQuery, IRequest<ApiResult<List<ConsumeLogListItem>>>;
+    ) : PagedQuery, IRequest<ApiResult<List<ConsumeLogResponse>>>;
 }

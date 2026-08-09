@@ -1,6 +1,6 @@
 using Application.Abstractions;
 using Application.Abstractions.Repositories;
-using Application.Common.Models.Ticket;
+using Application.Common.Models.Response.Ticket;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
@@ -28,7 +28,7 @@ public class TicketRepository(AppDbContext appDbContext) : IRepository<TkTicket>
     /// 工单读模型：按用户过滤，可选按状态/类型/内容检索，白名单字段排序后分页投影。
     /// ticket_images 为 JSON 数组字符串，投影时反序列化为 List&lt;string&gt;。
     /// </summary>
-    public async Task<(IReadOnlyList<TicketListItem> Items, int Total)> GetPagedByUserAsync(
+    public async Task<(IReadOnlyList<TicketResponse> Items, int Total)> GetPagedByUserAsync(
         int userId,
         int ticketStatus,
         int ticketType,
@@ -58,7 +58,7 @@ public class TicketRepository(AppDbContext appDbContext) : IRepository<TkTicket>
 
         int total = await query.CountAsync(ct);
         if (total == 0)
-            return (new List<TicketListItem>(), 0);
+            return (new List<TicketResponse>(), 0);
 
         query = ApplyTicketSorting(query, sortField, sortDesc);
 
@@ -80,7 +80,7 @@ public class TicketRepository(AppDbContext appDbContext) : IRepository<TkTicket>
             })
             .ToListAsync(ct);
 
-        var items = raw.Select(t => new TicketListItem
+        var items = raw.Select(t => new TicketResponse
         {
             TicketId = t.TicketId,
             TicketNo = t.TicketNo ?? string.Empty,

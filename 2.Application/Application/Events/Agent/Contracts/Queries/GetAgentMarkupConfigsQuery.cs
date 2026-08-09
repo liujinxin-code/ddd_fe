@@ -1,5 +1,5 @@
 using Application.Common.Models;
-using Application.Common.Models.Agent;
+using Application.Common.Models.Response.Agent;
 using MediatR;
 using System.Collections.Generic;
 
@@ -13,5 +13,5 @@ namespace Application.Events.Agent.Contracts.Queries
     public record class GetAgentMarkupConfigsQuery(
         int PlatformId = 0,
         int SubPlatformId = 0
-    ) : PagedQuery, IRequest<ApiResult<List<AgentMarkupConfigItem>>>;
+    ) : PagedQuery, IRequest<ApiResult<List<AgentMarkupConfigResponse>>>;
 }

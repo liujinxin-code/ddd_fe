@@ -1,5 +1,5 @@
 using Application.Common.Models;
-using Application.Common.Models.ConsumeLogs;
+using Application.Common.Models.Response.ConsumeLog;
 using Application.Events.ConsumeLogs.Contracts.Queries;
 using MediatR;
 using System.Collections.Generic;
@@ -20,8 +20,8 @@ namespace Open.Controllers
         /// Keyword 匹配流水号；排序白名单 createtime/beforeamount/afteramount/consumestatus。
         /// </summary>
         [HttpPost("list")]
-        [ProducesResponseType(typeof(ApiResult<List<ConsumeLogListItem>>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<List<ConsumeLogListItem>>> ListAsync([FromBody] GetConsumeLogsQuery query, CancellationToken ct)
+        [ProducesResponseType(typeof(ApiResult<List<ConsumeLogResponse>>), StatusCodes.Status200OK)]
+        public async Task<ApiResult<List<ConsumeLogResponse>>> ListAsync([FromBody] GetConsumeLogsQuery query, CancellationToken ct)
         {
             return await mediator.Send(query, ct);
         }

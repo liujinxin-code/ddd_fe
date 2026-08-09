@@ -1,5 +1,6 @@
 using Application.Common.Models;
-using Application.Common.Models.Order;
+using Application.Common.Models.Request.Order;
+using Application.Common.Models.Response.Order;
 using MediatR;
 using System.Collections.Generic;
 
@@ -13,5 +14,5 @@ namespace Application.Events.Order.Contracts.Queries
     public record class GetOrdersQuery(
         int OrderState = 0,
         string? Keyword = null
-    ) : PagedQuery, IRequest<ApiResult<List<OrderListItem>>>;
+    ) : PagedQuery, IRequest<ApiResult<List<OrderResponse>>>;
 }

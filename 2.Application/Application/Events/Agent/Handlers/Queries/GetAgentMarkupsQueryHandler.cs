@@ -1,6 +1,6 @@
 using Application.Abstractions.Repositories;
 using Application.Common.Models;
-using Application.Common.Models.Agent;
+using Application.Common.Models.Response.Agent;
 using Application.Events.Agent.Contracts.Queries;
 using Application.Services;
 using MediatR;
@@ -16,16 +16,16 @@ namespace Application.Events.Agent.Handlers.Queries
         IAgentPricingRepository agentPricingRepository,
         IConfigRepository configRepository,
         ICurrentUser currentUser)
-        : IRequestHandler<GetAgentMarkupsQuery, ApiResult<List<AgentMarkupListItem>>>
+        : IRequestHandler<GetAgentMarkupsQuery, ApiResult<List<AgentMarkupResponse>>>
     {
-        public async Task<ApiResult<List<AgentMarkupListItem>>> Handle(GetAgentMarkupsQuery query, CancellationToken ct)
+        public async Task<ApiResult<List<AgentMarkupResponse>>> Handle(GetAgentMarkupsQuery query, CancellationToken ct)
         {
             var (items, total) = await agentPricingRepository.GetMarkupsByAgentAsync(
                 currentUser.Userid, query.PageIndex, query.PageSize, query.Keyword, ct);
 
             if (items.Count == 0)
             {
-                return ApiResult<List<AgentMarkupListItem>>.Successed(new List<AgentMarkupListItem>(), 0);
+                return ApiResult<List<AgentMarkupResponse>>.Successed(new List<AgentMarkupResponse>(), 0);
             }
 
             var configIds = items.Select(x => x.Config.ConfigId).ToList();
@@ -41,7 +41,7 @@ namespace Application.Events.Agent.Handlers.Queries
                 // 下级展示价 = 基础价格 + 加价金额，按单个展示
                 decimal childDisplayPrice = basePrice + markup.MarkupAddPrice;
 
-                return new AgentMarkupListItem
+                return new AgentMarkupResponse
                 {
                     MarkupId = markup.MarkupId,
                     ConfigId = config.ConfigId,
@@ -56,7 +56,7 @@ namespace Application.Events.Agent.Handlers.Queries
                 };
             }).ToList();
 
-            return new ApiResult<List<AgentMarkupListItem>>
+            return new ApiResult<List<AgentMarkupResponse>>
             {
                 Code = 200,
                 Message = "Success!",

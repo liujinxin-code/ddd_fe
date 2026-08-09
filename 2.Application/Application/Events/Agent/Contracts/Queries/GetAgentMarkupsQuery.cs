@@ -1,5 +1,5 @@
 using Application.Common.Models;
-using Application.Common.Models.Agent;
+using Application.Common.Models.Response.Agent;
 using MediatR;
 using System.Collections.Generic;
 
@@ -12,5 +12,5 @@ namespace Application.Events.Agent.Contracts.Queries
     /// </summary>
     public record class GetAgentMarkupsQuery(
         string Keyword = ""
-    ) : PagedQuery, IRequest<ApiResult<List<AgentMarkupListItem>>>;
+    ) : PagedQuery, IRequest<ApiResult<List<AgentMarkupResponse>>>;
 }

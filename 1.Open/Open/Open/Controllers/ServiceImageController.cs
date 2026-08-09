@@ -1,5 +1,5 @@
 ﻿using Application.Common.Models;
-using Application.Common.Models.ServiceImage;
+using Application.Common.Models.Response.ServiceImage;
 using Application.Events.ServiceImage.Contracts.Commands;
 using Application.Events.ServiceImage.Contracts.Queries;
 using MediatR;
@@ -20,8 +20,8 @@ namespace Open.Controllers
         /// 代理返回系统客服图片；普通用户返回上级代理图片，未上传则返回系统客服图片；无上级返回系统客服图片。
         /// </summary>
         [HttpPost("my-wechat")]
-        [ProducesResponseType(typeof(ApiResult<AgentWechatImageItem>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<AgentWechatImageItem>> GetMyWechatImageAsync(CancellationToken ct)
+        [ProducesResponseType(typeof(ApiResult<AgentWechatImageResponse>), StatusCodes.Status200OK)]
+        public async Task<ApiResult<AgentWechatImageResponse>> GetMyWechatImageAsync(CancellationToken ct)
         {
             return await mediator.Send(new GetMyAgentWechatImageQuery(), ct);
         }
@@ -31,8 +31,8 @@ namespace Open.Controllers
         /// </summary>
         [Authorize(Roles = "User.Agent")]
         [HttpPost("my-own")]
-        [ProducesResponseType(typeof(ApiResult<AgentWechatImageItem>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<AgentWechatImageItem>> GetMyOwnWechatImageAsync(CancellationToken ct)
+        [ProducesResponseType(typeof(ApiResult<AgentWechatImageResponse>), StatusCodes.Status200OK)]
+        public async Task<ApiResult<AgentWechatImageResponse>> GetMyOwnWechatImageAsync(CancellationToken ct)
         {
             return await mediator.Send(new GetMyOwnWechatImageQuery(), ct);
         }

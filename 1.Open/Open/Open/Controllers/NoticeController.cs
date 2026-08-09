@@ -1,5 +1,5 @@
 using Application.Common.Models;
-using Application.Common.Models.Notice;
+using Application.Common.Models.Response.Notice;
 using Application.Events.Notice.Contracts.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -17,8 +17,8 @@ namespace Open.Controllers
         /// 公告为公共展示内容，无需注入用户；业务排序固定，Sorting 不参与。
         /// </summary>
         [HttpPost("homepage")]
-        [ProducesResponseType(typeof(ApiResult<List<NoticeListItem>>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<List<NoticeListItem>>> GetHomepageNoticesAsync([FromBody] GetHomepageNoticesQuery query, CancellationToken ct)
+        [ProducesResponseType(typeof(ApiResult<List<NoticeResponse>>), StatusCodes.Status200OK)]
+        public async Task<ApiResult<List<NoticeResponse>>> GetHomepageNoticesAsync([FromBody] GetHomepageNoticesQuery query, CancellationToken ct)
         {
             return await mediator.Send(query, ct);
         }
@@ -28,8 +28,8 @@ namespace Open.Controllers
         /// 弹窗公告全局仅一条，不存在时返回 Data=null，前端据此不弹窗。
         /// </summary>
         [HttpPost("popup")]
-        [ProducesResponseType(typeof(ApiResult<NoticeListItem>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<NoticeListItem>> GetPopupNoticeAsync([FromBody] GetPopupNoticeQuery query, CancellationToken ct)
+        [ProducesResponseType(typeof(ApiResult<NoticeResponse>), StatusCodes.Status200OK)]
+        public async Task<ApiResult<NoticeResponse>> GetPopupNoticeAsync([FromBody] GetPopupNoticeQuery query, CancellationToken ct)
         {
             return await mediator.Send(query, ct);
         }

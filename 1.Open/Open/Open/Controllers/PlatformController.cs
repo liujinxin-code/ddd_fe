@@ -1,5 +1,5 @@
 using Application.Common.Models;
-using Application.Common.Models.Platform;
+using Application.Common.Models.Response.Platform;
 using Application.Events.Platform.Contracts.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -16,8 +16,8 @@ namespace Open.Controllers
         /// 请求体：{} 
         /// </summary>
         [HttpPost("list")]
-        [ProducesResponseType(typeof(ApiResult<List<PlatformListItem>>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<List<PlatformListItem>>> GetPlatformsAsync([FromBody] GetPlatformsQuery query, CancellationToken ct)
+        [ProducesResponseType(typeof(ApiResult<List<PlatformResponse>>), StatusCodes.Status200OK)]
+        public async Task<ApiResult<List<PlatformResponse>>> GetPlatformsAsync([FromBody] GetPlatformsQuery query, CancellationToken ct)
         {
             return await mediator.Send(query, ct);
         }
@@ -28,8 +28,8 @@ namespace Open.Controllers
         /// 请求体：{ "PlatformId": 1 }
         /// </summary>
         [HttpPost("subs")]
-        [ProducesResponseType(typeof(ApiResult<List<SubPlatformListItem>>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<List<SubPlatformListItem>>> GetSubPlatformsByPlatformAsync([FromBody] GetSubPlatformsByPlatformQuery query, CancellationToken ct)
+        [ProducesResponseType(typeof(ApiResult<List<SubPlatformResponse>>), StatusCodes.Status200OK)]
+        public async Task<ApiResult<List<SubPlatformResponse>>> GetSubPlatformsByPlatformAsync([FromBody] GetSubPlatformsByPlatformQuery query, CancellationToken ct)
         {
             return await mediator.Send(query, ct);
         }

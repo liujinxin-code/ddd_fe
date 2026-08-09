@@ -1,6 +1,6 @@
 using Application.Abstractions.Repositories;
 using Application.Common.Models;
-using Application.Common.Models.Agent;
+using Application.Common.Models.Response.Agent;
 using Application.Events.Agent.Contracts.Queries;
 using Domain.Enums;
 using MediatR;
@@ -20,9 +20,9 @@ namespace Application.Events.Agent.Handlers.Queries
         IConfigRepository configRepository,
         IAgentPricingRepository agentPricingRepository,
         ICurrentUser currentUser)
-        : IRequestHandler<GetAgentMarkupConfigsQuery, ApiResult<List<AgentMarkupConfigItem>>>
+        : IRequestHandler<GetAgentMarkupConfigsQuery, ApiResult<List<AgentMarkupConfigResponse>>>
     {
-        public async Task<ApiResult<List<AgentMarkupConfigItem>>> Handle(GetAgentMarkupConfigsQuery query, CancellationToken ct)
+        public async Task<ApiResult<List<AgentMarkupConfigResponse>>> Handle(GetAgentMarkupConfigsQuery query, CancellationToken ct)
         {
             // 获取当前代理已加价的 configId 集合。
             var existingMarkupConfigIds = await agentPricingRepository.GetMarkupConfigIdsByAgentAsync(currentUser.Userid, ct);
@@ -46,7 +46,7 @@ namespace Application.Events.Agent.Handlers.Queries
 
             if (availableConfigs.Count == 0)
             {
-                return ApiResult<List<AgentMarkupConfigItem>>.Successed(new List<AgentMarkupConfigItem>(), 0);
+                return ApiResult<List<AgentMarkupConfigResponse>>.Successed(new List<AgentMarkupConfigResponse>(), 0);
             }
 
             var configIds = availableConfigs.Select(c => c.ConfigId).ToList();
@@ -58,7 +58,7 @@ namespace Application.Events.Agent.Handlers.Queries
                     ? custom
                     : c.ConfigPrice;
 
-                return new AgentMarkupConfigItem
+                return new AgentMarkupConfigResponse
                 {
                     ConfigId = c.ConfigId,
                     ConfigName = c.ConfigName,
@@ -71,7 +71,7 @@ namespace Application.Events.Agent.Handlers.Queries
                 };
             }).ToList();
 
-            return new ApiResult<List<AgentMarkupConfigItem>>
+            return new ApiResult<List<AgentMarkupConfigResponse>>
             {
                 Code = 200,
                 Message = "Success!",

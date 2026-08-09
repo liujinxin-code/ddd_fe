@@ -1,4 +1,5 @@
-using Application.Common.Models.Order;
+using Application.Common.Models.Request.Order;
+using Application.Common.Models.Response.Order;
 using Application.Events.Order.Contracts.Commands;
 using FluentValidation;
 using System.Collections.Generic;

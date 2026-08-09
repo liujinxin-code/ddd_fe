@@ -32,7 +32,7 @@ namespace Application.Events.Config.Validators
                 .GreaterThanOrEqualTo(1).WithMessage("页码必须大于等于 1");
 
             RuleFor(x => x.PageSize)
-                .InclusiveBetween(1, 100).WithMessage("每页条数需在 1-100 之间");
+                .InclusiveBetween(1, 1000).WithMessage("每页条数需在 1-1000 之间");
 
             RuleFor(x => x.Sorting)
                 .Must(BeValidSorting).WithMessage("排序字段不合法")

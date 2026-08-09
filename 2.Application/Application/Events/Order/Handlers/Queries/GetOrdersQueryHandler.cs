@@ -1,6 +1,7 @@
 using Application.Abstractions.Repositories;
 using Application.Common.Models;
-using Application.Common.Models.Order;
+using Application.Common.Models.Request.Order;
+using Application.Common.Models.Response.Order;
 using Application.Events.Order.Contracts.Queries;
 using MediatR;
 using Shared.Utilities;
@@ -19,17 +20,17 @@ namespace Application.Events.Order.Handlers.Queries
     public class GetOrdersQueryHandler(
         IOrderRepository orderRepository,
         ICurrentUser currentUser)
-        : IRequestHandler<GetOrdersQuery, ApiResult<List<OrderListItem>>>
+        : IRequestHandler<GetOrdersQuery, ApiResult<List<OrderResponse>>>
     {
-        public async Task<ApiResult<List<OrderListItem>>> Handle(GetOrdersQuery query, CancellationToken ct)
+        public async Task<ApiResult<List<OrderResponse>>> Handle(GetOrdersQuery query, CancellationToken ct)
         {
             if (!currentUser.IsAuthenticated || currentUser.Userid <= 0)
             {
-                return new ApiResult<List<OrderListItem>>
+                return new ApiResult<List<OrderResponse>>
                 {
                     Code = 401,
                     Message = "登录失效",
-                    Data = new List<OrderListItem>(),
+                    Data = new List<OrderResponse>(),
                     DataTotal = 0
                 };
             }
@@ -66,7 +67,7 @@ namespace Application.Events.Order.Handlers.Queries
                 return o;
             }).ToList();
 
-            return new ApiResult<List<OrderListItem>>
+            return new ApiResult<List<OrderResponse>>
             {
                 Code = 200,
                 Message = "Success!",

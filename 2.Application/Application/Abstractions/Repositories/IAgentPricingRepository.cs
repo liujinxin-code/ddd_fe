@@ -1,5 +1,5 @@
 using Application.Abstractions;
-using Application.Common.Models.Agent;
+using Application.Common.Models.Response.Agent;
 using Domain.Entities;
 using System.Collections.Generic;
 using System.Threading;
@@ -35,7 +35,7 @@ namespace Application.Abstractions.Repositories
         /// 分页获取某代理的单业务加价记录，并与 tk_config 关联，支持按业务名称模糊检索。
         /// 返回加价记录与对应配置的联合读取模型及总条数。
         /// </summary>
-        Task<(IReadOnlyList<AgentMarkupWithConfig> Items, int Total)> GetMarkupsByAgentAsync(
+        Task<(IReadOnlyList<AgentMarkupWithConfigResponse> Items, int Total)> GetMarkupsByAgentAsync(
             long agentUserId, int pageIndex, int pageSize, string? keyword, CancellationToken ct = default);
 
         /// <summary>

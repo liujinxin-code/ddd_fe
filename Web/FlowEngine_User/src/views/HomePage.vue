@@ -110,6 +110,8 @@ onMounted(async () => {
           <router-link to="/app/order" active-class="active">订单列表</router-link>
           <router-link to="/app/consumption" active-class="active">消费列表</router-link>
           <router-link to="/app/ticket" active-class="active">联系客服</router-link>
+          <a href="javascript:;" class="nav-highlight nav-recharge" @click.prevent="message.info('正在开发中...')">我要充值</a>
+          <router-link to="/app/api-docs" class="nav-highlight nav-api" active-class="active">API文档</router-link>
         </nav>
         <div class="user-info">
           <div class="balance-info">
@@ -129,6 +131,8 @@ onMounted(async () => {
                 <MenuItem><router-link to="/app/order"><Icon icon="OrderedListOutlined" /> 订单列表</router-link></MenuItem>
                 <MenuItem><router-link to="/app/consumption"><Icon icon="MenuUnfoldOutlined" /> 消费列表</router-link></MenuItem>
                 <MenuItem><router-link to="/app/ticket"><Icon icon="CustomerServiceOutlined" /> 联系客服</router-link></MenuItem>
+                <MenuItem class="mobile-highlight mobile-recharge" @click="message.info('正在开发中...')"><span><Icon icon="MoneyCollectOutlined" /> 我要充值</span></MenuItem>
+                <MenuItem class="mobile-highlight mobile-api"><router-link to="/app/api-docs"><Icon icon="ApiOutlined" /> API文档</router-link></MenuItem>
                 <MenuItem @click="changePasswordModalVisible = true"><span><Icon icon="LockOutlined" /> 修改密码</span></MenuItem>
                 <MenuItem danger><a href="javascript:;" @click.prevent="handleLogout"><Icon icon="ClearOutlined" /> 退出登录</a></MenuItem>
               </Menu>
@@ -242,6 +246,40 @@ onMounted(async () => {
 .desktop-nav a { min-width: 76px; height: 38px; padding: 0 .65rem; display: flex; align-items: center; justify-content: center; color: #566371; text-decoration: none; border-radius: 6px; box-sizing: border-box; }
 .desktop-nav a:hover { background: #e9eef2; color: #202a34; }
 .desktop-nav .active { background: #edf0ff; color: #586ee1; font-weight: 600; }
+.desktop-nav .nav-highlight { font-weight: 700; box-shadow: 0 2px 6px rgba(0,0,0,.06); }
+.desktop-nav .nav-recharge {
+  background: linear-gradient(135deg, #fff4e6, #ffe4c7);
+  color: #ad4e00;
+  border: 1px solid #ffbb6e;
+  position: relative;
+}
+.desktop-nav .nav-recharge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ff7a45;
+  margin-right: .35rem;
+  box-shadow: 0 0 0 2px rgba(255,122,69,.2);
+}
+.desktop-nav .nav-recharge:hover { background: linear-gradient(135deg, #ffe8cc, #ffd6a3); color: #873800; }
+.desktop-nav .nav-api {
+  background: linear-gradient(135deg, #e6fffb, #b5f5ec);
+  color: #006d75;
+  border: 1px solid #5cdbd3;
+  position: relative;
+}
+.desktop-nav .nav-api::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #13c2c2;
+  margin-right: .35rem;
+  box-shadow: 0 0 0 2px rgba(19,194,194,.2);
+}
+.desktop-nav .nav-api:hover { background: linear-gradient(135deg, #b5f5ec, #87e8de); color: #00474f; }
+.desktop-nav .nav-api.active { background: #b5f5ec; color: #00474f; border-color: #36cfc9; }
 .user-info,.user-trigger { display: flex; align-items: center; gap: .65rem; }
 .balance-info { display: grid; text-align: right; font-size: .78rem; color: #65727f; }
 .balance-info strong { color: #586ee1; font-weight: 600; }
@@ -313,5 +351,8 @@ onMounted(async () => {
   .announcement-timeline-marker { left: -1rem; }
   .content-container { padding: 0 1rem; }
   .site-footer { min-height: auto; flex-direction: column; text-align: center; }
+  .mobile-highlight :deep(a), .mobile-highlight span { font-weight: 700; }
+  .mobile-recharge :deep(a), .mobile-recharge span { color: #ad4e00 !important; background: #fff7e6; border-radius: 6px; padding: .15rem .4rem; }
+  .mobile-api :deep(a), .mobile-api span { color: #006d75 !important; background: #e6fffb; border-radius: 6px; padding: .15rem .4rem; }
 }
 </style>

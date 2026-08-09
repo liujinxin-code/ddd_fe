@@ -1,6 +1,6 @@
 using Application.Abstractions.Repositories;
 using Application.Common.Models;
-using Application.Common.Models.Config;
+using Application.Common.Models.Response.Config;
 using Application.Events.Config.Contracts.Queries;
 using Application.Services;
 using Domain.Entities;
@@ -18,17 +18,17 @@ namespace Application.Events.Config.Handlers.Queries
         IConfigRepository configRepository,
         ITkUserRepository userRepository,
         ICurrentUser currentUser)
-        : IRequestHandler<GetConfigsQuery, ApiResult<List<ConfigListItem>>>
+        : IRequestHandler<GetConfigsQuery, ApiResult<List<ConfigResponse>>>
     {
-        public async Task<ApiResult<List<ConfigListItem>>> Handle(GetConfigsQuery query, CancellationToken ct)
+        public async Task<ApiResult<List<ConfigResponse>>> Handle(GetConfigsQuery query, CancellationToken ct)
         {
             if (!currentUser.IsAuthenticated || currentUser.Userid <= 0)
             {
-                return new ApiResult<List<ConfigListItem>>
+                return new ApiResult<List<ConfigResponse>>
                 {
                     Code = 401,
                     Message = "登录失效",
-                    Data = new List<ConfigListItem>(),
+                    Data = new List<ConfigResponse>(),
                     DataTotal = 0
                 };
             }
@@ -54,18 +54,18 @@ namespace Application.Events.Config.Handlers.Queries
 
             if (configs.Count == 0)
             {
-                return ApiResult<List<ConfigListItem>>.Successed(new List<ConfigListItem>(), 0);
+                return ApiResult<List<ConfigResponse>>.Successed(new List<ConfigResponse>(), 0);
             }
 
             // 加载当前用户，确定其是否有上级代理，从而决定定价路径。
             var user = await userRepository.GetByIdAsNoTrackingAsync(currentUser.Userid, ct);
             if (user is null)
             {
-                return new ApiResult<List<ConfigListItem>>
+                return new ApiResult<List<ConfigResponse>>
                 {
                     Code = 400,
                     Message = "用户不存在",
-                    Data = new List<ConfigListItem>(),
+                    Data = new List<ConfigResponse>(),
                     DataTotal = 0
                 };
             }
@@ -104,7 +104,7 @@ namespace Application.Events.Config.Handlers.Queries
                 var displayPrice = c.ShowPriceUnit > 0 ? c.ShowPriceUnit * unitPrice : unitPrice;
                 // 价格统一四舍五入保留 6 位小数（半进位）。
                 displayPrice = Utils.RoundToSixDecimals(displayPrice);
-                return new ConfigListItem
+                return new ConfigResponse
                 {
                     ConfigId = c.ConfigId,
                     ConfigName = c.ConfigName,
@@ -122,7 +122,7 @@ namespace Application.Events.Config.Handlers.Queries
 
             // data 为 List（IList），ApiResult.Successed 会按 list.Count 回填 DataTotal，
             // 故此处显式构造，保留真实总条数 total 供前端分页（页索引/页大小已在请求中，无需回显）。
-            return new ApiResult<List<ConfigListItem>>
+            return new ApiResult<List<ConfigResponse>>
             {
                 Code = 200,
                 Message = "Success!",

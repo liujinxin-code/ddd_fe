@@ -1,4 +1,5 @@
-using Application.Common.Models.Order;
+using Application.Common.Models.Request.Order;
+using Application.Common.Models.Response.Order;
 using Domain.Entities;
 using System.Collections.Generic;
 using System.Threading;
@@ -21,7 +22,7 @@ namespace Application.Abstractions.Repositories
         /// orderState 传 0 表示不按状态过滤；keyword 匹配订单号或下单链接。
         /// 排序字段来自白名单（createtime/orderamount/quantity/orderstate），缺省按下单时间倒序。
         /// </summary>
-        Task<(IReadOnlyList<OrderListItem> Items, int Total)> GetPagedByUserAsync(
+        Task<(IReadOnlyList<OrderResponse> Items, int Total)> GetPagedByUserAsync(
             int userId,
             int orderState,
             string? keyword,

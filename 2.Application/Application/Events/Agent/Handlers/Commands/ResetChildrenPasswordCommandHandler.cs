@@ -2,7 +2,7 @@
 using Application.Abstractions.Passwords;
 using Application.Abstractions.Repositories;
 using Application.Common.Models;
-using Application.Common.Models.Agent;
+using Application.Common.Models.Response.Agent;
 using Application.Events.Agent.Contracts.Commands;
 using MediatR;
 using Shared.Exceptions;

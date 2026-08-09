@@ -1,4 +1,4 @@
-﻿using Application.Common.Models.ConsumeLogs;
+﻿using Application.Common.Models.Response.ConsumeLog;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -16,7 +16,7 @@ namespace Application.Abstractions.Repositories
         /// 分页查询指定用户的消费流水。consumeStatus 传 -1 表示不过滤类型；
         /// keyword 模糊匹配流水号；排序白名单由实现方控制。
         /// </summary>
-        Task<(IReadOnlyList<ConsumeLogListItem> Items, int Total)> GetPagedByUserAsync(
+        Task<(IReadOnlyList<ConsumeLogResponse> Items, int Total)> GetPagedByUserAsync(
             int userId,
             int consumeStatus,
             string? keyword,

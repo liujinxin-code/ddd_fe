@@ -1,6 +1,6 @@
 using Application.Abstractions.Repositories;
 using Application.Common.Models;
-using Application.Common.Models.Notice;
+using Application.Common.Models.Response.Notice;
 using Application.Events.Notice.Contracts.Queries;
 using MediatR;
 using System.Threading;
@@ -9,18 +9,18 @@ using System.Threading.Tasks;
 namespace Application.Events.Notice.Handlers.Queries
 {
     public class GetPopupNoticeQueryHandler(INoticeRepository noticeRepository)
-        : IRequestHandler<GetPopupNoticeQuery, ApiResult<NoticeListItem>>
+        : IRequestHandler<GetPopupNoticeQuery, ApiResult<NoticeResponse>>
     {
-        public async Task<ApiResult<NoticeListItem>> Handle(GetPopupNoticeQuery query, CancellationToken ct)
+        public async Task<ApiResult<NoticeResponse>> Handle(GetPopupNoticeQuery query, CancellationToken ct)
         {
             var notice = await noticeRepository.GetPopupNoticeAsync(ct);
             if (notice is null)
             {
                 // 弹窗公告可能未配置：返回成功且 Data=null，前端据此不弹窗。
-                return ApiResult<NoticeListItem>.Successed(null!);
+                return ApiResult<NoticeResponse>.Successed(null!);
             }
 
-            var item = new NoticeListItem
+            var item = new NoticeResponse
             {
                 NoticeId = notice.NoticeId,
                 NoticeContent = notice.NoticeContent,
@@ -28,7 +28,7 @@ namespace Application.Events.Notice.Handlers.Queries
                 CreateTime = notice.CreateTime
             };
 
-            return ApiResult<NoticeListItem>.Successed(item);
+            return ApiResult<NoticeResponse>.Successed(item);
         }
     }
 }

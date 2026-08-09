@@ -1,7 +1,7 @@
 using Application.Abstractions;
 using Application.Abstractions.Repositories;
 using Application.Common.Models;
-using Application.Common.Models.Ticket;
+using Application.Common.Models.Response.Ticket;
 using Application.Events.Ticket.Contracts.Queries;
 using MediatR;
 using Shared.Utilities;
@@ -13,17 +13,17 @@ namespace Application.Events.Ticket.Handlers.Queries;
 public class GetTicketsQueryHandler(
     ITicketRepository ticketRepository,
     ICurrentUser currentUser)
-    : IRequestHandler<GetTicketsQuery, ApiResult<List<TicketListItem>>>
+    : IRequestHandler<GetTicketsQuery, ApiResult<List<TicketResponse>>>
 {
-    public async Task<ApiResult<List<TicketListItem>>> Handle(GetTicketsQuery query, CancellationToken ct)
+    public async Task<ApiResult<List<TicketResponse>>> Handle(GetTicketsQuery query, CancellationToken ct)
     {
         if (!currentUser.IsAuthenticated || currentUser.Userid <= 0)
         {
-            return new ApiResult<List<TicketListItem>>
+            return new ApiResult<List<TicketResponse>>
             {
                 Code = 401,
                 Message = "登录失效",
-                Data = new List<TicketListItem>(),
+                Data = new List<TicketResponse>(),
                 DataTotal = 0,
             };
         }
@@ -53,7 +53,7 @@ public class GetTicketsQueryHandler(
             sortDesc,
             ct);
 
-        return new ApiResult<List<TicketListItem>>
+        return new ApiResult<List<TicketResponse>>
         {
             Code = 200,
             Message = "Success!",

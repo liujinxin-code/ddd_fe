@@ -1,7 +1,7 @@
 using Application.Abstractions;
 using Application.Abstractions.Repositories;
 using Application.Common.Models;
-using Application.Common.Models.ConsumeLogs;
+using Application.Common.Models.Response.ConsumeLog;
 using Application.Events.ConsumeLogs.Contracts.Queries;
 using MediatR;
 using Shared.Utilities;
@@ -19,17 +19,17 @@ namespace Application.Events.ConsumeLogs.Handlers.Queries
     public class GetConsumeLogsQueryHandler(
         IConsumeLogRepository consumeLogRepository,
         ICurrentUser currentUser)
-        : IRequestHandler<GetConsumeLogsQuery, ApiResult<List<ConsumeLogListItem>>>
+        : IRequestHandler<GetConsumeLogsQuery, ApiResult<List<ConsumeLogResponse>>>
     {
-        public async Task<ApiResult<List<ConsumeLogListItem>>> Handle(GetConsumeLogsQuery query, CancellationToken ct)
+        public async Task<ApiResult<List<ConsumeLogResponse>>> Handle(GetConsumeLogsQuery query, CancellationToken ct)
         {
             if (!currentUser.IsAuthenticated || currentUser.Userid <= 0)
             {
-                return new ApiResult<List<ConsumeLogListItem>>
+                return new ApiResult<List<ConsumeLogResponse>>
                 {
                     Code = 401,
                     Message = "登录失效",
-                    Data = new List<ConsumeLogListItem>(),
+                    Data = new List<ConsumeLogResponse>(),
                     DataTotal = 0
                 };
             }
@@ -67,7 +67,7 @@ namespace Application.Events.ConsumeLogs.Handlers.Queries
                 return o;
             }).ToList();
 
-            return new ApiResult<List<ConsumeLogListItem>>
+            return new ApiResult<List<ConsumeLogResponse>>
             {
                 Code = 200,
                 Message = "Success!",

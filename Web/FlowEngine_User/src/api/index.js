@@ -39,6 +39,21 @@ export const authApi = {
     }),
 }
 
+export const apiKeyApi = {
+  // 生成新的长期 API Key（JWT，20 年有效期，client_type=API），直接覆盖旧 Key。
+  generate: () =>
+    request('/User/api-key', {
+      method: 'POST',
+      body: {},
+    }),
+  // 查看当前 API Key，需验证登录密码（不修改数据库）。
+  view: (password) =>
+    request('/User/api-key/view', {
+      method: 'POST',
+      body: { password },
+    }),
+}
+
 export const homeApi = {
   // 平台列表：POST {} → [{ platformId, platformName }]
   platforms: () => request('/Platform/list', { method: 'POST', body: {} }),
@@ -72,6 +87,31 @@ export const homeApi = {
       price: c.displayPrice,
       priceUnit: c.showPriceUnit,
       // 数量约束
+      minQuantity: c.minQuantity,
+      maxQuantity: c.maxQuantity,
+      orderUnit: c.orderUnit,
+      jsonTemplate: c.jsonTemplate,
+    }))
+    return { ...result, data }
+  },
+  // API 文档业务配置精简列表：POST { platformId, subPlatformId, pageIndex, pageSize, sorting }
+  // 仅返回下单所需核心字段：configId / configName / unitPrice / minQuantity / maxQuantity / orderUnit / jsonTemplate
+  apiConfigs: async (params) => {
+    const result = await request('/Config/api-list', {
+      method: 'POST',
+      body: {
+        platformId: params.platformId,
+        subPlatformId: params.subPlatformId,
+        pageIndex: params.page,
+        pageSize: params.pageSize,
+        sorting: params.sorting,
+        keyword: params.keyword || undefined,
+      },
+    })
+    const data = (result.data || []).map((c) => ({
+      configId: c.configId,
+      configName: c.configName,
+      unitPrice: c.unitPrice,
       minQuantity: c.minQuantity,
       maxQuantity: c.maxQuantity,
       orderUnit: c.orderUnit,

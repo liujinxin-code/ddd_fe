@@ -1,6 +1,7 @@
 using Application.Abstractions;
 using Application.Abstractions.Repositories;
-using Application.Common.Models.Order;
+using Application.Common.Models.Request.Order;
+using Application.Common.Models.Response.Order;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -31,7 +32,7 @@ namespace Infrastructure.Persistence.Repositories
         /// 订单列表读模型：一次 SQL 左连出平台名/业务类型名/业务名，避免逐条回查。
         /// 使用左连是因为配置可能被下架清理，此时订单本身仍需可见（名称回退为空串）。
         /// </summary>
-        public async Task<(IReadOnlyList<OrderListItem> Items, int Total)> GetPagedByUserAsync(
+        public async Task<(IReadOnlyList<OrderResponse> Items, int Total)> GetPagedByUserAsync(
             int userId,
             int orderState,
             string? keyword,
@@ -60,7 +61,7 @@ namespace Infrastructure.Persistence.Repositories
             int total = await orders.CountAsync(ct);
             if (total == 0)
             {
-                return (new List<OrderListItem>(), 0);
+                return (new List<OrderResponse>(), 0);
             }
 
             orders = ApplyOrderSorting(orders, sortField, sortDesc);
@@ -73,8 +74,9 @@ namespace Infrastructure.Persistence.Repositories
                 from p in platformGroup.DefaultIfEmpty()
                 join s in appDbContext.TkPlatformSubs.AsNoTracking() on c.SubPlatformId equals s.SubPlatformId into subGroup
                 from s in subGroup.DefaultIfEmpty()
-                select new OrderListItem
+                select new OrderResponse
                 {
+                    ConfigId = o.ConfigId,
                     OrderNo = o.OrderNo,
                     OrderState = (int)o.OrderState,
                     OrderLink = o.OrderLink,

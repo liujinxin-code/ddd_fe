@@ -1,5 +1,5 @@
 ﻿using Application.Common.Models;
-using Application.Common.Models.Agent;
+using Application.Common.Models.Response.Agent;
 using Domain.Enums;
 using MediatR;
 using System;

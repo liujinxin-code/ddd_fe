@@ -1,5 +1,5 @@
 using Application.Common.Models;
-using Application.Common.Models.User;
+using Application.Common.Models.Response.User;
 using Application.Events.User.Contracts.Commands;
 using Application.Events.User.Contracts.Queries;
 using Mapster;
@@ -61,6 +61,38 @@ namespace Open.Controllers
         public async Task<ApiResult> ChangePasswordAsync([FromBody] ChangePasswordCommand cmd, CancellationToken ct)
         {
             return await mediator.Send(cmd, ct);
+        }
+
+        /// <summary>
+        /// 生成/刷新当前用户的长期 API Key。
+        /// 直接生成新的 20 年期 JWT（claim 中 client_type=API）并覆盖 tk_user.api_key，旧 Key 立即失效。
+        /// </summary>
+        [HttpPost("api-key")]
+        [ProducesResponseType(typeof(ApiResult<GenerateApiKeyResponse>), StatusCodes.Status200OK)]
+        public async Task<ApiResult<GenerateApiKeyResponse>> GenerateApiKeyAsync(CancellationToken ct)
+        {
+            return await mediator.Send(new GenerateApiKeyCommand(), ct);
+        }
+
+        /// <summary>
+        /// 查看当前用户的 API Key（需验证登录密码）。
+        /// 不会生成新 Key，仅返回数据库中已存在的 api_key；如未生成过则返回空字符串。
+        /// </summary>
+        [HttpPost("api-key/view")]
+        [ProducesResponseType(typeof(ApiResult<GenerateApiKeyResponse>), StatusCodes.Status200OK)]
+        public async Task<ApiResult<GenerateApiKeyResponse>> ViewApiKeyAsync([FromBody] ViewApiKeyCommand cmd, CancellationToken ct)
+        {
+            return await mediator.Send(cmd, ct);
+        }
+
+        /// <summary>
+        /// 查询当前用户余额。支持 JWT（浏览器端）或 API Key（Authorization: Bearer {apiKey}）两种鉴权方式。
+        /// </summary>
+        [HttpGet("balance")]
+        [ProducesResponseType(typeof(ApiResult<UserBalanceResponse>), StatusCodes.Status200OK)]
+        public async Task<ApiResult<UserBalanceResponse>> GetBalanceAsync(CancellationToken ct)
+        {
+            return await mediator.Send(new GetUserBalanceQuery(), ct);
         }
 
     }

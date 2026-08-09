@@ -1,7 +1,8 @@
 using Application.Abstractions;
 using Application.Abstractions.Repositories;
 using Application.Common.Models;
-using Application.Common.Models.Order;
+using Application.Common.Models.Request.Order;
+using Application.Common.Models.Response.Order;
 using Application.Events.Order.Contracts.Commands;
 using Application.Services;
 using Domain.Entities;
@@ -31,9 +32,9 @@ namespace Application.Events.Order.Handlers.Commands
         IConsumeLogRepository consumeLogRepository,
         IUnitOfWork unitOfWork,
         ICurrentUser currentUser)
-        : IRequestHandler<CreateOrdersCommand, ApiResult<CreateOrderResult>>
+        : IRequestHandler<CreateOrdersCommand, ApiResult<CreateOrderResponse>>
     {
-        public async Task<ApiResult<CreateOrderResult>> Handle(CreateOrdersCommand request, CancellationToken ct)
+        public async Task<ApiResult<CreateOrderResponse>> Handle(CreateOrdersCommand request, CancellationToken ct)
         {
             try
             {
@@ -157,8 +158,8 @@ namespace Application.Events.Order.Handlers.Commands
 
                     await unitOfWork.SaveChangesAsync(ct);
 
-                    return ApiResult<CreateOrderResult>.Successed(
-                        new CreateOrderResult
+                    return ApiResult<CreateOrderResponse>.Successed(
+                        new CreateOrderResponse
                         {
                             OrderNos = orders.Select(o => o.OrderNo).ToList(),
                             TotalAmount = totalAmount

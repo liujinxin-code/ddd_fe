@@ -1,5 +1,5 @@
 using Application.Common.Models;
-using Application.Common.Models.Ticket;
+using Application.Common.Models.Response.Ticket;
 using MediatR;
 
 namespace Application.Events.Ticket.Contracts.Queries;
@@ -14,4 +14,4 @@ public record GetTicketsQuery(
     int TicketType = -1,
     /// <summary>关键词，模糊匹配工单内容</summary>
     string? Keyword = null)
-    : PagedQuery, IRequest<ApiResult<List<TicketListItem>>>;
+    : PagedQuery, IRequest<ApiResult<List<TicketResponse>>>;

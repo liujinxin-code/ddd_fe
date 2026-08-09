@@ -1,6 +1,6 @@
 ﻿using Application.Common.Models;
-using Application.Common.Models.Agent;
-using Application.Common.Models.User;
+using Application.Common.Models.Response.Agent;
+using Application.Common.Models.Response.User;
 using Application.Events.Agent.Contracts.Commands;
 using Application.Events.Agent.Contracts.Queries;
 using MediatR;
@@ -67,8 +67,8 @@ namespace Open.Controllers
         /// 代理管理页仪表盘：用户余额、代理余额、下级用户启用数/总数。
         /// </summary>
         [HttpPost("dashboard")]
-        [ProducesResponseType(typeof(ApiResult<AgentDashboardItem>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<AgentDashboardItem>> GetDashboardAsync(CancellationToken ct)
+        [ProducesResponseType(typeof(ApiResult<AgentDashboardResponse>), StatusCodes.Status200OK)]
+        public async Task<ApiResult<AgentDashboardResponse>> GetDashboardAsync(CancellationToken ct)
         {
             var query = new GetAgentDashboardQuery();
             return await mediator.Send(query, ct);
@@ -79,8 +79,8 @@ namespace Open.Controllers
         /// 请求体：{ "PageIndex":1, "PageSize":20, "Keyword":"tom", "Sorting":"useramount desc" }
         /// </summary>
         [HttpPost("children")]
-        [ProducesResponseType(typeof(ApiResult<List<ChildrenUserListItem>>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<List<ChildrenUserListItem>>> GetChildrenUsersAsync([FromBody] GetChildrenUsersQuery query, CancellationToken ct)
+        [ProducesResponseType(typeof(ApiResult<List<ChildrenUserResponse>>), StatusCodes.Status200OK)]
+        public async Task<ApiResult<List<ChildrenUserResponse>>> GetChildrenUsersAsync([FromBody] GetChildrenUsersQuery query, CancellationToken ct)
         {
             return await mediator.Send(query, ct);
         }
@@ -99,8 +99,8 @@ namespace Open.Controllers
         /// 获取代理当前总体加价百分比。未设置时返回 0。
         /// </summary>
         [HttpPost("overall-price-info")]
-        [ProducesResponseType(typeof(ApiResult<AgentOverallPriceItem>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<AgentOverallPriceItem>> GetOverallPriceAsync(CancellationToken ct)
+        [ProducesResponseType(typeof(ApiResult<AgentOverallPriceResponse>), StatusCodes.Status200OK)]
+        public async Task<ApiResult<AgentOverallPriceResponse>> GetOverallPriceAsync(CancellationToken ct)
         {
             var query = new GetAgentOverallPriceQuery();
             return await mediator.Send(query, ct);
@@ -131,8 +131,8 @@ namespace Open.Controllers
         /// 请求体：{ "PageIndex":1, "PageSize":6, "Keyword":"粉丝" }
         /// </summary>
         [HttpPost("markups")]
-        [ProducesResponseType(typeof(ApiResult<List<AgentMarkupListItem>>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<List<AgentMarkupListItem>>> GetMarkupsAsync([FromBody] GetAgentMarkupsQuery query, CancellationToken ct)
+        [ProducesResponseType(typeof(ApiResult<List<AgentMarkupResponse>>), StatusCodes.Status200OK)]
+        public async Task<ApiResult<List<AgentMarkupResponse>>> GetMarkupsAsync([FromBody] GetAgentMarkupsQuery query, CancellationToken ct)
         {
             return await mediator.Send(query, ct);
         }
@@ -142,8 +142,8 @@ namespace Open.Controllers
         /// 请求体：{ "PlatformId":1, "SubPlatformId":2, "PageIndex":1, "PageSize":100 }
         /// </summary>
         [HttpPost("markup-configs")]
-        [ProducesResponseType(typeof(ApiResult<List<AgentMarkupConfigItem>>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<List<AgentMarkupConfigItem>>> GetMarkupConfigsAsync([FromBody] GetAgentMarkupConfigsQuery query, CancellationToken ct)
+        [ProducesResponseType(typeof(ApiResult<List<AgentMarkupConfigResponse>>), StatusCodes.Status200OK)]
+        public async Task<ApiResult<List<AgentMarkupConfigResponse>>> GetMarkupConfigsAsync([FromBody] GetAgentMarkupConfigsQuery query, CancellationToken ct)
         {
             return await mediator.Send(query, ct);
         }

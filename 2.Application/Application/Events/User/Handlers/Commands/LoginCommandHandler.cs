@@ -2,7 +2,7 @@
 using Application.Abstractions.Passwords;
 using Application.Abstractions.Repositories;
 using Application.Common.Models;
-using Application.Common.Models.User;
+using Application.Common.Models.Response.User;
 using Application.Events.User.Contracts.Queries;
 using Mapster;
 using MediatR;

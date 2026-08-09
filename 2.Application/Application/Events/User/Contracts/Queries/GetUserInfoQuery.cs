@@ -1,5 +1,5 @@
 ﻿using Application.Common.Models;
-using Application.Common.Models.User;
+using Application.Common.Models.Response.User;
 using MediatR;
 using System;
 using System.Collections.Generic;

@@ -1,5 +1,6 @@
 using Application.Common.Models;
-using Application.Common.Models.Order;
+using Application.Common.Models.Request.Order;
+using Application.Common.Models.Response.Order;
 using Application.Events.Order.Contracts.Commands;
 using Application.Events.Order.Contracts.Queries;
 using MediatR;
@@ -23,8 +24,8 @@ namespace Open.Controllers
         /// 注：该 API 后续会开放给用户自行调用；如改用 API Key 鉴权，仅需调整 CurrentUserAccessor 的解析来源，契约不变。
         /// </summary>
         [HttpPost("create")]
-        [ProducesResponseType(typeof(ApiResult<CreateOrderResult>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<CreateOrderResult>> CreateAsync([FromBody] CreateOrdersCommand cmd, CancellationToken ct)
+        [ProducesResponseType(typeof(ApiResult<CreateOrderResponse>), StatusCodes.Status200OK)]
+        public async Task<ApiResult<CreateOrderResponse>> CreateAsync([FromBody] CreateOrdersCommand cmd, CancellationToken ct)
         {
             return await mediator.Send(cmd, ct);
         }
@@ -36,8 +37,8 @@ namespace Open.Controllers
         /// Keyword 匹配订单号或下单链接；排序白名单 createtime/orderamount/quantity/orderstate。
         /// </summary>
         [HttpPost("list")]
-        [ProducesResponseType(typeof(ApiResult<List<OrderListItem>>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<List<OrderListItem>>> ListAsync([FromBody] GetOrdersQuery query, CancellationToken ct)
+        [ProducesResponseType(typeof(ApiResult<List<OrderResponse>>), StatusCodes.Status200OK)]
+        public async Task<ApiResult<List<OrderResponse>>> ListAsync([FromBody] GetOrdersQuery query, CancellationToken ct)
         {
             return await mediator.Send(query, ct);
         }
