@@ -131,8 +131,8 @@ onMounted(async () => {
                 <MenuItem><router-link to="/app/order"><Icon icon="OrderedListOutlined" /> 订单列表</router-link></MenuItem>
                 <MenuItem><router-link to="/app/consumption"><Icon icon="MenuUnfoldOutlined" /> 消费列表</router-link></MenuItem>
                 <MenuItem><router-link to="/app/ticket"><Icon icon="CustomerServiceOutlined" /> 联系客服</router-link></MenuItem>
-                <MenuItem class="mobile-highlight mobile-recharge" @click="message.info('正在开发中...')"><span><Icon icon="MoneyCollectOutlined" /> 我要充值</span></MenuItem>
-                <MenuItem class="mobile-highlight mobile-api"><router-link to="/app/api-docs"><Icon icon="ApiOutlined" /> API文档</router-link></MenuItem>
+                <MenuItem class="mobile-highlight mobile-recharge" @click="message.info('正在开发中...')"><span class="mobile-menu-text"><Icon icon="MoneyCollectOutlined" /> 我要充值</span></MenuItem>
+                <MenuItem class="mobile-highlight mobile-api"><router-link to="/app/api-docs" class="mobile-menu-text"><Icon icon="ApiOutlined" /> API文档</router-link></MenuItem>
                 <MenuItem @click="changePasswordModalVisible = true"><span><Icon icon="LockOutlined" /> 修改密码</span></MenuItem>
                 <MenuItem danger><a href="javascript:;" @click.prevent="handleLogout"><Icon icon="ClearOutlined" /> 退出登录</a></MenuItem>
               </Menu>
@@ -351,8 +351,20 @@ onMounted(async () => {
   .announcement-timeline-marker { left: -1rem; }
   .content-container { padding: 0 1rem; }
   .site-footer { min-height: auto; flex-direction: column; text-align: center; }
-  .mobile-highlight :deep(a), .mobile-highlight span { font-weight: 700; }
-  .mobile-recharge :deep(a), .mobile-recharge span { color: #ad4e00 !important; background: #fff7e6; border-radius: 6px; padding: .15rem .4rem; }
-  .mobile-api :deep(a), .mobile-api span { color: #006d75 !important; background: #e6fffb; border-radius: 6px; padding: .15rem .4rem; }
+  .mobile-recharge :deep(.ant-dropdown-menu-title-content),
+  .mobile-api :deep(.ant-dropdown-menu-title-content) { display: flex; align-items: center; }
+  .mobile-menu-text {
+    flex: 1 1 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .35rem .5rem;
+    border-radius: 6px;
+    font-weight: 700;
+  }
+  .mobile-recharge :deep(.mobile-menu-text) { background: #fff7e6; color: #ad4e00 !important; }
+  .mobile-recharge :deep(.mobile-menu-text):hover { background: #ffe7ba; }
+  .mobile-api :deep(.mobile-menu-text) { background: #e6fffb; color: #006d75 !important; }
+  .mobile-api :deep(.mobile-menu-text):hover { background: #b5f5ec; }
 }
 </style>
