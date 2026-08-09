@@ -1,4 +1,5 @@
 using Application.DependencyInjection;
+using Open.Endpoints;
 using Infrastructure.DependencyInjection;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.OpenApi.Models;
@@ -120,6 +121,8 @@ app.UseMiddleware<RateLimitMiddleware>();
 app.UseStaticFiles();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+app.MapUserEndpoints();
 
 app.MapControllers();
 
