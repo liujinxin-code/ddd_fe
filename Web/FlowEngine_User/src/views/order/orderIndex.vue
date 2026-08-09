@@ -77,11 +77,7 @@ const fmtTime = (value) => {
   return Number.isNaN(d.getTime()) ? '-' : d.toLocaleString('zh-CN', { hour12: false })
 }
 
-// 移动端：截断订单号（保留前12+后4）
-const shortOrderNo = (no) => {
-  if (!no || no.length <= 18) return no
-  return no.slice(0, 12) + '...' + no.slice(-4)
-}
+// 订单号完整展示，不做省略（移动端卡片内允许换行）
 
 // ── 桌面端表格列定义（仅桌面端使用） ────────────────────────
 const columns = [
@@ -247,7 +243,7 @@ const openExecution = (order) => {
               <!-- 卡片头部：订单号 + 状态 -->
               <div class="card-head">
                 <div class="card-order-no" :title="order.orderNo">
-                  📋 {{ shortOrderNo(order.orderNo) }}
+                  📋 {{ order.orderNo }}
                 </div>
                 <Tag
                   :color="stateMeta[order.orderState]?.color || 'default'"
@@ -481,9 +477,9 @@ $r-md: 12px;
   font-size: 0.78rem;
   font-weight: 600;
   color: $text-primary;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  word-break: break-all;
+  overflow-wrap: anywhere;
   min-width: 0;
   flex: 1;
 }

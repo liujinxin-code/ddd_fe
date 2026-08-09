@@ -1,5 +1,6 @@
 using Application.DependencyInjection;
 using Infrastructure.DependencyInjection;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.OpenApi.Models;
 using Open.Middleware;
 
@@ -69,7 +70,40 @@ builder.Services.AddCors(options =>
     });
 });
 
+// 响应压缩：默认启用 Gzip + Brotli，浏览器按 Accept-Encoding 协商。
+// 容器内为 http，EnableForHttps 仅对未来经反代终结 TLS 的场景生效。
+//builder.Services.AddResponseCompression(options =>
+//{
+//    options.EnableForHttps = true;
+//});
+// 配置 Gzip 压缩核心服务
+builder.Services.AddResponseCompression(options =>
+{
+    // 核心开关：启用压缩，且对 HTTPS 请求也生效（.NET 8 推荐显式配置）
+    options.EnableForHttps = true;
+    // 添加 Gzip 压缩提供器（这是开启 Gzip 的关键）
+    options.Providers.Add<GzipCompressionProvider>();
+    // 扩展需要压缩的 MIME 类型（.NET 8 默认仅包含基础类型，补充业务常用类型）
+    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
+    {
+        "application/json",    // API 返回的 JSON 数据（核心）
+        "application/xml",    // XML 格式数据
+        "text/plain",         // 纯文本
+        "text/css",           // CSS 样式
+        "text/javascript",    // JS 脚本
+        "text/html",         // HTML 页面
+    });
+});
+// 配置 Gzip 压缩级别（推荐 Optimal，平衡性能和压缩率）
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = System.IO.Compression.CompressionLevel.Optimal;
+});
+
 var app = builder.Build();
+
+// 响应压缩中间件：尽量靠前，包裹后续所有响应（含 401/429 及 JSON API）。
+app.UseResponseCompression();
 
 // 全新部署：若目标库尚无表，按 EF 模型自动建表（仓库当前无 EF 迁移文件）。
 // 仅适合首次部署；后续表结构演进请改用 EF Migrations（dotnet ef migrations add）。

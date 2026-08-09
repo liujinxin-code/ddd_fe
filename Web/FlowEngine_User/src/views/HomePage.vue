@@ -119,8 +119,8 @@ onMounted(async () => {
           <Dropdown>
             <a class="user-trigger" @click.prevent>
               <span class="user-avatar">{{ (user.username || 'U').slice(0, 1).toUpperCase() }}</span>
-              <span>{{ user.username || '用户' }}</span>
-              <Icon icon="DownOutlined" />
+              <span class="user-name">{{ user.username || '用户' }}</span>
+              <span class="user-hint"><Icon icon="DownOutlined" /> 菜单</span>
             </a>
             <template #overlay>
               <Menu>
@@ -245,8 +245,21 @@ onMounted(async () => {
 .user-info,.user-trigger { display: flex; align-items: center; gap: .65rem; }
 .balance-info { display: grid; text-align: right; font-size: .78rem; color: #65727f; }
 .balance-info strong { color: #586ee1; font-weight: 600; }
-.user-trigger { color: #3e4a56; text-decoration: none; }
+.user-trigger { color: #3e4a56; text-decoration: none; cursor: pointer; }
 .user-avatar { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: #ffffff; font-weight: 700; background: #586ee1; }
+.user-name { display: none; }
+.user-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: .2rem;
+  padding: .15rem .4rem;
+  background: #eef0ff;
+  color: #586ee1;
+  border-radius: 999px;
+  font-size: .7rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
 .announcement-panel { margin: 12px 1.5rem 0; padding: 1rem 1.1rem 1.1rem; background: #f8fafb; border: 1px solid #d5dde3; border-radius: 12px; box-sizing: border-box; cursor: pointer; transition: border-color .18s ease, box-shadow .18s ease; }
 .announcement-panel:hover, .announcement-panel:focus-visible { border-color: #aeb9ee; outline: none; box-shadow: 0 6px 18px rgba(88,110,225,.08); }
 .announcement-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-bottom: .8rem; border-bottom: 1px solid #e5eaee; }
@@ -288,6 +301,7 @@ onMounted(async () => {
   .topbar { padding: .75rem 1rem; align-items: flex-start; }
   .desktop-nav { display: none; }
   .user-info { margin-left: auto; }
+  .user-trigger { gap: .45rem; }
   .balance-info { display: none; }
   .announcement-panel { margin: 10px 1rem 0; padding: .85rem; }
   .announcement-heading { align-items: flex-start; }

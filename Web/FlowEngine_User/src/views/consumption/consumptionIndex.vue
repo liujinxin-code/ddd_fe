@@ -56,18 +56,12 @@ const fmtTime = (value) => {
   const d = new Date(value)
   return Number.isNaN(d.getTime()) ? '-' : d.toLocaleString('zh-CN', { hour12: false })
 }
-const shortNo = (no) => {
-  if (!no || no.length <= 18) return no
-  return no.slice(0, 12) + '...' + no.slice(-4)
-}
 const isIncome = (r) => Number(r.changeAmount) >= 0
 
 // ── 桌面端表格列定义 ──────────────────────────────────────
 const columns = [
   { title: '流水号', dataIndex: 'consumeNo', key: 'consumeNo', width: 220, fixed: 'left' },
   { title: '类型', dataIndex: 'consumeStatus', key: 'consumeStatus', width: 150, align: 'center' },
-  { title: '变动前余额', dataIndex: 'beforeAmount', key: 'beforeAmount', width: 130, align: 'right' },
-  { title: '变动后余额', dataIndex: 'afterAmount', key: 'afterAmount', width: 130, align: 'right' },
   { title: '变动额', dataIndex: 'changeAmount', key: 'changeAmount', width: 130, align: 'right' },
   { title: '时间', dataIndex: 'createTime', key: 'createTime', width: 172 },
 ]
@@ -131,7 +125,7 @@ const onPageChange = (page, pageSize) => {
           :pagination="false"
           row-key="consumeId"
           size="middle"
-          :scroll="{ x: 940 }"
+          :scroll="{ x: 700 }"
           class="consume-table"
         >
           <template #bodyCell="{ column, record }">
@@ -143,14 +137,6 @@ const onPageChange = (page, pageSize) => {
               <Tag :color="typeMeta[record.consumeStatus]?.color || 'default'">
                 {{ typeMeta[record.consumeStatus]?.text || `类型 ${record.consumeStatus}` }}
               </Tag>
-            </template>
-
-            <template v-else-if="column.key === 'beforeAmount'">
-              <span class="muted">¥{{ fmtMoney(record.beforeAmount) }}</span>
-            </template>
-
-            <template v-else-if="column.key === 'afterAmount'">
-              <span class="muted">¥{{ fmtMoney(record.afterAmount) }}</span>
             </template>
 
             <template v-else-if="column.key === 'changeAmount'">
@@ -175,7 +161,7 @@ const onPageChange = (page, pageSize) => {
             <div v-for="record in records" :key="record.consumeId" class="consume-card">
               <!-- 卡片头部：流水号 + 类型 -->
               <div class="card-head">
-                <div class="card-no" :title="record.consumeNo">🔁 {{ shortNo(record.consumeNo) }}</div>
+                <div class="card-no" :title="record.consumeNo">🔁 {{ record.consumeNo }}</div>
                 <Tag :color="typeMeta[record.consumeStatus]?.color || 'default'" class="card-tag">
                   {{ typeMeta[record.consumeStatus]?.text || `类型${record.consumeStatus}` }}
                 </Tag>
@@ -183,14 +169,6 @@ const onPageChange = (page, pageSize) => {
 
               <!-- 核心数据网格 -->
               <div class="card-stats">
-                <div class="stat-item">
-                  <span class="stat-label">变动前</span>
-                  <span class="stat-val muted">¥{{ fmtMoney(record.beforeAmount) }}</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-label">变动后</span>
-                  <span class="stat-val muted">¥{{ fmtMoney(record.afterAmount) }}</span>
-                </div>
                 <div class="stat-item stat-full">
                   <span class="stat-label">变动额</span>
                   <span :class="isIncome(record) ? 'stat-val amount-income' : 'stat-val amount-expense'">
@@ -322,9 +300,9 @@ $r-md: 12px;
   font-size: 0.78rem;
   font-weight: 600;
   color: $text-primary;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  white-space: normal;
   min-width: 0;
   flex: 1;
 }
@@ -332,7 +310,7 @@ $r-md: 12px;
 
 .card-stats {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr;
   gap: 0.4rem;
 }
 .stat-item {

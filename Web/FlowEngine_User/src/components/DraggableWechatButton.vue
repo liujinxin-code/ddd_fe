@@ -33,11 +33,22 @@ const dragStart = ref({ x: 0, y: 0, mx: 0, my: 0 })
 const buttonRef = ref(null)
 const modalWidth = ref(420) // PC 端弹窗宽一点，二维码尺寸固定方便扫码
 
-const getMargins = () => {
-  const isMobile = window.innerWidth <= 768
+const MARGIN = 8 // 贴边安全边距
+
+const getInitialOffset = () => {
+  // 从 CSS 的 right/bottom 百分比拿到初始像素偏移，
+  // 拖拽范围据此计算，才能保证按钮能真正拖到四边。
+  const el = buttonRef.value
+  if (!el) {
+    return {
+      right: window.innerWidth <= 768 ? window.innerWidth * 0.05 : window.innerWidth * 0.10,
+      bottom: window.innerHeight <= 768 ? window.innerHeight * 0.10 : window.innerHeight * 0.15,
+    }
+  }
+  const style = window.getComputedStyle(el)
   return {
-    right: isMobile ? window.innerWidth * 0.05 : window.innerWidth * 0.10,
-    bottom: isMobile ? window.innerHeight * 0.10 : window.innerHeight * 0.15,
+    right: parseFloat(style.right) || 0,
+    bottom: parseFloat(style.bottom) || 0,
   }
 }
 
@@ -65,15 +76,19 @@ const restorePosition = () => {
 
 const clampPosition = (x, y) => {
   const { width, height } = getButtonSize()
-  const { right, bottom } = getMargins()
-  // 初始 translate(0,0) 对应 right/bottom 固定边距位置，
-  // 因此 translate 的范围是 [-maxX, 0] / [-maxY, 0]，
-  // 这样按钮可以在整个视口内拖动。
-  const maxX = window.innerWidth - right - width
-  const maxY = window.innerHeight - bottom - height
+  const { right, bottom } = getInitialOffset()
+  // 按钮 CSS 为 position: fixed; right: X; bottom: Y;
+  // translate(tx, ty) 在初始位置基础上偏移。
+  // 要允许拖到屏幕四边，tx/ty 范围必须同时包含正负两个方向：
+  //   最左/上  ->  元素贴到屏幕边缘
+  //   最右/下  ->  元素回到初始 right/bottom 贴边处
+  const minX = right + width + MARGIN - window.innerWidth
+  const maxX = right - MARGIN
+  const minY = bottom + height + MARGIN - window.innerHeight
+  const maxY = bottom - MARGIN
   return {
-    x: Math.max(-maxX, Math.min(x, 0)),
-    y: Math.max(-maxY, Math.min(y, 0)),
+    x: Math.max(minX, Math.min(x, maxX)),
+    y: Math.max(minY, Math.min(y, maxY)),
   }
 }
 

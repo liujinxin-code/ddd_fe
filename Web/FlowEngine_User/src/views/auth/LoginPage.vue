@@ -213,7 +213,11 @@ const handleRegister = async () => {
               name="password"
               :rules="[{ required: true, message: '请输入密码' }]"
             >
-              <Input v-model:value="loginForm.password" type="password" placeholder="请输入密码" />
+              <Input.Password
+                v-model:value="loginForm.password"
+                placeholder="请输入密码"
+                visibility-toggle
+              />
             </Form.Item>
             <Form.Item
               label="图形验证码"
@@ -242,10 +246,10 @@ const handleRegister = async () => {
               name="password"
               :rules="[{ required: true, message: '请输入密码' }]"
             >
-              <Input
+              <Input.Password
                 v-model:value="registerForm.password"
-                type="password"
                 placeholder="请输入密码"
+                visibility-toggle
               />
             </Form.Item>
             <Form.Item
@@ -253,10 +257,10 @@ const handleRegister = async () => {
               name="confirmPassword"
               :rules="[{ required: true, message: '请再次输入密码' }]"
             >
-              <Input
+              <Input.Password
                 v-model:value="registerForm.confirmPassword"
-                type="password"
                 placeholder="请再次输入密码"
+                visibility-toggle
               />
             </Form.Item>
             <Form.Item
