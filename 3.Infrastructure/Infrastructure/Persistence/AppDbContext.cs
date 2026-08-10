@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Domain.Auditors;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -56,6 +57,10 @@ namespace Infrastructure.Persistence
                 entity.Property(x => x.DeleteTime).HasColumnName("delete_time");
                 entity.Property(x => x.CreateTime).HasColumnName("create_time");
                 entity.Property(x => x.SignleClient).HasColumnName("signle_client");
+
+                // 框架级软删除全局查询过滤器：所有 TkUser 查询自动附加 !is_delete。
+                // 仓储里手写的 !t.IsDelete 因此变为冗余但无害的双保险；Include/导航也会自动传播。
+                entity.HasQueryFilter(e => !e.IsDelete);
 
                 entity.HasIndex(x => x.Username).IsUnique().HasDatabaseName("ux_username");
                 entity.HasIndex(x => x.Email).IsUnique().HasDatabaseName("ux_email");
@@ -229,6 +234,9 @@ namespace Infrastructure.Persistence
                 entity.Property(x => x.IsDelete).HasColumnName("is_delete").HasConversion<int>();
                 entity.Property(x => x.DeleteTime).HasColumnName("delete_time");
                 entity.Property(x => x.CreateTime).HasColumnName("create_time");
+                // 框架级软删除全局查询过滤器。注意 tk_comment.is_delete 库里是 int，
+                // 已配置 bool<->int 转换，这里用 CLR 的 bool 属性即可被正确翻译为 is_delete = 0。
+                entity.HasQueryFilter(e => !e.IsDelete);
                 entity.HasIndex(x => x.OrderId).HasDatabaseName("ix_comment_order_id");
             });
 
@@ -242,6 +250,40 @@ namespace Infrastructure.Persistence
                 entity.Property(x => x.CreateTime).HasColumnName("create_time");
                 entity.HasIndex(x => x.AgentUserid).IsUnique().HasDatabaseName("ux_agent_userid");
             });
+        }
+
+        /// <summary>
+        /// 防御性软删除拦截：任何对 DeleteAuditor 派生实体（tk_user / tk_comment）的
+        /// 物理 Remove 都会被改写为「置删除标记 + 记录删除时间」，避免误删数据。
+        /// 当前业务代码并未对这两张表做物理删除，该拦截仅作框架级兜底。
+        /// 备注：若日后物理删除 TkOrder 并级联到 TkComment，被级联标记为 Deleted 的评论
+        /// 也会在此被转为软删除（保留历史而非物理丢失），语义更安全。
+        /// </summary>
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            ConvertRemovedToSoftDelete();
+            return base.SaveChanges(acceptAllChangesOnSuccess);
+        }
+
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        {
+            ConvertRemovedToSoftDelete();
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+
+        private void ConvertRemovedToSoftDelete()
+        {
+            foreach (var entry in ChangeTracker.Entries())
+            {
+                if (entry is not { State: EntityState.Deleted } || entry.Entity is not DeleteAuditor soft)
+                {
+                    continue;
+                }
+
+                // 物理删除 -> 软删除：改写状态为 Modified 并调用基类审计标记。
+                entry.State = EntityState.Modified;
+                soft.MarkDeletedFunc();
+            }
         }
     }
 }

@@ -49,7 +49,9 @@ namespace Infrastructure.Persistence.Repositories
         public async Task<bool> GetEmailExists(string email, CancellationToken ct = default)
         {
 
-            return await appDbContext.TkUsers.AsNoTracking().CountAsync(t => t.Email == email, ct) > 0;
+            // 邮箱唯一性由数据库 ux_email 唯一索引保证（软删除行仍物理存在），
+            // 故此处显式 IgnoreQueryFilters，统计所有行，与应用层判断保持一致。
+            return await appDbContext.TkUsers.AsNoTracking().IgnoreQueryFilters().CountAsync(t => t.Email == email, ct) > 0;
         }
 
         /// <summary>
@@ -60,7 +62,8 @@ namespace Infrastructure.Persistence.Repositories
         public async Task<bool> GetUserNameExists(string username, CancellationToken ct = default)
         {
 
-            return await appDbContext.TkUsers.AsNoTracking().CountAsync(t => t.Username == username, ct) > 0;
+            // 用户名唯一性由数据库 ux_username 唯一索引保证，同理显式 IgnoreQueryFilters。
+            return await appDbContext.TkUsers.AsNoTracking().IgnoreQueryFilters().CountAsync(t => t.Username == username, ct) > 0;
         }
         /// <summary>
         /// 判断用户id和ApiKey是否存在
