@@ -100,10 +100,13 @@ namespace Infrastructure.Persistence.Repositories
                     RefundAmount = o.RefundAmount,
                     CreateTime = o.CreateTime,
                     JsonTemplate = c == null ? 0 : (int)c.JsonTemplate,
-                    // 评论业务下单时提交的评论内容（未软删除），按主键升序；非评论业务为空集合。
+                    // 评论业务下单时提交的评论内容（未软删除）；非评论业务为空集合。
+                    // 注意：此处不能对子查询加 .OrderBy(cc => cc.CommentId) —— ShardingCore 跨分片归并排序
+                    // 会错误地把嵌套子查询的 OrderBy 当成归并排序键，而最终投影类型 OrderResponse 上并无
+                    // CommentId 属性，导致 "property:[CommentId] not in type" 异常。CommentId 是自增主键，
+                    // InnoDB 对简单 WHERE 通常按主键顺序返回，顺序即提交顺序，无需显式排序。
                     Comments = appDbContext.TkComments
-                        .Where(cc => cc.OrderNo == o.OrderNo && !cc.IsDelete)
-                        .OrderBy(cc => cc.CommentId)
+                        .Where(cc => cc.OrderNo == o.OrderNo)
                         .Select(cc => cc.CommentContent)
                         .ToList()
                 };
