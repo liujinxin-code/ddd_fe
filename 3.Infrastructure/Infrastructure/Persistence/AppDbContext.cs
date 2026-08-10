@@ -1,6 +1,9 @@
 ﻿using Domain.Auditors;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using ShardingCore.Core.VirtualRoutes.TableRoutes.RouteTails.Abstractions;
+using ShardingCore.Sharding;
+using ShardingCore.Sharding.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,8 +16,14 @@ namespace Infrastructure.Persistence
     /// EF Core 数据库上下文。
     /// 目前映射 tk_user / tk_consumelog / tk_platform / tk_platform_sub 表，后续新增表时继续在这里添加 DbSet 和 Fluent API 配置。
     /// </summary>
-    public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+    public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
+        : AbstractShardingDbContext(options), IShardingTableDbContext
     {
+        /// <summary>
+        /// ShardingCore 分表路由尾持有属性，由框架在查询/写入时赋值。
+        /// </summary>
+        public IRouteTail RouteTail { get; set; } = default!;
+
         //数据库表集合
         public DbSet<TkUser> TkUsers => Set<TkUser>();
         public DbSet<ConsumeLog> ConsumeLogs => Set<ConsumeLog>();
@@ -35,6 +44,8 @@ namespace Infrastructure.Persistence
         /// </summary>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<TkUser>(entity =>
             {
                 entity.ToTable("tk_user");
@@ -195,12 +206,9 @@ namespace Infrastructure.Persistence
                 entity.HasIndex(x => x.OrderNo).IsUnique().HasDatabaseName("ux_order_no");
                 entity.HasIndex(x => x.Userid).HasDatabaseName("ix_order_userid");
 
-                // 评论作为订单聚合的子实体：一次 SaveChanges 内自动回填 tk_comment.order_id
-                entity.HasMany(x => x.Comments)
-                      .WithOne()
-                      .HasForeignKey(c => c.OrderId)
-                      .OnDelete(DeleteBehavior.Cascade);
-                entity.Navigation(x => x.Comments).UsePropertyAccessMode(PropertyAccessMode.Field);
+                // 评论（tk_comment）与订单不建立 EF 导航/跨分片外键：订单按月分表（ShardingCore），
+                // 跨分片外键与 Include 不安全。评论通过 order_no 字段逻辑关联，下单时由领域方法
+                // 显式写入 tk_comment.order_no 后随订单一起落库，查询侧按 order_no 索引检索。
             });
 
             modelBuilder.Entity<TkTicket>(entity =>
@@ -225,7 +233,7 @@ namespace Infrastructure.Persistence
                 entity.ToTable("tk_comment");
                 entity.HasKey(x => x.CommentId);
                 entity.Property(x => x.CommentId).HasColumnName("comment_id").ValueGeneratedOnAdd();
-                entity.Property(x => x.OrderId).HasColumnName("order_id");
+                entity.Property(x => x.OrderNo).HasColumnName("order_no").HasMaxLength(50).IsRequired();
                 entity.Property(x => x.CommentContent).HasColumnName("comment_content").HasMaxLength(500).IsRequired();
                 entity.Property(x => x.CommentState).HasColumnName("comment_state");
                 entity.Property(x => x.Userid).HasColumnName("userid");
@@ -237,7 +245,7 @@ namespace Infrastructure.Persistence
                 // 框架级软删除全局查询过滤器。注意 tk_comment.is_delete 库里是 int，
                 // 已配置 bool<->int 转换，这里用 CLR 的 bool 属性即可被正确翻译为 is_delete = 0。
                 entity.HasQueryFilter(e => !e.IsDelete);
-                entity.HasIndex(x => x.OrderId).HasDatabaseName("ix_comment_order_id");
+                entity.HasIndex(x => x.OrderNo).HasDatabaseName("ix_comment_order_no");
             });
 
             modelBuilder.Entity<TkServiceImage>(entity =>

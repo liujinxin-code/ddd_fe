@@ -40,7 +40,7 @@ namespace Infrastructure.Persistence.Repositories
         /// tk_consumelog 已是扁平流水表，无需连表。
         /// </summary>
         public async Task<(IReadOnlyList<ConsumeLogResponse> Items, int Total)> GetPagedByUserAsync(
-            int userId,
+            long userId,
             int consumeStatus,
             string? keyword,
             int pageIndex,

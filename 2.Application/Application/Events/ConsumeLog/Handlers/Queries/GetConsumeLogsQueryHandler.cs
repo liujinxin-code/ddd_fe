@@ -49,7 +49,7 @@ namespace Application.Events.ConsumeLogs.Handlers.Queries
             }
 
             var (items, total) = await consumeLogRepository.GetPagedByUserAsync(
-                (int)currentUser.Userid,
+                currentUser.Userid,
                 query.ConsumeStatus,
                 query.Keyword,
                 query.PageIndex,

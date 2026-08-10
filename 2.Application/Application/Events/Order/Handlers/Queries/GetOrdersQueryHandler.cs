@@ -50,7 +50,7 @@ namespace Application.Events.Order.Handlers.Queries
             }
 
             var (items, total) = await orderRepository.GetPagedByUserAsync(
-                (int)currentUser.Userid,
+                currentUser.Userid,
                 query.OrderState,
                 query.Keyword,
                 query.PageIndex,

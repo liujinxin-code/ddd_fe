@@ -3,7 +3,7 @@ using FluentValidation;
 using Shared.Exceptions;
 
 
-namespace Open.Middleware
+namespace Open.Middlewares
 {
     /// <summary>
     /// 异常处理中间件

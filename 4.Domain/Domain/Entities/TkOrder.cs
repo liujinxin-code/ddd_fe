@@ -29,8 +29,8 @@ namespace Domain.Entities
         /// <summary>业务配置id（tk_config.config_id）</summary>
         public int ConfigId { get; private set; }
 
-        /// <summary>下单用户id</summary>
-        public int Userid { get; private set; }
+        /// <summary>下单用户id（数据库列 userid 已为 bigint）</summary>
+        public long Userid { get; private set; }
 
         /// <summary>订单金额（用户最终单价 × 数量，decimal(11,6)）</summary>
         public decimal OrderAmount { get; private set; }
@@ -59,8 +59,8 @@ namespace Domain.Entities
         /// <summary>渠道服务id（取自业务配置）</summary>
         public int ChannelServerId { get; private set; }
 
-        /// <summary>代理id（下单用户的上级代理；无上级为 0）</summary>
-        public int AgentUserid { get; private set; }
+        /// <summary>代理id（下单用户的上级代理；无上级为 0；数据库列 agent_userid 已为 bigint）</summary>
+        public long AgentUserid { get; private set; }
 
         /// <summary>代理单个加价/单位利润（decimal(10,6)，无代理为 0）</summary>
         public decimal AgentSingleAddPrice { get; private set; }
@@ -76,14 +76,6 @@ namespace Domain.Entities
         /// 订单部分完成或取消时由履约/结算流程回填，下单时恒为 0。
         /// </summary>
         public decimal RefundAmount { get; private set; }
-
-        private readonly List<TkComment> _comments = new();
-
-        /// <summary>
-        /// 订单附带的评论内容（仅评论模板业务有值）。
-        /// 作为聚合子实体随订单一起落库，EF 在同一次 SaveChanges 内回填 tk_comment.order_id。
-        /// </summary>
-        public IReadOnlyCollection<TkComment> Comments => _comments;
 
         /// <summary>供 EF Core 物化使用。</summary>
         protected TkOrder() { }
@@ -112,7 +104,7 @@ namespace Domain.Entities
 
             OrderNo = orderNo;
             ConfigId = configId;
-            Userid = (int)userId;
+            Userid = userId;
             OrderLink = orderLink ?? string.Empty;
             OrderAmount = orderAmount;
             Quantity = quantity;
@@ -123,7 +115,7 @@ namespace Domain.Entities
             SerialNo = string.Empty;
             ChannelId = channelId;
             ChannelServerId = channelServerId;
-            AgentUserid = (int)agentUserId;
+            AgentUserid = agentUserId;
             AgentSingleAddPrice = agentSingleAddPrice;
             IsDifference = 0;
             AgentOrderAmount = agentOrderAmount;
@@ -132,11 +124,13 @@ namespace Domain.Entities
         }
 
         /// <summary>
-        /// 为订单追加一条评论（评论模板业务专用）。一条评论对应一个下单数量。
+        /// 为订单创建一条评论（评论模板业务专用）。一条评论对应一个下单数量。
+        /// 由于订单按月分表、评论单表且不建立跨分片 EF 外键，这里直接以当前订单的
+        /// OrderNo 初始化评论，返回后由调用方随订单一起持久化（落 tk_comment.order_no）。
         /// </summary>
-        public void AddCommentFunc(string commentContent, long userId)
+        public TkComment AddCommentFunc(string commentContent, long userId)
         {
-            _comments.Add(new TkComment(commentContent, userId));
+            return new TkComment(commentContent, userId, OrderNo);
         }
     }
 }

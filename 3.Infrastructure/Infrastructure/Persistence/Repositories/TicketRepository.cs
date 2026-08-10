@@ -29,7 +29,7 @@ public class TicketRepository(AppDbContext appDbContext) : IRepository<TkTicket>
     /// ticket_images 为 JSON 数组字符串，投影时反序列化为 List&lt;string&gt;。
     /// </summary>
     public async Task<(IReadOnlyList<TicketResponse> Items, int Total)> GetPagedByUserAsync(
-        int userId,
+        long userId,
         int ticketStatus,
         int ticketType,
         string? keyword,

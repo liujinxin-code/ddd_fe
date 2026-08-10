@@ -17,7 +17,7 @@ namespace Application.Abstractions.Repositories
         /// keyword 模糊匹配流水号；排序白名单由实现方控制。
         /// </summary>
         Task<(IReadOnlyList<ConsumeLogResponse> Items, int Total)> GetPagedByUserAsync(
-            int userId,
+            long userId,
             int consumeStatus,
             string? keyword,
             int pageIndex,

@@ -19,6 +19,16 @@ namespace Infrastructure.Persistence.Repositories
         public Task AddRangeAsync(IEnumerable<TkOrder> orders, CancellationToken ct = default)
             => appDbContext.TkOrders.AddRangeAsync(orders, ct);
 
+        /// <summary>
+        /// 批量落订单并显式落评论。评论已按 order_no 显式赋值（订单分表后不再依赖级联/导航回填），
+        /// 故评论需要单独 Add 到 TkComments。两个集合由调用方在同一 SaveChanges 内原子提交。
+        /// </summary>
+        public async Task AddOrdersWithCommentsAsync(IEnumerable<TkOrder> orders, IEnumerable<TkComment> comments, CancellationToken ct = default)
+        {
+            await appDbContext.TkOrders.AddRangeAsync(orders, ct);
+            await appDbContext.TkComments.AddRangeAsync(comments, ct);
+        }
+
         public Task<TkOrder?> GetByIdAsync(long id, CancellationToken ct = default)
             => appDbContext.TkOrders.FirstOrDefaultAsync(t => t.OrderId == id, ct);
 
@@ -33,7 +43,7 @@ namespace Infrastructure.Persistence.Repositories
         /// 使用左连是因为配置可能被下架清理，此时订单本身仍需可见（名称回退为空串）。
         /// </summary>
         public async Task<(IReadOnlyList<OrderResponse> Items, int Total)> GetPagedByUserAsync(
-            int userId,
+            long userId,
             int orderState,
             string? keyword,
             int pageIndex,
@@ -92,7 +102,7 @@ namespace Infrastructure.Persistence.Repositories
                     JsonTemplate = c == null ? 0 : (int)c.JsonTemplate,
                     // 评论业务下单时提交的评论内容（未软删除），按主键升序；非评论业务为空集合。
                     Comments = appDbContext.TkComments
-                        .Where(cc => cc.OrderId == o.OrderId && !cc.IsDelete)
+                        .Where(cc => cc.OrderNo == o.OrderNo && !cc.IsDelete)
                         .OrderBy(cc => cc.CommentId)
                         .Select(cc => cc.CommentContent)
                         .ToList()

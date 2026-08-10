@@ -8,7 +8,7 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace Open.Middleware
+namespace Open.Middlewares
 {
     /// <summary>
     /// 滑动窗口限流中间件。

@@ -10,7 +10,7 @@ public interface ITicketRepository : IRepository<TkTicket>
     /// 状态/类型为 -1 时不过滤；关键词模糊匹配工单内容。排序缺省按创建时间倒序。
     /// </summary>
     Task<(IReadOnlyList<TicketResponse> Items, int Total)> GetPagedByUserAsync(
-        int userId,
+        long userId,
         int ticketStatus,
         int ticketType,
         string? keyword,

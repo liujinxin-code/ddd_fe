@@ -18,12 +18,18 @@ namespace Application.Abstractions.Repositories
         Task AddRangeAsync(IEnumerable<TkOrder> orders, CancellationToken ct = default);
 
         /// <summary>
+        /// 批量新增订单并显式落评论。评论按 order_no 逻辑关联订单（分表后不再依赖级联/导航回填），
+        /// 由仓储显式 Add 到 TkComments，与订单在同一事务内提交。
+        /// </summary>
+        Task AddOrdersWithCommentsAsync(IEnumerable<TkOrder> orders, IEnumerable<TkComment> comments, CancellationToken ct = default);
+
+        /// <summary>
         /// 分页查询指定用户的订单列表，左连 tk_config / tk_platform / tk_platform_sub 补齐名称。
         /// orderState 传 0 表示不按状态过滤；keyword 匹配订单号或下单链接。
         /// 排序字段来自白名单（createtime/orderamount/quantity/orderstate），缺省按下单时间倒序。
         /// </summary>
         Task<(IReadOnlyList<OrderResponse> Items, int Total)> GetPagedByUserAsync(
-            int userId,
+            long userId,
             int orderState,
             string? keyword,
             int pageIndex,

@@ -3,7 +3,8 @@ using Open.Endpoints;
 using Infrastructure.DependencyInjection;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.OpenApi.Models;
-using Open.Middleware;
+using Open.Middlewares;
+using ShardingCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseInfrastructureSerilog(builder.Configuration);
@@ -91,13 +92,18 @@ var app = builder.Build();
 // 响应压缩中间件：尽量靠前，包裹后续所有响应（含 401/429 及 JSON API）。
 app.UseResponseCompression();
 
-// 全新部署：若目标库尚无表，按 EF 模型自动建表（仓库当前无 EF 迁移文件）。
-// 仅适合首次部署；后续表结构演进请改用 EF Migrations（dotnet ef migrations add）。
+// 全新部署：按 EF 模型自动建表（仓库当前无 EF 迁移文件）。
+// 在 ShardingCore 下，EnsureCreated 会同时创建「非分表实体表」(tk_user/tk_comment 等)
+// 与「分表实体已知尾表」(tk_order_yyyyMM，尾表集合来自路由 CalcTailsOnStart)；
+// 后续新增的月份尾表由路由的 AutoCreateTableByTime + 月度 cron 在建表阶段自动补偿。
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<Infrastructure.Persistence.AppDbContext>();
     db.Database.EnsureCreated();
 }
+
+// 启动补偿：检查缺失的物理尾表并自动创建（应对路由尾表动态新增等场景）。
+app.Services.UseAutoTryCompensateTable();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

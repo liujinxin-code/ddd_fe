@@ -43,7 +43,7 @@ public class GetTicketsQueryHandler(
         }
 
         var (items, total) = await ticketRepository.GetPagedByUserAsync(
-            (int)currentUser.Userid,
+            currentUser.Userid,
             query.TicketStatus,
             query.TicketType,
             query.Keyword,

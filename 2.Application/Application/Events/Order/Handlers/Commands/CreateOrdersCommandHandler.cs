@@ -52,6 +52,7 @@ namespace Application.Events.Order.Handlers.Commands
                     var priceCtx = await BuildPriceContextAsync(user, configIds, ct);
 
                     var orders = new List<TkOrder>(request.Items.Count);
+                    var allComments = new List<TkComment>();
                     decimal totalAmount = 0m;
 
                     foreach (var item in request.Items)
@@ -128,12 +129,12 @@ namespace Application.Events.Order.Handlers.Commands
                             agentSingleAdd,
                             agentOrderAmount);
 
-                        // 评论内容随订单一起落 tk_comment（order_id 由 EF 在同一次 SaveChanges 回填）
+                        // 评论内容随订单一起落 tk_comment（按 order_no 显式关联，分表后由仓储显式落库）
                         if (isComment)
                         {
                             foreach (var content in comments)
                             {
-                                order.AddCommentFunc(content, user.Userid);
+                                allComments.Add(order.AddCommentFunc(content, user.Userid));
                             }
                         }
 
@@ -147,8 +148,8 @@ namespace Application.Events.Order.Handlers.Commands
                     // 余额校验 + 扣减（原子，置于重试内，并发时重算余额）
                     user.DeductForOrderFunc(totalAmount);
 
-                    // 写订单
-                    await orderRepository.AddRangeAsync(orders, ct);
+                    // 写订单 + 评论（评论按 order_no 落单表，与订单同一事务提交）
+                    await orderRepository.AddOrdersWithCommentsAsync(orders, allComments, ct);
 
                     // 写一条整批扣款流水（下单前余额 / 下单后余额）
                     string batchNo = Utils.GenerateSerialNo(serialNoPre: "O");

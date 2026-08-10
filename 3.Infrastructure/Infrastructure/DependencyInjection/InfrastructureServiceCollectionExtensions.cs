@@ -15,6 +15,7 @@ using Infrastructure.Persistence.Repositories;
 using Infrastructure.Common.RateLimit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using ShardingCore;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 using System;
@@ -47,10 +48,21 @@ namespace Infrastructure.DependencyInjection
                 .Validate(x => !string.IsNullOrWhiteSpace(x.BaseUrl), "FileSettings:BaseUrl 不能为空").ValidateOnStart()
                 .Validate(x => x.MaxFileCount > 0, "FileSettings:MaxFileCount 必须大于 0").ValidateOnStart();
 
-            //数据库初始化
+            //数据库初始化（ShardingCore 分表）
+            // - AddShardingDbContext 替代原生 AddDbContext；订单按 order_no 月份路由到 tk_order_yyyyMM。
+            // - UseConfig 中 UseShardingQuery/UseShardingTransaction 配置物理库连接方式；
+            //   AddDefaultDataSource 指定默认数据源；EnsureCreatedWithOutShardingTable 负责非分表实体建表；
+            //   CreateShardingTableOnStart 依据路由 CalcTailsOnStart 在建表时创建已知尾表。
             var dbOptions = configuration.GetSection(DbOptions.SectionName).Get<DbOptions>();
-            services.AddDbContext<AppDbContext>(options => options.UseMySql(dbOptions!.ConnectionString,
-    new MySqlServerVersion(new Version(8, 0, 0))));
+            services.AddShardingDbContext<AppDbContext>()
+                .UseRouteConfig(op => op.AddShardingTableRoute<OrderNoMonthVirtualTableRoute>())
+                .UseConfig(op =>
+                {
+                    op.UseShardingQuery((conn, builder) => builder.UseMySql(conn, new MySqlServerVersion(new Version(8, 0, 0))));
+                    op.UseShardingTransaction((conn, builder) => builder.UseMySql(conn, new MySqlServerVersion(new Version(8, 0, 0))));
+                    op.AddDefaultDataSource("ds0", dbOptions!.ConnectionString);
+                })
+                .AddShardingCore();
 
             //Redis注入并且 redis工具类泛型注入（单例）
             var redisOptions = configuration.GetSection(RedisOptions.SectionName).Get<RedisOptions>();
