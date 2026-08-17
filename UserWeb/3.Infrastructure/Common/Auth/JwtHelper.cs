@@ -64,7 +64,7 @@ namespace Infrastructure.Common.Auth
                 issuer: Issuer,
                 audience: Audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddDays(day),
+                expires: DateTime.Now.AddDays(day),
                 signingCredentials: credentials
             );
             return (new JwtSecurityTokenHandler().WriteToken(token), jti);

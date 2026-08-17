@@ -21,7 +21,7 @@ namespace Domain.Entities
             AfterAmount = afterAmount;
             ConsumeStatus = status;
             ConsumeNo = consumeNo;
-            CreateTime = DateTime.UtcNow;
+            CreateTime = DateTime.Now;
         }
 
         public int ConsumeId { get; private set; }

@@ -54,7 +54,7 @@ public class FileController(IWebHostEnvironment env, IOptions<FileUploadOptions>
         if (files.Count > MaxFileCount)
             return new ApiResult<List<string>> { Code = 400, Message = $"单次最多上传 {MaxFileCount} 个文件" };
 
-        var dateDir = DateTime.UtcNow.ToString("yyyyMMdd");
+        var dateDir = DateTime.Now.ToString("yyyyMMdd");
         var targetDir = Path.Combine(env.WebRootPath, UploadFolder, dateDir);
         Directory.CreateDirectory(targetDir);
 
