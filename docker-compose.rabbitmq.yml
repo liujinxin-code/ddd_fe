@@ -1,0 +1,34 @@
+# RabbitMQ 独立部署（与 api/web 栈解耦，单独 up 不会重建现有服务）
+#
+# 用法（在服务器上、与本文件同目录）：
+#   docker compose -f docker-compose.rabbitmq.yml up -d
+#
+# 关键点：
+#  - rabbitmq_data 命名卷挂载到 /var/lib/rabbitmq —— 这是消息与元数据持久化的根本。
+#    容器重建/重启后，队列、交换机、消息（前提是队列声明为 durable 且消息标记为 persistent）都不会丢。
+#  - RABBITMQ_DEFAULT_USER / RABBITMQ_DEFAULT_PASS 仅在「首次启动且数据目录为空」时生效，
+#    所以密码必须这一次就设对（已按需求设为 Liu1779370304）。
+#  - 管理界面 15672：建议仅在受信任网络/SSH 隧道下访问，勿直接对公网暴露。
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: ddd-rabbitmq
+    ports:
+      - "5672:5672"     # AMQP 协议端口（.NET 客户端连这个）
+      - "15672:15672"   # 管理界面（建议用 SSH 隧道访问，勿公网暴露）
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=Liu1779370304
+      - RABBITMQ_DEFAULT_VHOST=ddd
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  rabbitmq_data:

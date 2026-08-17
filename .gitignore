@@ -366,5 +366,5 @@ FodyWeavers.xsd
 # 前端构建产物（Vite 输出 + 子代理验证临时目录）。dist 本身已由 Web/FlowEngine_User/.gitignore 覆盖，这里兜底忽略所有 dist* 目录
 /Web/FlowEngine_User/dist/
 /Web/FlowEngine_User/dist-*/
-/1.Open/Open/Open/wwwroot/images/20260807
-/1.Open/Open/Open/wwwroot/
+/UserWeb/1.Open/wwwroot/images/20260807
+/UserWeb/1.Open/wwwroot/
