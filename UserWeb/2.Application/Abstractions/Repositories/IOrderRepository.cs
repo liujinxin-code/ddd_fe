@@ -1,5 +1,4 @@
-using Application.Common.Models.Request.Order;
-using Application.Common.Models.Response.Order;
+using Application.Features.Order.Models;
 using Domain.Entities;
 using System.Collections.Generic;
 using System.Threading;

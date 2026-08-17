@@ -1,7 +1,6 @@
 using Application.Common.Models;
-using Application.Common.Models.Response.User;
-using Application.Events.User.Contracts.Commands;
-using Application.Events.User.Contracts.Queries;
+using Application.Features.User.Models;
+using Application.Features.User;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;

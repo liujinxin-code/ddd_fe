@@ -1,4 +1,4 @@
-using Application.Common.Models.Response.Ticket;
+using Application.Features.Ticket.Models;
 using Domain.Entities;
 
 namespace Application.Abstractions.Repositories;

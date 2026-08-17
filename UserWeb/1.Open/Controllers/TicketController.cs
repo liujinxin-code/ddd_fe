@@ -1,7 +1,6 @@
 using Application.Common.Models;
-using Application.Common.Models.Response.Ticket;
-using Application.Events.Ticket.Contracts.Commands;
-using Application.Events.Ticket.Contracts.Queries;
+using Application.Features.Ticket.Models;
+using Application.Features.Ticket;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

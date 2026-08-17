@@ -1,6 +1,6 @@
-﻿using Application.Abstractions;
+using Application.Abstractions;
 using Application.Abstractions.Repositories;
-using Application.Common.Models.Response.ConsumeLog;
+using Application.Features.ConsumeLogs.Models;
 using Domain.Entities;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;

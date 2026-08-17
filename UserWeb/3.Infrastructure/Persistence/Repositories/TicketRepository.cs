@@ -1,6 +1,6 @@
 using Application.Abstractions;
 using Application.Abstractions.Repositories;
-using Application.Common.Models.Response.Ticket;
+using Application.Features.Ticket.Models;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;

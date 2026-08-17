@@ -1,4 +1,4 @@
-﻿using Application.Common.Models.Response.ConsumeLog;
+using Application.Features.ConsumeLogs.Models;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;

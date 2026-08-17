@@ -1,7 +1,6 @@
-﻿using Application.Common.Models;
-using Application.Common.Models.Response.ServiceImage;
-using Application.Events.ServiceImage.Contracts.Commands;
-using Application.Events.ServiceImage.Contracts.Queries;
+using Application.Common.Models;
+using Application.Features.ServiceImage.Models;
+using Application.Features.ServiceImage;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

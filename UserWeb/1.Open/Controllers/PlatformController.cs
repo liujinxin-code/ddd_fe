@@ -1,6 +1,6 @@
 using Application.Common.Models;
-using Application.Common.Models.Response.Platform;
-using Application.Events.Platform.Contracts.Queries;
+using Application.Features.Platform.Models;
+using Application.Features.Platform;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

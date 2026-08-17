@@ -1,4 +1,4 @@
-﻿using Application.Abstractions.Passwords;
+using Application.Abstractions.Passwords;
 using Konscious.Security.Cryptography;
 using Microsoft.Extensions.Options;
 using Shared.Utilities;
@@ -109,7 +109,5 @@ namespace Infrastructure.Common.Passwords
             return Math.Abs(BitConverter.ToInt32(buffer, 0)) % max;
         }
     }
-
-
 
 }

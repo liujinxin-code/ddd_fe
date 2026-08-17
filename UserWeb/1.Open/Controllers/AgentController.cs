@@ -1,8 +1,7 @@
-﻿using Application.Common.Models;
-using Application.Common.Models.Response.Agent;
-using Application.Common.Models.Response.User;
-using Application.Events.Agent.Contracts.Commands;
-using Application.Events.Agent.Contracts.Queries;
+using Application.Common.Models;
+using Application.Features.Agent.Models;
+using Application.Features.User.Models;
+using Application.Features.Agent;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

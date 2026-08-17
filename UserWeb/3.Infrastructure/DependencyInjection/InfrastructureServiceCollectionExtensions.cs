@@ -4,7 +4,7 @@ using Application.Abstractions.Caching;
 using Application.Abstractions.Passwords;
 using Application.Abstractions.Repositories;
 using Application.Common.Models;
-using Application.Events.Agent.Contracts;
+using Application.Features.Agent;
 using Infrastructure.Common.Auth;
 using Infrastructure.Common.Caching;
 using Infrastructure.Common.Passwords;

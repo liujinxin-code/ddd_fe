@@ -1,5 +1,5 @@
 using Application.Abstractions.Repositories;
-using Application.Common.Models.Response.Agent;
+using Application.Features.Agent.Models;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;

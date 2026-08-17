@@ -1,5 +1,5 @@
 using Application.Abstractions;
-using Application.Common.Models.Response.Agent;
+using Application.Features.Agent.Models;
 using Domain.Entities;
 using System.Collections.Generic;
 using System.Threading;

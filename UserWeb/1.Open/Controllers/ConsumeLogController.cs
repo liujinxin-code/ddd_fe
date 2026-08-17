@@ -1,6 +1,6 @@
 using Application.Common.Models;
-using Application.Common.Models.Response.ConsumeLog;
-using Application.Events.ConsumeLogs.Contracts.Queries;
+using Application.Features.ConsumeLogs.Models;
+using Application.Features.ConsumeLogs;
 using MediatR;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;

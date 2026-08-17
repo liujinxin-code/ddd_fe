@@ -1,7 +1,6 @@
 using Application.Abstractions;
 using Application.Abstractions.Repositories;
-using Application.Common.Models.Request.Order;
-using Application.Common.Models.Response.Order;
+using Application.Features.Order.Models;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;

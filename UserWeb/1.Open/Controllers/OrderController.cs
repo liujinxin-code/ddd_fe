@@ -1,8 +1,6 @@
 using Application.Common.Models;
-using Application.Common.Models.Request.Order;
-using Application.Common.Models.Response.Order;
-using Application.Events.Order.Contracts.Commands;
-using Application.Events.Order.Contracts.Queries;
+using Application.Features.Order.Models;
+using Application.Features.Order;
 using MediatR;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;

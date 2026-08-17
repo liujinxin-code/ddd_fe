@@ -7,14 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\4.Domain\Domain.csproj" />
-    <ProjectReference Include="..\5.Shared\Shared.csproj" />
+    <Compile Remove="Events\**" />
+    <EmbeddedResource Remove="Events\**" />
+    <None Remove="Events\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Events\Agent\Contracts\Queries\" />
-    <Folder Include="Events\Agent\Handlers\Queries\" />
-    <Folder Include="Events\User\Services\" />
+    <ProjectReference Include="..\4.Domain\Domain.csproj" />
+    <ProjectReference Include="..\5.Shared\Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
