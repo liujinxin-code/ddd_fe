@@ -14,5 +14,5 @@ namespace Application.Features.ConsumeLogs
         /// <summary>变动类型筛选：-1 表示全部；0-6 对应 ConsumeStatus 枚举各值</summary>
         int ConsumeStatus = -1,
         string? Keyword = null
-    ) : PagedQuery, IRequest<ApiResult<List<ConsumeLogResponse>>>;
+    ) : PagedQuery, IRequest<PagedResult<ConsumeLogResponse>>;
 }

@@ -1,7 +1,8 @@
 ﻿using Application.Abstractions;
+using Application.Common.Models;
 using Application.Abstractions.Passwords;
 using Application.Abstractions.Repositories;
-using Application.Common.Models;
+
 using Application.Features.Agent.Models;
 using Application.Features.Agent;
 using MediatR;
@@ -19,11 +20,11 @@ namespace Application.Features.Agent
         ITkUserRepository tkUserRepository,
         IUnitOfWork unitOfWork,
         ICurrentUser currentUser
-           ) : IRequestHandler<ResetChildrenPasswordCommand, ApiResult<ResetChildrenPasswordResponse>>
+           ) : IRequestHandler<ResetChildrenPasswordCommand, ResetChildrenPasswordResponse>
     {
 
 
-        public async Task<ApiResult<ResetChildrenPasswordResponse>> Handle(ResetChildrenPasswordCommand request, CancellationToken ct)
+        public async Task<ResetChildrenPasswordResponse> Handle(ResetChildrenPasswordCommand request, CancellationToken ct)
         {
             string newPassword = passwordHelper.GenerateRandomPwd();
             string newPasswordHash = passwordHelper.GeneratePasswordHash(newPassword);
@@ -35,7 +36,7 @@ namespace Application.Features.Agent
             agent!.ResetChildrenPasswordFunc(children!, newPasswordHash);
             //TODO 增加数据库日志
             await unitOfWork.SaveChangesAsync(ct);
-            return ApiResult<ResetChildrenPasswordResponse>.Successed(new ResetChildrenPasswordResponse(newPassword));
+            return new ResetChildrenPasswordResponse(newPassword);
         }
     }
 }

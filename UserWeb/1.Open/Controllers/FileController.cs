@@ -1,5 +1,6 @@
 using Application.Abstractions;
 using Application.Common.Models;
+using Open.Common.Models;
 using Infrastructure.Common.Files;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;

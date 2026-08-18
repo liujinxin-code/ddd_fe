@@ -1,5 +1,5 @@
-using Application.Common.Models;
 using MediatR;
+using Application.Common.Models;
 using System;
 
 namespace Application.Features.Agent
@@ -9,5 +9,5 @@ namespace Application.Features.Agent
     /// 首次为新增，之后为修改（按 UserId 唯一）。
     /// 当前代理用户id 由 ICurrentUser 注入，前台不可伪造。
     /// </summary>
-    public record class UpsertAgentOverallPriceCommand(int OverallPercent) : IRequest<ApiResult>;
+    public record class UpsertAgentOverallPriceCommand(int OverallPercent) : IRequest<Unit>;
 }

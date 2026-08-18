@@ -1,6 +1,8 @@
 using Application.Abstractions;
-using Application.Abstractions.Repositories;
+using Shared.Exceptions;
 using Application.Common.Models;
+using Application.Abstractions.Repositories;
+
 using Application.Features.Ticket.Models;
 using Application.Features.Ticket;
 using MediatR;
@@ -13,20 +15,14 @@ namespace Application.Features.Ticket;
 public class GetTicketsQueryHandler(
     ITicketRepository ticketRepository,
     ICurrentUser currentUser)
-    : IRequestHandler<GetTicketsQuery, ApiResult<List<TicketResponse>>>
+    : IRequestHandler<GetTicketsQuery, PagedResult<TicketResponse>>
 {
-    public async Task<ApiResult<List<TicketResponse>>> Handle(GetTicketsQuery query, CancellationToken ct)
+    public async Task<PagedResult<TicketResponse>> Handle(GetTicketsQuery query, CancellationToken ct)
     {
-        if (!currentUser.IsAuthenticated || currentUser.Userid <= 0)
-        {
-            return new ApiResult<List<TicketResponse>>
+                    if (!currentUser.IsAuthenticated || currentUser.Userid <= 0)
             {
-                Code = 401,
-                Message = "登录失效",
-                Data = new List<TicketResponse>(),
-                DataTotal = 0,
-            };
-        }
+                throw new UnauthorizedDomainException();
+            }
 
         string sortField;
         bool sortDesc;
@@ -53,12 +49,6 @@ public class GetTicketsQueryHandler(
             sortDesc,
             ct);
 
-        return new ApiResult<List<TicketResponse>>
-        {
-            Code = 200,
-            Message = "Success!",
-            Data = items.ToList(),
-            DataTotal = total,
-        };
+        return new PagedResult<TicketResponse>(items.ToList(), total);
     }
 }

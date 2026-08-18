@@ -1,6 +1,7 @@
 using Application.Abstractions;
-using Application.Abstractions.Repositories;
 using Application.Common.Models;
+using Application.Abstractions.Repositories;
+
 using Application.Features.Agent;
 using MediatR;
 using Shared.Exceptions;
@@ -13,9 +14,9 @@ namespace Application.Features.Agent
         IAgentPricingRepository agentPricingRepository,
         IUnitOfWork unitOfWork,
         ICurrentUser currentUser)
-        : IRequestHandler<DeleteAgentMarkupCommand, ApiResult>
+        : IRequestHandler<DeleteAgentMarkupCommand, Unit>
     {
-        public async Task<ApiResult> Handle(DeleteAgentMarkupCommand request, CancellationToken ct)
+        public async Task<Unit> Handle(DeleteAgentMarkupCommand request, CancellationToken ct)
         {
             var existing = await agentPricingRepository.GetMarkupAsync(request.ConfigId, currentUser.Userid, ct);
             if (existing is null)
@@ -25,7 +26,7 @@ namespace Application.Features.Agent
 
             agentPricingRepository.DeleteMarkup(existing);
             await unitOfWork.SaveChangesAsync(ct);
-            return ApiResult.Successed();
+            return Unit.Value;
         }
     }
 }

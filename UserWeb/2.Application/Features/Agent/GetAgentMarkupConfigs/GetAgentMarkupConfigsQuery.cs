@@ -13,5 +13,5 @@ namespace Application.Features.Agent
     public record class GetAgentMarkupConfigsQuery(
         int PlatformId = 0,
         int SubPlatformId = 0
-    ) : PagedQuery, IRequest<ApiResult<List<AgentMarkupConfigResponse>>>;
+    ) : PagedQuery, IRequest<PagedResult<AgentMarkupConfigResponse>>;
 }

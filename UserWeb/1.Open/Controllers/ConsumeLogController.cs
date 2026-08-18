@@ -1,4 +1,4 @@
-using Application.Common.Models;
+using Open.Common.Models;
 using Application.Features.ConsumeLogs.Models;
 using Application.Features.ConsumeLogs;
 using MediatR;
@@ -21,9 +21,13 @@ namespace Open.Controllers
         /// </summary>
         [HttpPost("list")]
         [ProducesResponseType(typeof(ApiResult<List<ConsumeLogResponse>>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<List<ConsumeLogResponse>>> ListAsync([FromBody] GetConsumeLogsQuery query, CancellationToken ct)
-        {
-            return await mediator.Send(query, ct);
-        }
+        public async Task<IActionResult> ListAsync([FromBody] GetConsumeLogsQuery query, CancellationToken ct)
+         {
+
+            var r = await mediator.Send(query, ct);
+
+            return ApiPaged(r);
+
+         }
     }
 }

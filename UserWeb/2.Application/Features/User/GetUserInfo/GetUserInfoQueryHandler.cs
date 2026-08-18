@@ -1,5 +1,6 @@
 ﻿using Application.Abstractions.Repositories;
 using Application.Common.Models;
+
 using Application.Features.User.Models;
 using Application.Features.User;
 using Domain.Entities;
@@ -14,9 +15,9 @@ using System.Threading.Tasks;
 
 namespace Application.Features.User
 {
-    public class GetUserInfoQueryHandler(ITkUserRepository tkUserRepository, ICurrentUser currentUser) : IRequestHandler<GetUserInfoQuery, ApiResult<UserInfoResponse>>
+    public class GetUserInfoQueryHandler(ITkUserRepository tkUserRepository, ICurrentUser currentUser) : IRequestHandler<GetUserInfoQuery, UserInfoResponse>
     {
-        public async Task<ApiResult<UserInfoResponse>> Handle(GetUserInfoQuery query, CancellationToken ct)
+        public async Task<UserInfoResponse> Handle(GetUserInfoQuery query, CancellationToken ct)
         {
             TkUser? user = await tkUserRepository.GetByIdAsync(currentUser.Userid, ct);
             if (user == null)
@@ -25,7 +26,7 @@ namespace Application.Features.User
             }
             var response = user.Adapt<UserInfoResponse>();
 
-            return ApiResult<UserInfoResponse>.Successed(response);
+            return response;
 
         }
     }

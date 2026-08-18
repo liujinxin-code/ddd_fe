@@ -1,4 +1,4 @@
-using Application.Common.Models;
+using Open.Common.Models;
 using Application.Features.Platform.Models;
 using Application.Features.Platform;
 using MediatR;
@@ -17,10 +17,14 @@ namespace Open.Controllers
         /// </summary>
         [HttpPost("list")]
         [ProducesResponseType(typeof(ApiResult<List<PlatformResponse>>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<List<PlatformResponse>>> GetPlatformsAsync([FromBody] GetPlatformsQuery query, CancellationToken ct)
-        {
-            return await mediator.Send(query, ct);
-        }
+        public async Task<IActionResult> GetPlatformsAsync([FromBody] GetPlatformsQuery query, CancellationToken ct)
+         {
+
+            var r = await mediator.Send(query, ct);
+
+            return Api(r);
+
+         }
 
         /// <summary>
         /// 根据 platform_id 获取该平台下的业务类型列表，用于第二个下拉框（二级联动）。
@@ -29,9 +33,13 @@ namespace Open.Controllers
         /// </summary>
         [HttpPost("subs")]
         [ProducesResponseType(typeof(ApiResult<List<SubPlatformResponse>>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<List<SubPlatformResponse>>> GetSubPlatformsByPlatformAsync([FromBody] GetSubPlatformsByPlatformQuery query, CancellationToken ct)
-        {
-            return await mediator.Send(query, ct);
-        }
+        public async Task<IActionResult> GetSubPlatformsByPlatformAsync([FromBody] GetSubPlatformsByPlatformQuery query, CancellationToken ct)
+         {
+
+            var r = await mediator.Send(query, ct);
+
+            return Api(r);
+
+         }
     }
 }

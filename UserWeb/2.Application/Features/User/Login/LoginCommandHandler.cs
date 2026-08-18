@@ -1,7 +1,7 @@
 ﻿using Application.Abstractions.Auth;
 using Application.Abstractions.Passwords;
 using Application.Abstractions.Repositories;
-using Application.Common.Models;
+
 using Application.Features.User.Models;
 using Application.Features.User;
 using Mapster;
@@ -19,10 +19,10 @@ namespace Application.Features.User
      ITkUserRepository tkUserRepository
      , IPasswordHelper passwordHelper
      , IJwtHelper jwtHelper
-     , ITokenCacheService tokenCacheService) : IRequestHandler<LoginQuery, ApiResult<LoginResponse>>
+     , ITokenCacheService tokenCacheService) : IRequestHandler<LoginQuery, LoginResponse>
     {
         // 固定签名：Handle(请求, 取消令牌)
-        public async Task<ApiResult<LoginResponse>> Handle(LoginQuery query, CancellationToken ct)
+        public async Task<LoginResponse> Handle(LoginQuery query, CancellationToken ct)
         {
             string name = query.Name.Trim().ToLower();
             var user = await tkUserRepository.GetUserByUserNameOrEmailAsync(name, ct);
@@ -40,7 +40,7 @@ namespace Application.Features.User
                 Token = tokenRes.Item1,
                 User = user.Adapt<LoginUserResponse>()
             };
-            return ApiResult<LoginResponse>.Successed(response);
+            return response;
 
         }
     }

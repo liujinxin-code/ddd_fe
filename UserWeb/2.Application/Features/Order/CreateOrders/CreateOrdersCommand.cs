@@ -1,5 +1,5 @@
-using Application.Common.Models;
 using Application.Features.Order.Models;
+using Application.Common.Models;
 using MediatR;
 using System.Collections.Generic;
 
@@ -22,5 +22,5 @@ namespace Application.Features.Order
     /// - 增量业务（涨粉/评论）：一个链接 = 一个订单，OrderLink 必填。
     /// - 账户业务（买号）：Quantity = 购买账户个数，多个账户算同一订单，OrderLink 选填。
     /// </summary>
-    public record CreateOrdersCommand(List<CreateOrderItemRequest> Items) : IRequest<ApiResult<CreateOrderResponse>>;
+    public record CreateOrdersCommand(List<CreateOrderItemRequest> Items) : IRequest<CreateOrderResponse>;
 }

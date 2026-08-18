@@ -1,5 +1,6 @@
 using Application.Abstractions.Repositories;
 using Application.Common.Models;
+
 using Application.Features.User;
 using MediatR;
 using Shared.Exceptions;
@@ -8,9 +9,9 @@ namespace Application.Features.User
 {
     public class GetUserBalanceQueryHandler(
         ITkUserRepository tkUserRepository,
-        ICurrentUser currentUser) : IRequestHandler<GetUserBalanceQuery, ApiResult<UserBalanceResponse>>
+        ICurrentUser currentUser) : IRequestHandler<GetUserBalanceQuery, UserBalanceResponse>
     {
-        public async Task<ApiResult<UserBalanceResponse>> Handle(GetUserBalanceQuery query, CancellationToken ct)
+        public async Task<UserBalanceResponse> Handle(GetUserBalanceQuery query, CancellationToken ct)
         {
             if (currentUser.Userid <= 0)
             {
@@ -23,8 +24,7 @@ namespace Application.Features.User
                 throw new BusinessException("用户不存在");
             }
 
-            return ApiResult<UserBalanceResponse>.Successed(
-                new UserBalanceResponse(user.UserAmount), 1, "查询成功");
+            return new UserBalanceResponse(user.UserAmount);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Application.Common.Models
+namespace Application.Common.Models
 {
     /// <summary>
     /// 当前登录用户抽象。由 Infrastructure 层的 CurrentUserAccessor 基于 JWT Claims 实现，
@@ -13,11 +13,5 @@
         bool IsAuthenticated { get; }
     }
 
-    public class CurrentUser : ICurrentUser
-    {
-        public long Userid { get; set; }
-        public string Username { get; set; } = string.Empty;
-        public string Jti { get; set; } = string.Empty;
-        public bool IsAuthenticated { get; set; }
-    }
+
 }

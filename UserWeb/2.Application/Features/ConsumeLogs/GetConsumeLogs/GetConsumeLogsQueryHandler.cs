@@ -1,6 +1,8 @@
 using Application.Abstractions;
-using Application.Abstractions.Repositories;
+using Shared.Exceptions;
 using Application.Common.Models;
+using Application.Abstractions.Repositories;
+
 using Application.Features.ConsumeLogs.Models;
 using Application.Features.ConsumeLogs;
 using MediatR;
@@ -19,19 +21,13 @@ namespace Application.Features.ConsumeLogs
     public class GetConsumeLogsQueryHandler(
         IConsumeLogRepository consumeLogRepository,
         ICurrentUser currentUser)
-        : IRequestHandler<GetConsumeLogsQuery, ApiResult<List<ConsumeLogResponse>>>
+        : IRequestHandler<GetConsumeLogsQuery, PagedResult<ConsumeLogResponse>>
     {
-        public async Task<ApiResult<List<ConsumeLogResponse>>> Handle(GetConsumeLogsQuery query, CancellationToken ct)
+        public async Task<PagedResult<ConsumeLogResponse>> Handle(GetConsumeLogsQuery query, CancellationToken ct)
         {
             if (!currentUser.IsAuthenticated || currentUser.Userid <= 0)
             {
-                return new ApiResult<List<ConsumeLogResponse>>
-                {
-                    Code = 401,
-                    Message = "登录失效",
-                    Data = new List<ConsumeLogResponse>(),
-                    DataTotal = 0
-                };
+                throw new UnauthorizedDomainException();
             }
 
             string sortField;
@@ -67,13 +63,7 @@ namespace Application.Features.ConsumeLogs
                 return o;
             }).ToList();
 
-            return new ApiResult<List<ConsumeLogResponse>>
-            {
-                Code = 200,
-                Message = "Success!",
-                Data = list,
-                DataTotal = total
-            };
+            return new PagedResult<ConsumeLogResponse>(list, total);
         }
     }
 }

@@ -1,6 +1,7 @@
 using Application.Abstractions;
-using Application.Abstractions.Repositories;
 using Application.Common.Models;
+using Application.Abstractions.Repositories;
+
 using Application.Features.ServiceImage.Models;
 using Application.Features.ServiceImage;
 using MediatR;
@@ -13,41 +14,18 @@ namespace Application.Features.ServiceImage
     public class GetMyOwnWechatImageQueryHandler(
             IServiceImageRepository serviceImageRepository,
             ICurrentUser currentUser
-        ) : IRequestHandler<GetMyOwnWechatImageQuery, ApiResult<AgentWechatImageResponse>>
+        ) : IRequestHandler<GetMyOwnWechatImageQuery, AgentWechatImageResponse?>
     {
-        public async Task<ApiResult<AgentWechatImageResponse>> Handle(GetMyOwnWechatImageQuery query, CancellationToken ct)
+        public async Task<AgentWechatImageResponse?> Handle(GetMyOwnWechatImageQuery query, CancellationToken ct)
         {
             if (!currentUser.IsAuthenticated || currentUser.Userid <= 0)
             {
-                return new ApiResult<AgentWechatImageResponse>
-                {
-                    Code = 401,
-                    Message = "登录失效",
-                    Data = new AgentWechatImageResponse { ImageUrl = string.Empty, AgentUserid = 0 },
-                    DataTotal = 0
-                };
+                throw new UnauthorizedDomainException();
             }
 
             var image = await serviceImageRepository.GetByAgentUserIdAsync(currentUser.Userid, ct);
 
-            if (image == null)
-            {
-                return new ApiResult<AgentWechatImageResponse>
-                {
-                    Code = 200,
-                    Message = "Success!",
-                    Data = new AgentWechatImageResponse { ImageUrl = string.Empty, AgentUserid = currentUser.Userid },
-                    DataTotal = 0
-                };
-            }
-
-            return new ApiResult<AgentWechatImageResponse>
-            {
-                Code = 200,
-                Message = "Success!",
-                Data = new AgentWechatImageResponse { ImageUrl = image.ImageUrl, AgentUserid = currentUser.Userid },
-                DataTotal = 1
-            };
+            return new AgentWechatImageResponse { ImageUrl = image?.ImageUrl ?? string.Empty };
         }
     }
 }

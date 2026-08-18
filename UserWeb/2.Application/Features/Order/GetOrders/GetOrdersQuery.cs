@@ -13,5 +13,5 @@ namespace Application.Features.Order
     public record class GetOrdersQuery(
         int OrderState = 0,
         string? Keyword = null
-    ) : PagedQuery, IRequest<ApiResult<List<OrderResponse>>>;
+    ) : PagedQuery, IRequest<PagedResult<OrderResponse>>;
 }

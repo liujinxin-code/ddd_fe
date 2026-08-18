@@ -1,6 +1,7 @@
 ﻿using Application.Abstractions;
-using Application.Abstractions.Repositories;
 using Application.Common.Models;
+using Application.Abstractions.Repositories;
+
 using Application.Features.Agent;
 using Domain.Entities;
 using Domain.Enums;
@@ -15,12 +16,12 @@ namespace Application.Features.Agent
             IConsumeLogRepository consumeLogRepository,
             IUnitOfWork unitOfWork,
             ICurrentUser currentUser
-         ) : IRequestHandler<WithdrawAgentAmountCommand, ApiResult>
+         ) : IRequestHandler<WithdrawAgentAmountCommand, Unit>
     {
-        public async Task<ApiResult> Handle(WithdrawAgentAmountCommand cmd, CancellationToken ct)
+        public async Task<Unit> Handle(WithdrawAgentAmountCommand cmd, CancellationToken ct)
         {
             if (!currentUser.IsAuthenticated || currentUser.Userid <= 0)
-                return ApiResult.UnAuth();
+                throw new UnauthorizedDomainException();
 
             try
             {
@@ -47,7 +48,7 @@ namespace Application.Features.Agent
             {
                 throw new BusinessException("并发更新冲突，提取未成功，请稍后重试。");
             }
-            return ApiResult.Successed();
+            return Unit.Value;
         }
     }
 }

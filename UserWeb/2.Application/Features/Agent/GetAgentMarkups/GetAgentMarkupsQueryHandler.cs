@@ -1,5 +1,6 @@
 using Application.Abstractions.Repositories;
 using Application.Common.Models;
+
 using Application.Features.Agent.Models;
 using Application.Features.Agent;
 using Application.Services;
@@ -16,16 +17,16 @@ namespace Application.Features.Agent
         IAgentPricingRepository agentPricingRepository,
         IConfigRepository configRepository,
         ICurrentUser currentUser)
-        : IRequestHandler<GetAgentMarkupsQuery, ApiResult<List<AgentMarkupResponse>>>
+        : IRequestHandler<GetAgentMarkupsQuery, PagedResult<AgentMarkupResponse>>
     {
-        public async Task<ApiResult<List<AgentMarkupResponse>>> Handle(GetAgentMarkupsQuery query, CancellationToken ct)
+        public async Task<PagedResult<AgentMarkupResponse>> Handle(GetAgentMarkupsQuery query, CancellationToken ct)
         {
             var (items, total) = await agentPricingRepository.GetMarkupsByAgentAsync(
                 currentUser.Userid, query.PageIndex, query.PageSize, query.Keyword, ct);
 
             if (items.Count == 0)
             {
-                return ApiResult<List<AgentMarkupResponse>>.Successed(new List<AgentMarkupResponse>(), 0);
+                return new PagedResult<AgentMarkupResponse>(new List<AgentMarkupResponse>(), 0);
             }
 
             var configIds = items.Select(x => x.Config.ConfigId).ToList();
@@ -56,13 +57,7 @@ namespace Application.Features.Agent
                 };
             }).ToList();
 
-            return new ApiResult<List<AgentMarkupResponse>>
-            {
-                Code = 200,
-                Message = "Success!",
-                Data = list,
-                DataTotal = total
-            };
+            return new PagedResult<AgentMarkupResponse>(list, total);
         }
     }
 }

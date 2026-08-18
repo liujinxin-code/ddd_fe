@@ -8,6 +8,6 @@ using System.Threading.Tasks;
 
 namespace Application.Features.Agent
 {
-    public record class TransferUserAmountCommand(long ChildrenUserid, decimal transferAmount) : IRequest<ApiResult>;
+    public record class TransferUserAmountCommand(long ChildrenUserid, decimal transferAmount) : IRequest<Unit>;
 
 }

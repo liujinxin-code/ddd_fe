@@ -1,6 +1,8 @@
 ﻿using Application.Abstractions.Repositories;
-using Application.Common.Models;
+using Shared.Exceptions;
+
 using Application.Features.Agent.Models;
+using Application.Common.Models;
 using Application.Features.Agent;
 using Domain.Entities;
 using MediatR;
@@ -13,19 +15,13 @@ using System.Threading.Tasks;
 namespace Application.Features.Agent
 {
     public class GetChildrenUsersQueryHandler(ITkUserRepository tkUserRepository, ICurrentUser currentUser)
-        : IRequestHandler<GetChildrenUsersQuery, ApiResult<List<ChildrenUserResponse>>>
+        : IRequestHandler<GetChildrenUsersQuery, PagedResult<ChildrenUserResponse>>
     {
-        public async Task<ApiResult<List<ChildrenUserResponse>>> Handle(GetChildrenUsersQuery query, CancellationToken ct)
+        public async Task<PagedResult<ChildrenUserResponse>> Handle(GetChildrenUsersQuery query, CancellationToken ct)
         {
             if (!currentUser.IsAuthenticated || currentUser.Userid <= 0)
             {
-                return new ApiResult<List<ChildrenUserResponse>>
-                {
-                    Code = 401,
-                    Message = "登录失效",
-                    Data = new List<ChildrenUserResponse>(),
-                    DataTotal = 0
-                };
+                throw new UnauthorizedDomainException();
             }
 
             // 解析排序：格式 "字段 [asc|desc]"，缺省按 userid 倒序（最新创建的在前）。
@@ -58,15 +54,9 @@ namespace Application.Features.Agent
                 CreateTime = t.CreateTime
             }).ToList();
 
-            // data 为 List（IList），ApiResult.Successed 会按 list.Count 回填 DataTotal，
-            // 故此处显式构造，保留真实总条数 total 供前端分页（页索引/页大小已在请求中，无需回显）。
-            return new ApiResult<List<ChildrenUserResponse>>
-            {
-                Code = 200,
-                Message = "Success!",
-                Data = list,
-                DataTotal = total
-            };
+            // 返回中性分页载体 PagedResult，真实总条数 total 由 TotalCount 携带；
+            // HTTP 边缘层（ApiPaged）会显式构造信封，避免 IList 被 ApiResult.Successed 按 Count 覆盖总条数。
+            return new PagedResult<ChildrenUserResponse>(list, total);
         }
     }
 }

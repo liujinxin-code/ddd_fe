@@ -1,4 +1,4 @@
-﻿using Application.Common.Models;
+﻿using Open.Common.Models;
 using FluentValidation;
 using Shared.Exceptions;
 
@@ -42,7 +42,8 @@ namespace Open.Middlewares
                 InvalidOperationException or
                 ValidationException or
                 BusinessException => ApiResult.Failed(ex.Message),
-                UnauthorizedAccessException => ApiResult.UnAuth("未登录或登录已失效"),
+                UnauthorizedAccessException or
+                UnauthorizedDomainException => ApiResult.UnAuth("未登录或登录已失效"),
                 ConcurrencyConflictException => ApiResult.Error(ex.Message),
                 _ => ApiResult.Error("服务器内部错误")
             };
@@ -53,6 +54,7 @@ namespace Open.Middlewares
                 case ValidationException:
                 case BusinessException:
                 case UnauthorizedAccessException:
+                case UnauthorizedDomainException:
                     break;
                 case ConcurrencyConflictException:
                     _logger.LogError(ex,

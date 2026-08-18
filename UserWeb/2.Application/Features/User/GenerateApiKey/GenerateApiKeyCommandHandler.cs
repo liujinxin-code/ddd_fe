@@ -1,8 +1,9 @@
 using Application.Abstractions;
+using Application.Common.Models;
 using Application.Abstractions.Auth;
 using Application.Abstractions.Passwords;
 using Application.Abstractions.Repositories;
-using Application.Common.Models;
+
 using Application.Features.User;
 using MediatR;
 using Shared.Exceptions;
@@ -13,9 +14,9 @@ namespace Application.Features.User
         ITkUserRepository tkUserRepository,
         IUnitOfWork unitOfWork,
         ICurrentUser currentUser,
-        IJwtHelper jwtHelper) : IRequestHandler<GenerateApiKeyCommand, ApiResult<GenerateApiKeyResponse>>
+        IJwtHelper jwtHelper) : IRequestHandler<GenerateApiKeyCommand, GenerateApiKeyResponse>
     {
-        public async Task<ApiResult<GenerateApiKeyResponse>> Handle(GenerateApiKeyCommand cmd, CancellationToken ct)
+        public async Task<GenerateApiKeyResponse> Handle(GenerateApiKeyCommand cmd, CancellationToken ct)
         {
             if (currentUser.Userid <= 0)
             {
@@ -35,16 +36,16 @@ namespace Application.Features.User
             user.SetApiKeyFunc(apiKey);
             await unitOfWork.SaveChangesAsync(ct);
 
-            return ApiResult<GenerateApiKeyResponse>.Successed(new GenerateApiKeyResponse(apiKey), 1, "API Key 已生成");
+            return new GenerateApiKeyResponse(apiKey);
         }
     }
 
     public class ViewApiKeyCommandHandler(
         ITkUserRepository tkUserRepository,
         IPasswordHelper passwordHelper,
-        ICurrentUser currentUser) : IRequestHandler<ViewApiKeyCommand, ApiResult<GenerateApiKeyResponse>>
+        ICurrentUser currentUser) : IRequestHandler<ViewApiKeyCommand, GenerateApiKeyResponse>
     {
-        public async Task<ApiResult<GenerateApiKeyResponse>> Handle(ViewApiKeyCommand cmd, CancellationToken ct)
+        public async Task<GenerateApiKeyResponse> Handle(ViewApiKeyCommand cmd, CancellationToken ct)
         {
             if (currentUser.Userid <= 0)
             {
@@ -66,8 +67,7 @@ namespace Application.Features.User
                 throw new BusinessException("密码不正确");
             }
 
-            return ApiResult<GenerateApiKeyResponse>.Successed(
-                new GenerateApiKeyResponse(user.ApiKey ?? string.Empty), 1, "API Key 已获取");
+            return new GenerateApiKeyResponse(user.ApiKey ?? string.Empty);
         }
     }
 }

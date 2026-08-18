@@ -1,6 +1,7 @@
 using Application.Abstractions;
-using Application.Abstractions.Repositories;
 using Application.Common.Models;
+using Application.Abstractions.Repositories;
+
 using Application.Features.Agent.Models;
 using Application.Features.Agent;
 using MediatR;
@@ -12,19 +13,14 @@ namespace Application.Features.Agent
     public class GetAgentDashboardQueryHandler(
         ITkUserRepository tkUserRepository,
         ICurrentUser currentUser)
-        : IRequestHandler<GetAgentDashboardQuery, ApiResult<AgentDashboardResponse>>
+        : IRequestHandler<GetAgentDashboardQuery, AgentDashboardResponse?>
     {
-        public async Task<ApiResult<AgentDashboardResponse>> Handle(GetAgentDashboardQuery query, CancellationToken ct)
+        public async Task<AgentDashboardResponse?> Handle(GetAgentDashboardQuery query, CancellationToken ct)
         {
             var user = await tkUserRepository.GetByIdAsync(currentUser.Userid, ct);
             if (user == null)
             {
-                return new ApiResult<AgentDashboardResponse>
-                {
-                    Code = 404,
-                    Message = "用户不存在。",
-                    Data = null
-                };
+                return null;
             }
 
             var (enabledCount, totalCount) = await tkUserRepository.GetChildrenStatsAsync(currentUser.Userid, ct);
@@ -37,12 +33,7 @@ namespace Application.Features.Agent
                 TotalChildrenCount = totalCount
             };
 
-            return new ApiResult<AgentDashboardResponse>
-            {
-                Code = 200,
-                Message = "Success!",
-                Data = item
-            };
+            return item;
         }
     }
 }

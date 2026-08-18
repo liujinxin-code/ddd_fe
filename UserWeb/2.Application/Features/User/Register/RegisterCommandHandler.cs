@@ -1,7 +1,7 @@
 ﻿using Application.Abstractions;
 using Application.Abstractions.Passwords;
 using Application.Abstractions.Repositories;
-using Application.Common.Models;
+
 using Application.Features.User;
 using Domain.Entities;
 using Domain.Enums;
@@ -18,10 +18,10 @@ namespace Application.Features.User
     public class RegisterCommandHandler(
      ITkUserRepository tkUserRepository
      , IUnitOfWork unitOfWork
-     , IPasswordHelper passwordHelper) : IRequestHandler<RegisterCommand, ApiResult>
+     , IPasswordHelper passwordHelper) : IRequestHandler<RegisterCommand, Unit>
     {
         // 固定签名：Handle(请求, 取消令牌)
-        public async Task<ApiResult> Handle(RegisterCommand cmd, CancellationToken ct)
+        public async Task<Unit> Handle(RegisterCommand cmd, CancellationToken ct)
         {
             string email = cmd.email.Trim().ToLower();
             string username = cmd.username.Trim().ToLower();
@@ -46,7 +46,7 @@ namespace Application.Features.User
                , "前台注册");
             await tkUserRepository.AddAsync(user, ct);
             await unitOfWork.SaveChangesAsync(ct);
-            return ApiResult.Successed("注册成功");
+            return Unit.Value;
         }
     }
 

@@ -1,4 +1,4 @@
-using Application.Common.Models;
+using Open.Common.Models;
 using Application.Common.Models.Enum;
 using Domain.Enums;
 using Microsoft.AspNetCore.Authorization;

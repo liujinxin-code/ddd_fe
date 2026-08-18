@@ -1,7 +1,8 @@
 ﻿using Application.Abstractions;
+using Application.Common.Models;
 using Application.Abstractions.Passwords;
 using Application.Abstractions.Repositories;
-using Application.Common.Models;
+
 using Application.Features.Agent;
 using Domain.Entities;
 using MediatR;
@@ -19,9 +20,9 @@ namespace Application.Features.Agent
         IPasswordHelper passwordHelper,
         IUnitOfWork unitOfWork,
         ICurrentUser currentUser
-    ) : IRequestHandler<CreateChildrenCommand, ApiResult>
+    ) : IRequestHandler<CreateChildrenCommand, Unit>
     {
-        public async Task<ApiResult> Handle(CreateChildrenCommand cmd, CancellationToken ct)
+        public async Task<Unit> Handle(CreateChildrenCommand cmd, CancellationToken ct)
         {
             var agent = await tkUserRepository.GetByIdAsync(currentUser.Userid);
             if (agent == null) throw new BusinessException("代理不存在");
@@ -41,7 +42,7 @@ namespace Application.Features.Agent
                 Domain.Enums.TkUserStatus.Enable, agent.Userid, 0, agent.AgentDomain, string.Empty, agent.Username);
             await tkUserRepository.AddAsync(children, ct);
             await unitOfWork.SaveChangesAsync(ct);
-            return ApiResult.Successed();
+            return Unit.Value;
         }
     }
 }

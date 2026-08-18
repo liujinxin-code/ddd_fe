@@ -12,5 +12,5 @@ namespace Application.Features.Agent
     /// </summary>
     public record class GetAgentMarkupsQuery(
         string Keyword = ""
-    ) : PagedQuery, IRequest<ApiResult<List<AgentMarkupResponse>>>;
+    ) : PagedQuery, IRequest<PagedResult<AgentMarkupResponse>>;
 }

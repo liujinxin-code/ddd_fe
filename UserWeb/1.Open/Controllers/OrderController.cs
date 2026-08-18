@@ -1,4 +1,4 @@
-using Application.Common.Models;
+using Open.Common.Models;
 using Application.Features.Order.Models;
 using Application.Features.Order;
 using MediatR;
@@ -23,10 +23,14 @@ namespace Open.Controllers
         /// </summary>
         [HttpPost("create")]
         [ProducesResponseType(typeof(ApiResult<CreateOrderResponse>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<CreateOrderResponse>> CreateAsync([FromBody] CreateOrdersCommand cmd, CancellationToken ct)
-        {
-            return await mediator.Send(cmd, ct);
-        }
+        public async Task<IActionResult> CreateAsync([FromBody] CreateOrdersCommand cmd, CancellationToken ct)
+         {
+
+            var r = await mediator.Send(cmd, ct);
+
+            return Api(r);
+
+         }
 
         /// <summary>
         /// 「我的订单」分页列表。仅返回当前登录用户自己的订单（用户id 由 JWT 注入，不可伪造）。
@@ -36,9 +40,13 @@ namespace Open.Controllers
         /// </summary>
         [HttpPost("list")]
         [ProducesResponseType(typeof(ApiResult<List<OrderResponse>>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<List<OrderResponse>>> ListAsync([FromBody] GetOrdersQuery query, CancellationToken ct)
-        {
-            return await mediator.Send(query, ct);
-        }
+        public async Task<IActionResult> ListAsync([FromBody] GetOrdersQuery query, CancellationToken ct)
+         {
+
+            var r = await mediator.Send(query, ct);
+
+            return ApiPaged(r);
+
+         }
     }
 }

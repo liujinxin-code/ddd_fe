@@ -1,6 +1,7 @@
 using Application.Abstractions;
-using Application.Abstractions.Repositories;
 using Application.Common.Models;
+using Application.Abstractions.Repositories;
+
 using Application.Features.Order.Models;
 using Application.Features.Order;
 using Application.Services;
@@ -31,9 +32,9 @@ namespace Application.Features.Order
         IConsumeLogRepository consumeLogRepository,
         IUnitOfWork unitOfWork,
         ICurrentUser currentUser)
-        : IRequestHandler<CreateOrdersCommand, ApiResult<CreateOrderResponse>>
+        : IRequestHandler<CreateOrdersCommand, CreateOrderResponse>
     {
-        public async Task<ApiResult<CreateOrderResponse>> Handle(CreateOrdersCommand request, CancellationToken ct)
+        public async Task<CreateOrderResponse> Handle(CreateOrdersCommand request, CancellationToken ct)
         {
             try
             {
@@ -158,13 +159,11 @@ namespace Application.Features.Order
 
                     await unitOfWork.SaveChangesAsync(ct);
 
-                    return ApiResult<CreateOrderResponse>.Successed(
-                        new CreateOrderResponse
+                    return new CreateOrderResponse
                         {
                             OrderNos = orders.Select(o => o.OrderNo).ToList(),
                             TotalAmount = totalAmount
-                        },
-                        orders.Count);
+                        };
                 }, ct);
             }
             catch (ConcurrencyConflictException)

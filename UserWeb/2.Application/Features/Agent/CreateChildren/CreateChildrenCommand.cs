@@ -9,5 +9,5 @@ using System.Threading.Tasks;
 
 namespace Application.Features.Agent
 {
-    public record class CreateChildrenCommand(string Username, string Email, string Password) : IRequest<ApiResult>;
+    public record class CreateChildrenCommand(string Username, string Email, string Password) : IRequest<Unit>;
 }

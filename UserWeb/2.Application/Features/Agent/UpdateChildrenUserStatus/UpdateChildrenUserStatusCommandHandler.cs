@@ -1,7 +1,8 @@
 ﻿using Application.Abstractions;
+using Application.Common.Models;
 using Application.Abstractions.Auth;
 using Application.Abstractions.Repositories;
-using Application.Common.Models;
+
 using Application.Features.Agent.Models;
 using Application.Features.Agent;
 using MediatR;
@@ -21,11 +22,11 @@ namespace Application.Features.Agent
         ITokenCacheService tokenCacheService,
         IUnitOfWork unitOfWork,
         ICurrentUser currentUser
-          ) : IRequestHandler<UpdateChildrenUserStatusCommand, ApiResult>
+          ) : IRequestHandler<UpdateChildrenUserStatusCommand, Unit>
     {
 
 
-        public async Task<ApiResult> Handle(UpdateChildrenUserStatusCommand request, CancellationToken ct)
+        public async Task<Unit> Handle(UpdateChildrenUserStatusCommand request, CancellationToken ct)
         {
             var agent = await tkUserRepository.GetByIdAsync(currentUser.Userid);
             if (agent == null) throw new BusinessException("代理不存在");
@@ -40,7 +41,7 @@ namespace Application.Features.Agent
             }
             //TODO 增加数据库日志
             await unitOfWork.SaveChangesAsync(ct);
-            return ApiResult.Successed();
+            return Unit.Value;
 
         }
     }

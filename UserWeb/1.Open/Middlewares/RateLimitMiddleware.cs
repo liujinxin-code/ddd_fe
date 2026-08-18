@@ -1,4 +1,5 @@
 using Application.Common.Models;
+using Open.Common.Models;
 using Infrastructure.Common.RateLimit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

@@ -9,5 +9,5 @@ using System.Threading.Tasks;
 
 namespace Application.Features.User
 {
-    public record LoginQuery(string Name, string Password) : IRequest<ApiResult<LoginResponse>>;
+    public record LoginQuery(string Name, string Password) : IRequest<LoginResponse>;
 }

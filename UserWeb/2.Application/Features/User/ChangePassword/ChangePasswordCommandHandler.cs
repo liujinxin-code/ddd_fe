@@ -1,7 +1,8 @@
 ﻿using Application.Abstractions;
+using Application.Common.Models;
 using Application.Abstractions.Passwords;
 using Application.Abstractions.Repositories;
-using Application.Common.Models;
+
 using Application.Features.User;
 using Domain.Entities;
 using MediatR;
@@ -19,9 +20,9 @@ namespace Application.Features.User
         ITkUserRepository tkUserRepository,
         IUnitOfWork unitOfWork,
         IPasswordHelper passwordHelper,
-        ICurrentUser currentUser) : IRequestHandler<ChangePasswordCommand, ApiResult>
+        ICurrentUser currentUser) : IRequestHandler<ChangePasswordCommand, Unit>
     {
-        public async Task<ApiResult> Handle(ChangePasswordCommand cmd, CancellationToken ct)
+        public async Task<Unit> Handle(ChangePasswordCommand cmd, CancellationToken ct)
         {
             if (currentUser.Userid <= 0)
             {
@@ -62,7 +63,7 @@ namespace Application.Features.User
             user.ChangePasswordFunc(passwordHelper.GeneratePasswordHash(cmd.NewPassword));
             await unitOfWork.SaveChangesAsync(ct);
 
-            return ApiResult.Successed("密码修改成功");
+            return Unit.Value;
         }
     }
 }

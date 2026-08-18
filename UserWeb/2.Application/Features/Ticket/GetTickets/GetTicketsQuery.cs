@@ -14,4 +14,4 @@ public record GetTicketsQuery(
     int TicketType = -1,
     /// <summary>关键词，模糊匹配工单内容</summary>
     string? Keyword = null)
-    : PagedQuery, IRequest<ApiResult<List<TicketResponse>>>;
+    : PagedQuery, IRequest<PagedResult<TicketResponse>>;

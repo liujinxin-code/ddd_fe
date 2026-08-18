@@ -1,5 +1,7 @@
 using Application.Abstractions.Repositories;
+using Shared.Exceptions;
 using Application.Common.Models;
+
 using Application.Features.Config.Models;
 using Application.Features.Config;
 using Application.Services;
@@ -16,19 +18,13 @@ namespace Application.Features.Config
         IConfigRepository configRepository,
         ITkUserRepository userRepository,
         ICurrentUser currentUser)
-        : IRequestHandler<GetApiConfigsQuery, ApiResult<List<ConfigApiResponse>>>
+        : IRequestHandler<GetApiConfigsQuery, PagedResult<ConfigApiResponse>>
     {
-        public async Task<ApiResult<List<ConfigApiResponse>>> Handle(GetApiConfigsQuery query, CancellationToken ct)
+        public async Task<PagedResult<ConfigApiResponse>> Handle(GetApiConfigsQuery query, CancellationToken ct)
         {
             if (!currentUser.IsAuthenticated || currentUser.Userid <= 0)
             {
-                return new ApiResult<List<ConfigApiResponse>>
-                {
-                    Code = 401,
-                    Message = "登录失效",
-                    Data = new List<ConfigApiResponse>(),
-                    DataTotal = 0
-                };
+                throw new UnauthorizedDomainException();
             }
 
             string sortField;
@@ -50,19 +46,13 @@ namespace Application.Features.Config
 
             if (configs.Count == 0)
             {
-                return ApiResult<List<ConfigApiResponse>>.Successed(new List<ConfigApiResponse>(), 0);
+                return new PagedResult<ConfigApiResponse>(new List<ConfigApiResponse>(), 0);
             }
 
             var user = await userRepository.GetByIdAsNoTrackingAsync(currentUser.Userid, ct);
             if (user is null)
             {
-                return new ApiResult<List<ConfigApiResponse>>
-                {
-                    Code = 400,
-                    Message = "用户不存在",
-                    Data = new List<ConfigApiResponse>(),
-                    DataTotal = 0
-                };
+                return new PagedResult<ConfigApiResponse>(new List<ConfigApiResponse>(), 0);
             }
 
             long agentUserId = user.AgentUserid;
@@ -106,13 +96,7 @@ namespace Application.Features.Config
                 };
             }).ToList();
 
-            return new ApiResult<List<ConfigApiResponse>>
-            {
-                Code = 200,
-                Message = "Success!",
-                Data = items,
-                DataTotal = total
-            };
+            return new PagedResult<ConfigApiResponse>(items, total);
         }
     }
 }

@@ -1,4 +1,4 @@
-using Application.Common.Models;
+using Open.Common.Models;
 using Application.Features.Notice.Models;
 using Application.Features.Notice;
 using MediatR;
@@ -18,10 +18,14 @@ namespace Open.Controllers
         /// </summary>
         [HttpPost("homepage")]
         [ProducesResponseType(typeof(ApiResult<List<NoticeResponse>>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<List<NoticeResponse>>> GetHomepageNoticesAsync([FromBody] GetHomepageNoticesQuery query, CancellationToken ct)
-        {
-            return await mediator.Send(query, ct);
-        }
+        public async Task<IActionResult> GetHomepageNoticesAsync([FromBody] GetHomepageNoticesQuery query, CancellationToken ct)
+         {
+
+            var r = await mediator.Send(query, ct);
+
+            return ApiPaged(r);
+
+         }
 
         /// <summary>
         /// 弹窗公告：返回最新一条弹窗公告（notice_type=3）。无请求参数（请求体传 {} 即可）。
@@ -29,9 +33,13 @@ namespace Open.Controllers
         /// </summary>
         [HttpPost("popup")]
         [ProducesResponseType(typeof(ApiResult<NoticeResponse>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<NoticeResponse>> GetPopupNoticeAsync([FromBody] GetPopupNoticeQuery query, CancellationToken ct)
-        {
-            return await mediator.Send(query, ct);
-        }
+        public async Task<IActionResult> GetPopupNoticeAsync([FromBody] GetPopupNoticeQuery query, CancellationToken ct)
+         {
+
+            var r = await mediator.Send(query, ct);
+
+            return Api(r);
+
+         }
     }
 }

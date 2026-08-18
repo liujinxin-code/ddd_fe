@@ -9,5 +9,5 @@ using System.Threading.Tasks;
 
 namespace Application.Features.Agent
 {
-    public record class ResetChildrenPasswordCommand(long ChildrenUserid) : IRequest<ApiResult<ResetChildrenPasswordResponse>>;
+    public record class ResetChildrenPasswordCommand(long ChildrenUserid) : IRequest<ResetChildrenPasswordResponse>;
 }

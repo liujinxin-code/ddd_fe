@@ -1,5 +1,6 @@
 using Application.Abstractions.Repositories;
 using Application.Common.Models;
+
 using Application.Features.Agent.Models;
 using Application.Features.Agent;
 using Domain.Enums;
@@ -20,9 +21,9 @@ namespace Application.Features.Agent
         IConfigRepository configRepository,
         IAgentPricingRepository agentPricingRepository,
         ICurrentUser currentUser)
-        : IRequestHandler<GetAgentMarkupConfigsQuery, ApiResult<List<AgentMarkupConfigResponse>>>
+        : IRequestHandler<GetAgentMarkupConfigsQuery, PagedResult<AgentMarkupConfigResponse>>
     {
-        public async Task<ApiResult<List<AgentMarkupConfigResponse>>> Handle(GetAgentMarkupConfigsQuery query, CancellationToken ct)
+        public async Task<PagedResult<AgentMarkupConfigResponse>> Handle(GetAgentMarkupConfigsQuery query, CancellationToken ct)
         {
             // 获取当前代理已加价的 configId 集合。
             var existingMarkupConfigIds = await agentPricingRepository.GetMarkupConfigIdsByAgentAsync(currentUser.Userid, ct);
@@ -46,7 +47,7 @@ namespace Application.Features.Agent
 
             if (availableConfigs.Count == 0)
             {
-                return ApiResult<List<AgentMarkupConfigResponse>>.Successed(new List<AgentMarkupConfigResponse>(), 0);
+                return new PagedResult<AgentMarkupConfigResponse>(new List<AgentMarkupConfigResponse>(), 0);
             }
 
             var configIds = availableConfigs.Select(c => c.ConfigId).ToList();
@@ -71,13 +72,7 @@ namespace Application.Features.Agent
                 };
             }).ToList();
 
-            return new ApiResult<List<AgentMarkupConfigResponse>>
-            {
-                Code = 200,
-                Message = "Success!",
-                Data = list,
-                DataTotal = availableTotal
-            };
+            return new PagedResult<AgentMarkupConfigResponse>(list, availableTotal);
         }
     }
 }

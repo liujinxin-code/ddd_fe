@@ -13,5 +13,5 @@ namespace Application.Features.User
     /// 当前登录用户id 由 ICurrentUser 注入，避免越权。
     /// </summary>
     public record ChangePasswordCommand(string OldPassword, string NewPassword)
-        : IRequest<ApiResult>;
+        : IRequest<Unit>;
 }

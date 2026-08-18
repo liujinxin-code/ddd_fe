@@ -1,5 +1,5 @@
 using Application.Abstractions.Repositories;
-using Application.Common.Models;
+
 using Application.Features.Platform.Models;
 using Application.Features.Platform;
 using Domain.Entities;
@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 namespace Application.Features.Platform
 {
     public class GetPlatformsQueryHandler(IPlatformRepository platformRepository)
-        : IRequestHandler<GetPlatformsQuery, ApiResult<List<PlatformResponse>>>
+        : IRequestHandler<GetPlatformsQuery, List<PlatformResponse>>
     {
-        public async Task<ApiResult<List<PlatformResponse>>> Handle(GetPlatformsQuery query, CancellationToken ct)
+        public async Task<List<PlatformResponse>> Handle(GetPlatformsQuery query, CancellationToken ct)
         {
             var platforms = await platformRepository.GetPlatformsAsync(ct);
             var list = platforms.Select(p => new PlatformResponse
@@ -22,7 +22,7 @@ namespace Application.Features.Platform
                 PlatformId = p.PlatformId,
                 PlatformName = p.PlatformName ?? string.Empty
             }).ToList();
-            return ApiResult<List<PlatformResponse>>.Successed(list);
+            return list;
         }
     }
 }

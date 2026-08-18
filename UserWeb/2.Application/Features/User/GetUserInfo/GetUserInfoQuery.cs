@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Application.Features.User
 {
-    public record class GetUserInfoQuery() : IRequest<ApiResult<UserInfoResponse>>
+    public record class GetUserInfoQuery() : IRequest<UserInfoResponse>
     {
     }
 }

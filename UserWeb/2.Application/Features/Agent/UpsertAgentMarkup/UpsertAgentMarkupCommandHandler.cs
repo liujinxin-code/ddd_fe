@@ -1,6 +1,7 @@
 using Application.Abstractions;
-using Application.Abstractions.Repositories;
 using Application.Common.Models;
+using Application.Abstractions.Repositories;
+
 using Application.Features.Agent;
 using Domain.Entities;
 using MediatR;
@@ -14,9 +15,9 @@ namespace Application.Features.Agent
         IAgentPricingRepository agentPricingRepository,
         IUnitOfWork unitOfWork,
         ICurrentUser currentUser)
-        : IRequestHandler<UpsertAgentMarkupCommand, ApiResult>
+        : IRequestHandler<UpsertAgentMarkupCommand, Unit>
     {
-        public async Task<ApiResult> Handle(UpsertAgentMarkupCommand request, CancellationToken ct)
+        public async Task<Unit> Handle(UpsertAgentMarkupCommand request, CancellationToken ct)
         {
             decimal price = Utils.RoundToSixDecimals(request.MarkupAddPrice);
 
@@ -33,7 +34,7 @@ namespace Application.Features.Agent
             }
 
             await unitOfWork.SaveChangesAsync(ct);
-            return ApiResult.Successed();
+            return Unit.Value;
         }
     }
 }

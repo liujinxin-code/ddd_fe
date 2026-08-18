@@ -13,7 +13,7 @@ namespace Application.Features.Config
         int PlatformId = 0,
         int SubPlatformId = 0,
         string Keyword = ""
-    ) : PagedQuery, IRequest<ApiResult<List<ConfigApiResponse>>>
+    ) : PagedQuery, IRequest<PagedResult<ConfigApiResponse>>
     {
     }
 }

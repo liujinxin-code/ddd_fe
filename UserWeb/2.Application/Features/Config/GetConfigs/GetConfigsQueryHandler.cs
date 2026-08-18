@@ -1,5 +1,7 @@
 using Application.Abstractions.Repositories;
+using Shared.Exceptions;
 using Application.Common.Models;
+
 using Application.Features.Config.Models;
 using Application.Features.Config;
 using Application.Services;
@@ -18,19 +20,13 @@ namespace Application.Features.Config
         IConfigRepository configRepository,
         ITkUserRepository userRepository,
         ICurrentUser currentUser)
-        : IRequestHandler<GetConfigsQuery, ApiResult<List<ConfigResponse>>>
+        : IRequestHandler<GetConfigsQuery, PagedResult<ConfigResponse>>
     {
-        public async Task<ApiResult<List<ConfigResponse>>> Handle(GetConfigsQuery query, CancellationToken ct)
+        public async Task<PagedResult<ConfigResponse>> Handle(GetConfigsQuery query, CancellationToken ct)
         {
             if (!currentUser.IsAuthenticated || currentUser.Userid <= 0)
             {
-                return new ApiResult<List<ConfigResponse>>
-                {
-                    Code = 401,
-                    Message = "登录失效",
-                    Data = new List<ConfigResponse>(),
-                    DataTotal = 0
-                };
+                throw new UnauthorizedDomainException();
             }
 
             // 解析排序：格式 "字段 [asc|desc]"，缺省按 config_sort 升序。
@@ -54,20 +50,14 @@ namespace Application.Features.Config
 
             if (configs.Count == 0)
             {
-                return ApiResult<List<ConfigResponse>>.Successed(new List<ConfigResponse>(), 0);
+                return new PagedResult<ConfigResponse>(new List<ConfigResponse>(), 0);
             }
 
             // 加载当前用户，确定其是否有上级代理，从而决定定价路径。
             var user = await userRepository.GetByIdAsNoTrackingAsync(currentUser.Userid, ct);
             if (user is null)
             {
-                return new ApiResult<List<ConfigResponse>>
-                {
-                    Code = 400,
-                    Message = "用户不存在",
-                    Data = new List<ConfigResponse>(),
-                    DataTotal = 0
-                };
+                return new PagedResult<ConfigResponse>(new List<ConfigResponse>(), 0);
             }
 
             long agentUserId = user.AgentUserid;
@@ -120,15 +110,9 @@ namespace Application.Features.Config
                 };
             }).ToList();
 
-            // data 为 List（IList），ApiResult.Successed 会按 list.Count 回填 DataTotal，
-            // 故此处显式构造，保留真实总条数 total 供前端分页（页索引/页大小已在请求中，无需回显）。
-            return new ApiResult<List<ConfigResponse>>
-            {
-                Code = 200,
-                Message = "Success!",
-                Data = items,
-                DataTotal = total
-            };
+            // 返回中性分页载体 PagedResult，真实总条数 total 由 TotalCount 携带；
+            // HTTP 边缘层（ApiPaged）会显式构造信封，避免 IList 被 ApiResult.Successed 按 Count 覆盖总条数。
+            return new PagedResult<ConfigResponse>(items, total);
         }
     }
 }

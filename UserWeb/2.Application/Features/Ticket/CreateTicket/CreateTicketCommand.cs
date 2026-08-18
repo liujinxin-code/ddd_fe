@@ -1,5 +1,5 @@
-using Application.Common.Models;
 using MediatR;
+using Application.Common.Models;
 using System.Collections.Generic;
 
 namespace Application.Features.Ticket;
@@ -15,4 +15,4 @@ public record CreateTicketCommand(
     int TicketType,
     /// <summary>已上传的图片相对 URL 列表，最多 5 张</summary>
     List<string>? TicketImages = null)
-    : IRequest<ApiResult<long>>;
+    : IRequest<long>;

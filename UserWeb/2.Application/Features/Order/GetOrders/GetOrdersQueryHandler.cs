@@ -1,5 +1,7 @@
 using Application.Abstractions.Repositories;
+using Shared.Exceptions;
 using Application.Common.Models;
+
 using Application.Features.Order.Models;
 using Application.Features.Order;
 using MediatR;
@@ -19,19 +21,13 @@ namespace Application.Features.Order
     public class GetOrdersQueryHandler(
         IOrderRepository orderRepository,
         ICurrentUser currentUser)
-        : IRequestHandler<GetOrdersQuery, ApiResult<List<OrderResponse>>>
+        : IRequestHandler<GetOrdersQuery, PagedResult<OrderResponse>>
     {
-        public async Task<ApiResult<List<OrderResponse>>> Handle(GetOrdersQuery query, CancellationToken ct)
+        public async Task<PagedResult<OrderResponse>> Handle(GetOrdersQuery query, CancellationToken ct)
         {
             if (!currentUser.IsAuthenticated || currentUser.Userid <= 0)
             {
-                return new ApiResult<List<OrderResponse>>
-                {
-                    Code = 401,
-                    Message = "登录失效",
-                    Data = new List<OrderResponse>(),
-                    DataTotal = 0
-                };
+                throw new UnauthorizedDomainException();
             }
 
             string sortField;
@@ -66,13 +62,7 @@ namespace Application.Features.Order
                 return o;
             }).ToList();
 
-            return new ApiResult<List<OrderResponse>>
-            {
-                Code = 200,
-                Message = "Success!",
-                Data = list,
-                DataTotal = total
-            };
+            return new PagedResult<OrderResponse>(list, total);
         }
     }
 }

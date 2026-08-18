@@ -1,6 +1,7 @@
 ﻿using Application.Abstractions;
-using Application.Abstractions.Repositories;
 using Application.Common.Models;
+using Application.Abstractions.Repositories;
+
 using Application.Features.Agent;
 using Domain.Entities;
 using MediatR;
@@ -19,9 +20,9 @@ namespace Application.Features.Agent
          , IConsumeLogRepository consumeLogRepository,
             IUnitOfWork unitOfWork,
             ICurrentUser currentUser
-         ) : IRequestHandler<TransferUserAmountCommand, ApiResult>
+         ) : IRequestHandler<TransferUserAmountCommand, Unit>
     {
-        public async Task<ApiResult> Handle(TransferUserAmountCommand cmd, CancellationToken ct)
+        public async Task<Unit> Handle(TransferUserAmountCommand cmd, CancellationToken ct)
         {
             // 整段操作（加载 - 校验 - 改双方余额 - 记录两条流水 - 落库）放进乐观并发重试，
             // 与 tk_user.user_version 令牌配合：若转账过程中对方正在下单等并发改了同一用户余额，
@@ -52,7 +53,7 @@ namespace Application.Features.Agent
                 // 多次重试仍因并发冲突失败，转为友好的业务异常交由上层处理。
                 throw new BusinessException("并发更新冲突，转账未成功，请稍后重试。");
             }
-            return ApiResult.Successed();
+            return Unit.Value;
         }
     }
 }

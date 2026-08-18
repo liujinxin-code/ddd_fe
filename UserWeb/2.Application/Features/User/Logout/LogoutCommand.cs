@@ -8,5 +8,5 @@ using System.Threading.Tasks;
 
 namespace Application.Features.User
 {
-    public record LogoutCommand() : IRequest<ApiResult>;
+    public record LogoutCommand() : IRequest<Unit>;
 }

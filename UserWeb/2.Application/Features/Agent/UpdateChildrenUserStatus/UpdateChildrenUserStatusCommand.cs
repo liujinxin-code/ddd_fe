@@ -10,5 +10,5 @@ using System.Threading.Tasks;
 
 namespace Application.Features.Agent
 {
-    public record class UpdateChildrenUserStatusCommand(long ChildrenUserid, TkUserStatus UserStatus) : IRequest<ApiResult>;
+    public record class UpdateChildrenUserStatusCommand(long ChildrenUserid, TkUserStatus UserStatus) : IRequest<Unit>;
 }

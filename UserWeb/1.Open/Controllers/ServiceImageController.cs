@@ -1,4 +1,4 @@
-using Application.Common.Models;
+using Open.Common.Models;
 using Application.Features.ServiceImage.Models;
 using Application.Features.ServiceImage;
 using MediatR;
@@ -20,10 +20,14 @@ namespace Open.Controllers
         /// </summary>
         [HttpPost("my-wechat")]
         [ProducesResponseType(typeof(ApiResult<AgentWechatImageResponse>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<AgentWechatImageResponse>> GetMyWechatImageAsync(CancellationToken ct)
-        {
-            return await mediator.Send(new GetMyAgentWechatImageQuery(), ct);
-        }
+        public async Task<IActionResult> GetMyWechatImageAsync(CancellationToken ct)
+         {
+
+            var r = await mediator.Send(new GetMyAgentWechatImageQuery(), ct);
+
+            return Api(r);
+
+         }
 
         /// <summary>
         /// 获取当前用户自己上传的客服微信图片（代理后台预览自己的图片）。
@@ -31,10 +35,14 @@ namespace Open.Controllers
         [Authorize(Roles = "User.Agent")]
         [HttpPost("my-own")]
         [ProducesResponseType(typeof(ApiResult<AgentWechatImageResponse>), StatusCodes.Status200OK)]
-        public async Task<ApiResult<AgentWechatImageResponse>> GetMyOwnWechatImageAsync(CancellationToken ct)
-        {
-            return await mediator.Send(new GetMyOwnWechatImageQuery(), ct);
-        }
+        public async Task<IActionResult> GetMyOwnWechatImageAsync(CancellationToken ct)
+         {
+
+            var r = await mediator.Send(new GetMyOwnWechatImageQuery(), ct);
+
+            return Api(r);
+
+         }
 
         /// <summary>
         /// 代理上传/更换自己的客服微信图片。
@@ -42,9 +50,13 @@ namespace Open.Controllers
         [Authorize(Roles = "User.Agent")]
         [HttpPost("upload")]
         [ProducesResponseType(typeof(ApiResult), StatusCodes.Status200OK)]
-        public async Task<ApiResult> UploadAgentWechatImageAsync([FromBody] UploadAgentWechatImageCommand cmd, CancellationToken ct)
-        {
-            return await mediator.Send(cmd, ct);
-        }
+        public async Task<IActionResult> UploadAgentWechatImageAsync([FromBody] UploadAgentWechatImageCommand cmd, CancellationToken ct)
+         {
+
+            var r = await mediator.Send(cmd, ct);
+
+            return Api(r);
+
+         }
     }
 }

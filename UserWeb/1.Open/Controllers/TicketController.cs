@@ -1,4 +1,4 @@
-using Application.Common.Models;
+using Open.Common.Models;
 using Application.Features.Ticket.Models;
 using Application.Features.Ticket;
 using MediatR;
@@ -20,11 +20,23 @@ public class TicketController(IMediator mediator) : BaseController
 {
     /// <summary>提交工单（当前登录用户本人）。</summary>
     [HttpPost("create")]
-    public async Task<ApiResult<long>> CreateAsync([FromBody] CreateTicketCommand cmd, CancellationToken ct)
-        => await mediator.Send(cmd, ct);
+    public async Task<IActionResult> CreateAsync([FromBody] CreateTicketCommand cmd, CancellationToken ct)
+     {
+
+        var r = await mediator.Send(cmd, ct);
+
+        return Api(r);
+
+     }
 
     /// <summary>我的工单列表（仅当前登录用户本人）。</summary>
     [HttpPost("list")]
-    public async Task<ApiResult<List<TicketResponse>>> ListAsync([FromBody] GetTicketsQuery query, CancellationToken ct)
-        => await mediator.Send(query, ct);
+    public async Task<IActionResult> ListAsync([FromBody] GetTicketsQuery query, CancellationToken ct)
+     {
+
+        var r = await mediator.Send(query, ct);
+
+        return ApiPaged(r);
+
+     }
 }

@@ -1,12 +1,13 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Application.Common.Models
+namespace Open.Common.Models
 {
+    /// <summary>
+    /// HTTP 传输信封（仅存在于 HTTP 层 1.Open）。应用层不应再引用本类型，
+    /// 业务结果由 Controller / 中间件在边缘统一包装。
+    /// </summary>
     public class ApiResult
     {
         /// <summary>
@@ -74,6 +75,10 @@ namespace Application.Common.Models
         /// </summary>
         public int DataTotal { get; set; }
 
+        /// <summary>
+        /// 注意：当 data 为 IList 时，DataTotal 取 list.Count（忽略 dataCount 参数）。
+        /// 分页场景请使用 Open.Common.Models 中 Controller 的 ApiPaged 辅助方法显式构造信封。
+        /// </summary>
         public static ApiResult<T> Successed(T data, int dataCount = 1, string message = "Success!") => new ApiResult<T>
         {
             Data = data,
