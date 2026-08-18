@@ -12,7 +12,7 @@ namespace Domain.Entities
         {
             ImageUrl = imageUrl;
             AgentUserid = agentUserid;
-            CreateTime = DateTimeOffset.UtcNow;
+            CreateTime = DateTimeOffset.Now;
         }
 
         public int ImageId { get; private set; }

@@ -24,7 +24,7 @@ namespace Domain.Entities
             TicketImages = ticketImages;
             TicketResult = string.Empty;
             TicketStatus = 0; // 0 = 待处理
-            CreateTime = DateTimeOffset.UtcNow;
+            CreateTime = DateTimeOffset.Now;
         }
 
         public int TicketId { get; private set; }

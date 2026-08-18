@@ -32,7 +32,7 @@ namespace Domain.Auditors
             if (IsDelete) return;
 
             IsDelete = true;
-            DeleteTime = DateTimeOffset.UtcNow;
+            DeleteTime = DateTimeOffset.Now;
         }
     }
 }

@@ -2,7 +2,7 @@
 
 using System.Collections.Concurrent;
 
-Console.WriteLine($"{DateTimeOffset.UtcNow:yyyy-MM-dd HH:mm:ss}");
+Console.WriteLine($"{DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss}");
 Console.WriteLine($"转换上海时区：{TimeZoneHelper.NowInZone("Asia/Shanghai"):yyyy-MM-dd HH:mm:ss}");
 Console.WriteLine($"转换东京时区：{TimeZoneHelper.NowInZone("Asia/Tokyo"):yyyy-MM-dd HH:mm:ss}");
 Console.WriteLine("Hello, World!");
@@ -22,7 +22,7 @@ public static class TimeZoneHelper
     }
 
     public static DateTimeOffset NowInZone(string tzId)
-        => UtcToZone(DateTimeOffset.UtcNow, tzId);
+        => UtcToZone(DateTimeOffset.Now, tzId);
 
     private static TimeZoneInfo GetZone(string tzId)
     {

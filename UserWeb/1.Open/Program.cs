@@ -16,12 +16,12 @@ builder.Host.UseInfrastructureSerilog(builder.Configuration);
 builder.Services.AddControllers()
     .AddJsonOptions(opt =>
     {
-        // MVC / Controller 路径：全局 DateTimeOffset 按请求时区序列化。
+        // MVC / Controller 路径：全局 DateTimeOffset 按请求时区序列化（数据库统一存上海时区，转换器把上海时间换算成请求时区）。
         opt.JsonSerializerOptions.Converters.Add(new TimeZoneAwareDateTimeOffsetConverter());
         opt.JsonSerializerOptions.Converters.Add(new TimeZoneAwareNullableDateTimeOffsetConverter());
     });
 
-// Minimal API（UserEndpoints）走独立的 JSON 配置，必须单独注册，否则这部分接口不转换时区。
+// Minimal API（UserEndpoints）走独立的 JSON 配置，必须单独注册，否则这部分接口不按请求时区转换。
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.Converters.Add(new TimeZoneAwareDateTimeOffsetConverter());
@@ -132,7 +132,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowAll");
 
-// 请求时区：解析 X-TimeZone 头并设置请求级时区上下文（供 DateTimeOffset 序列化转换器使用）。
+// 请求时区：解析 X-TimeZone 头得到时区 ID 存入请求级上下文（供 DateTimeOffset 转换器把数据库统一的上海时间换算成请求时区）。
 // 必须放在端点映射之前，且尽量靠前以覆盖异常响应的序列化。
 app.UseMiddleware<RequestTimeZoneMiddleware>();
 
