@@ -1,8 +1,10 @@
 using Application.DependencyInjection;
 using Open.Endpoints;
 using Infrastructure.DependencyInjection;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.OpenApi.Models;
+using Open.Common;
 using Open.Middlewares;
 using ShardingCore;
 
@@ -11,7 +13,20 @@ builder.Host.UseInfrastructureSerilog(builder.Configuration);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(opt =>
+    {
+        // MVC / Controller 路径：全局 DateTimeOffset 按请求时区序列化。
+        opt.JsonSerializerOptions.Converters.Add(new TimeZoneAwareDateTimeOffsetConverter());
+        opt.JsonSerializerOptions.Converters.Add(new TimeZoneAwareNullableDateTimeOffsetConverter());
+    });
+
+// Minimal API（UserEndpoints）走独立的 JSON 配置，必须单独注册，否则这部分接口不转换时区。
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new TimeZoneAwareDateTimeOffsetConverter());
+    options.SerializerOptions.Converters.Add(new TimeZoneAwareNullableDateTimeOffsetConverter());
+});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -116,6 +131,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowAll");
+
+// 请求时区：解析 X-TimeZone 头并设置请求级时区上下文（供 DateTimeOffset 序列化转换器使用）。
+// 必须放在端点映射之前，且尽量靠前以覆盖异常响应的序列化。
+app.UseMiddleware<RequestTimeZoneMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -27,6 +27,6 @@ namespace Application.Features.Ticket.Models
 
         public long Userid { get; set; }
 
-        public DateTime CreateTime { get; set; }
+        public DateTimeOffset CreateTime { get; set; }
     }
 }

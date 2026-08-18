@@ -14,6 +14,6 @@ namespace Domain.Auditors
         /// <summary>
         /// 创建时间
         /// </summary>
-        public DateTimeOffset CreateTime { get; set; } = DateTimeOffset.Now;
+        public DateTimeOffset CreateTime { get; set; } = DateTimeOffset.UtcNow;
     }
 }

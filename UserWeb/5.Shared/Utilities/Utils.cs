@@ -33,7 +33,7 @@ namespace Shared.Utilities
             {
                 value = value + (char)new Random(Guid.NewGuid().GetHashCode()).Next(65, 91);
             }
-            var orderNo = $"{serialNoPre}{DateTime.Now:yyMMddHHmmssfff}{value}{new Random(Guid.NewGuid().GetHashCode()).Next(1000000, 9999999)}";
+            var orderNo = $"{serialNoPre}{DateTimeOffset.Now:yyMMddHHmmssfff}{value}{new Random(Guid.NewGuid().GetHashCode()).Next(1000000, 9999999)}";
             return orderNo;
         }
 

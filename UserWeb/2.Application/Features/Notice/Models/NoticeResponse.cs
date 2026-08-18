@@ -18,6 +18,6 @@ namespace Application.Features.Notice.Models
         public NoticeType NoticeType { get; set; }
 
         /// <summary>创建时间</summary>
-        public DateTime CreateTime { get; set; }
+        public DateTimeOffset CreateTime { get; set; }
     }
 }

@@ -24,7 +24,7 @@ namespace Domain.Entities
             TicketImages = ticketImages;
             TicketResult = string.Empty;
             TicketStatus = 0; // 0 = 待处理
-            CreateTime = DateTime.Now;
+            CreateTime = DateTimeOffset.UtcNow;
         }
 
         public int TicketId { get; private set; }
@@ -45,7 +45,7 @@ namespace Domain.Entities
         public int TicketStatus { get; private set; }
 
         /// <summary>创建时间（UTC）</summary>
-        public DateTime CreateTime { get; private set; }
+        public DateTimeOffset CreateTime { get; private set; }
 
         /// <summary>问题类型：0 订单问题 / 1 下单问题 / 2 网站问题 / 3 网站建议</summary>
         public int TicketType { get; private set; }

@@ -20,7 +20,7 @@ namespace Domain.Entities
         public NoticeType NoticeType { get; private set; }
 
         /// <summary>创建时间（datetime）</summary>
-        public DateTime CreateTime { get; private set; }
+        public DateTimeOffset CreateTime { get; private set; }
 
         /// <summary>供 EF Core 物化使用。</summary>
         protected TkNotice() { }

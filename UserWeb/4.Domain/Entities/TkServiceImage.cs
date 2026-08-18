@@ -12,7 +12,7 @@ namespace Domain.Entities
         {
             ImageUrl = imageUrl;
             AgentUserid = agentUserid;
-            CreateTime = DateTime.Now;
+            CreateTime = DateTimeOffset.UtcNow;
         }
 
         public int ImageId { get; private set; }
@@ -23,7 +23,7 @@ namespace Domain.Entities
         /// <summary>代理用户 id；0 表示系统客服。</summary>
         public long AgentUserid { get; private set; }
 
-        public DateTime CreateTime { get; private set; }
+        public DateTimeOffset CreateTime { get; private set; }
 
         /// <summary>更新图片 URL。</summary>
         public void UpdateImageUrl(string imageUrl)
